@@ -54,6 +54,10 @@
     <Compile Include="CommandPattern\IUpdateCommand.cs" />
     <Compile Include="CommandPattern\SelectCommand.cs" />
     <Compile Include="CommandPattern\UpdateCommand.cs" />
+    <Compile Include="ConcurrencyUtils\FIFOSemaphore.cs" />
+    <Compile Include="ConcurrencyUtils\ISync.cs" />
+    <Compile Include="ConcurrencyUtils\ReadWriteLock.cs" />
+    <Compile Include="ConcurrencyUtils\Semaphore.cs" />
     <Compile Include="DataStructure\Column.cs" />
     <Compile Include="DataStructure\Database.cs" />
     <Compile Include="DataStructure\Field.cs" />
@@ -67,9 +71,6 @@
   <ItemGroup>
     <None Include="DataStructure\ClassDiagram1.cd" />
     <None Include="DataStructure\Class Diagram.cd" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ConcurrencyUtils\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
