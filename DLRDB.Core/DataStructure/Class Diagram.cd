@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="DLRDB.Core.DataStructure.Column">
+    <Position X="8.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAQAAAAAAAAAAAAAIARAAAAAAAAEAAAAAAAEAAA=</HashCode>
+      <FileName>DataStructure\Column.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.Table" BaseTypeListCollapsed="true">
+    <Position X="6" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgQAAEACAAACAAAAAAAAIAQAAAEAAAABAAAAUAgAAgA=</HashCode>
+      <FileName>DataStructure\Table.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Field Name="_Columns" />
+      <Field Name="_Rows" />
+    </ShowAsCollectionAssociation>
+    <Lollipop Orientation="Right" Position="3.223" Collapsed="true" />
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.Database">
+    <Position X="3.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAABAAAAAAAAAAAAAMAQAAAAAACAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataStructure\Database.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Field Name="_Tables" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.Field">
+    <Position X="8.75" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAQAhAEAAAAQAAAgAgAACAAAAAgAAAAAAQ=</HashCode>
+      <FileName>DataStructure\Field.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_Column" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.Int32Field">
+    <Position X="11" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAQAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataStructure\Int32Field.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.Row">
+    <Position X="6" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAABECAAEASAAAAAAgAAAAAAAAECAAAAAAAA=</HashCode>
+      <FileName>DataStructure\Row.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_StateFlag" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Field Name="_Fields" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.StringField">
+    <Position X="11" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAQAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataStructure\StringField.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="DLRDB.Core.DataStructure.ITable">
+    <Position X="3.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAEAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAQAAAAgA=</HashCode>
+      <FileName>DataStructure\ITable.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="DLRDB.Core.DataStructure.RowStateFlag">
+    <Position X="3.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAABAAAAAAEAAA=</HashCode>
+      <FileName>DataStructure\Row.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
