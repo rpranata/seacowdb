@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using DLRDB.Core.ConcurrencyUtils;
+using DLRDB.Core.Exceptions;
+using System.Threading;
 
 namespace DLRDB.Core.DataStructure
 {
@@ -41,7 +44,9 @@ namespace DLRDB.Core.DataStructure
         private int _NumOfUsedPhysicalRows;
         private int _NumOfAvailablePhysicalRows;
 
-        private FileStream _MyFileStream; 
+        private FileStream _MyFileStream;
+
+        private readonly ReadWriteLock _TableLock;
 
         /// <summary>
         /// Constructor. Parameter here indicates the Table Name.
@@ -52,7 +57,9 @@ namespace DLRDB.Core.DataStructure
             // TODO: Open the file
             // read in the number of rows
             // read in the file version - check
-       
+
+            this._TableLock = new ReadWriteLock();
+
             this._Name = name;
             this._FileName = filename;
             
@@ -186,24 +193,70 @@ namespace DLRDB.Core.DataStructure
         /// <param name="highRange"></param>
         /// <returns></returns>
         public Row[] Select(int lowRange, int highRange)
-        {
-            Row[] results = new Row[highRange - lowRange + 1];
-            
-            int index = 0;
-
-            for (int i = (lowRange); i <= (highRange); i++)
+        {            
+            if (ValidateSelectRange(lowRange,highRange))
             {
-                this._Rows[i-1] = new Row(this, i, this._MyFileStream);
-                this._Rows[i-1].ReadFromDisk();
+                this._TableLock.ReaderLock();
 
-                if (this._Rows[i-1].StateFlag == RowStateFlag.CLEAN)
+                Row[] results = new Row[highRange - lowRange + 1];
+
+                int index = 0;
+
+                for (int i = (lowRange); i <= (highRange); i++)
                 {
-                    results[index] = this._Rows[i-1];
-                    index++;
+                    this._Rows[i - 1] = new Row(this, i, this._MyFileStream);
+                    this._Rows[i - 1].ReadFromDisk();
+
+                    if (this._Rows[i - 1].StateFlag == RowStateFlag.CLEAN)
+                    {
+                        results[index] = this._Rows[i - 1];
+                        index++;
+                    }
+                }
+
+                this._TableLock.Release();
+
+                return results;
+            }
+            else
+            {
+                throw new SelectException("Please supply the correct index range for the select");
+            }
+
+        }
+
+        private Boolean ValidateSelectRange(int startIndex, int endIndex)
+        {
+            bool isValid = true;
+
+            if (endIndex >= startIndex)
+            {
+                if ((this._NumOfUsedPhysicalRows == 0))
+                {
+                    isValid = false;
+                }
+                else
+                {
+                    if ((startIndex < 1) || (endIndex < 1))
+                    {
+                        isValid = false;
+                    }
+                    else if (this._NumOfUsedPhysicalRows < endIndex)
+                    {
+                        isValid = false;
+                    }
+                    else if (this._NumOfUsedPhysicalRows < startIndex)
+                    {
+                        isValid = false;
+                    }
                 }
             }
-            
-            return results;
+            else
+            {
+                isValid = false;
+            }
+
+            return isValid;
         }
 
         public Row[] SelectAll()
@@ -211,6 +264,80 @@ namespace DLRDB.Core.DataStructure
             return Select(1,this._NumOfUsedPhysicalRows);
         }
 
+        public int Update(int lowRange, int highRange, params Object [] arrValueUpdates)
+        {
+            int numberOfAffectedRows = 0;
+            
+            if (ValidateSelectRange(lowRange, highRange))
+            {
+                Row[] arrSelectedRows = Select(lowRange, highRange);
+
+                // To indicate whether in a row, we have some changes
+
+                Boolean isChangesMade = false;
+            
+                foreach (Row tempRow in arrSelectedRows)
+                {
+                    isChangesMade = false;
+
+                    // Start from index 1 (because index 0 is the ID)
+                    for (int i = 1; i < this.Columns.Length; i++)
+                    {
+                        if (arrValueUpdates[i] != null)
+                        {
+                            isChangesMade = true;
+                            tempRow.Fields[i].Value = tempRow.Fields[i].NativeToBytes(arrValueUpdates[i]);
+                        }
+                    }
+
+                    if (isChangesMade)
+                    {
+                        numberOfAffectedRows++;
+
+                        this._TableLock.ReaderLock();
+                        tempRow.State = RowStateFlag.CLEAN;
+                        tempRow.WriteToDisk();
+                        this._TableLock.Release();
+                    }
+                }
+                
+            }
+            else
+            {
+                throw new UpdateException("Please supply the correct index range for the update");
+            }
+
+            return numberOfAffectedRows;
+        }
+
+        public int Delete(int lowRange, int highRange)
+        {
+            int numberOfAffectedRows = 0;
+
+            if (ValidateSelectRange(lowRange, highRange))
+            {
+                Row[] arrSelectedRows = Select(lowRange, highRange);
+
+                // To indicate whether in a row, we have some changes
+
+                foreach (Row tempRow in arrSelectedRows)
+                {
+                    numberOfAffectedRows++;
+
+                    this._TableLock.ReaderLock();
+                    tempRow.State = RowStateFlag.TRASH;
+                    tempRow.WriteToDisk();
+                    this._TableLock.Release();
+                }
+            }
+            else
+            {
+                throw new DeleteException("Please supply the correct index range for the update");
+            }
+
+            return numberOfAffectedRows;
+
+        }
         /// <summary>
         /// This function assumes the AND operator for the list of criteria given. Uses the GetRowsByCriteria(referenced Rows) method, parses through all results and reconstructs a new Row based on the data provided to ensure the original data integrity.
         /// </summary>
@@ -441,7 +568,9 @@ namespace DLRDB.Core.DataStructure
         }
 
         public Row InsertRow(Row row)
-        {            
+        {
+            this._TableLock.WriterLock();
+
             if (this._NumOfAvailablePhysicalRows <= MIN_THRESHOLD_TO_RESIZE_ROWS)
             {
                 // grow the table
@@ -451,6 +580,7 @@ namespace DLRDB.Core.DataStructure
             // Set the next auto incement ID
             row.Fields[0].Value = row.Fields[0].NativeToBytes(this._NextPK);
             row.RowNum = this._NumOfUsedPhysicalRows + 1;
+            row.State = RowStateFlag.ADDED;
             row.WriteToDisk();
 
             this._NumOfRows++;
@@ -459,10 +589,11 @@ namespace DLRDB.Core.DataStructure
             this._NextPK++;
             this.UpdateMetadata();
 
-
-
             // Put it the row that has just been inserted
             this._Rows[this._NumOfUsedPhysicalRows-1] = row;
+
+            Thread.Sleep(15000);
+            this._TableLock.ReleaseWriterLock();
 
             return row;
         }
