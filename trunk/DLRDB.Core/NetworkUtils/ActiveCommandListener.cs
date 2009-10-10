@@ -56,11 +56,10 @@ namespace DLRDB.Core.NetworkUtils
                                     myNewRow.Fields[2].Value = myNewRow.Fields[2].NativeToBytes(10 + (i % 10));
 
                                     this._Table.InsertRow(myNewRow);
-                                    response += Environment.NewLine + "1 rows inserted";
+                                    response += Environment.NewLine + "[1 rows inserted]";
                                 }
-                                
-                                this._Writer.Write(response);
 
+                                this._Writer.Write(DateTime.Now + ">" + Environment.NewLine + response);
 
                                 break;
                             }
@@ -77,9 +76,9 @@ namespace DLRDB.Core.NetworkUtils
 
                                 int numOfUpdatedRows = this._Table.Update(updateLowRange, updateHighRange, arrUpdatedValues);
 
-                                response += Environment.NewLine + "Number of updated rows => " + numOfUpdatedRows;
+                                response += Environment.NewLine + "[" + numOfUpdatedRows + " rows updated" + "]";
 
-                                this._Writer.Write(response);
+                                this._Writer.Write(DateTime.Now + ">" + Environment.NewLine + response);
 
                                 break;
                             }
@@ -95,9 +94,9 @@ namespace DLRDB.Core.NetworkUtils
 
                                 int numOfDeletedRows = this._Table.Delete(deleteLowRange, deleteHighRange);
 
-                                response += Environment.NewLine + "Number of deleted rows => " + numOfDeletedRows;
+                                response += Environment.NewLine + "[" + numOfDeletedRows + " rows deleted" + "]";
 
-                                this._Writer.Write(response);
+                                this._Writer.Write(DateTime.Now + ">" + Environment.NewLine + response);
 
                                 break;
                             }
@@ -109,16 +108,19 @@ namespace DLRDB.Core.NetworkUtils
                                 arrSelectRow  = this._Table.SelectAll();
 
                                 String response = "";
+                                int numOfSelectedRows = 0;
 
                                 foreach (Row tempRow in arrSelectRow)
                                 {
                                     if (tempRow != null)
                                     {
+                                        numOfSelectedRows++;
                                         response += Environment.NewLine + tempRow.ToString();
                                     }
                                 }
 
-                                this._Writer.Write(response);
+                                response += Environment.NewLine + "[" + numOfSelectedRows + " rows selected" + "]";
+                                this._Writer.Write(DateTime.Now + ">" + Environment.NewLine+ response);
                                 break;
                             }
                        default:

@@ -202,14 +202,30 @@ namespace DLRDB.Core.DataStructure
 
                 for (int i = (lowRange-1); i <= (highRange-1); i++)
                 {
-                    this._TableLock.WriterLock();
-                        this._Rows[i] = new Row(this, i+1, this._MyFileStream);
-                    this._TableLock.ReleaseWriterLock();
+                    bool isRowNull = false;
 
                     this._TableLock.ReaderLock();                        
-                        this._Rows[i].RowMemoryLock.WriterLock();
-                            this._Rows[i].ReadFromDisk();
-                        this._Rows[i].RowMemoryLock.ReleaseWriterLock();
+                        if (this._Rows[i] == null)
+                        {
+                            isRowNull = true;
+                        }
+                    this._TableLock.Release();
+
+                    if (isRowNull)
+                    {
+                        this._TableLock.WriterLock();
+                            this._Rows[i] = new Row(this, i + 1, this._MyFileStream);
+                        this._TableLock.ReleaseWriterLock();
+                    }
+
+                    this._TableLock.ReaderLock();
+
+                        if (isRowNull)
+                        {
+                            this._Rows[i].RowMemoryLock.WriterLock();
+                                this._Rows[i].ReadFromDisk();
+                            this._Rows[i].RowMemoryLock.ReleaseWriterLock();
+                        }
 
                         this._Rows[i].RowMemoryLock.ReaderLock();
                             if (this._Rows[i].State == RowStateFlag.CLEAN)
@@ -217,7 +233,12 @@ namespace DLRDB.Core.DataStructure
                                 results[index] = this._Rows[i];
                                 index++;
                             }
+                            else
+                            {
+                                Console.WriteLine("this._Rows[" + i + "].State is not CLEAN, instead => " + this._Rows[i].State);
+                            }
                         this._Rows[i].RowMemoryLock.Release();
+                    
                     this._TableLock.Release();
                 }
 
@@ -285,6 +306,8 @@ namespace DLRDB.Core.DataStructure
                 {
                     isChangesMade = false;
 
+
+                    this._TableLock.ReaderLock();
                     tempRow.RowMemoryLock.WriterLock();
 
                     // Start from index 1 (because index 0 is the ID)
@@ -301,15 +324,13 @@ namespace DLRDB.Core.DataStructure
                     {
                         numberOfAffectedRows++;
 
-                        this._TableLock.WriterLock();
-                        
                         tempRow.State = RowStateFlag.CLEAN;
                         tempRow.WriteToDisk();
                         
-                        this._TableLock.ReleaseWriterLock();
                     }
 
                     tempRow.RowMemoryLock.ReleaseWriterLock();
+                    this._TableLock.Release();
                 }
                 
             }
@@ -335,10 +356,16 @@ namespace DLRDB.Core.DataStructure
                 {
                     numberOfAffectedRows++;
 
+
                     this._TableLock.ReaderLock();
+                    tempRow.RowMemoryLock.WriterLock();
+                   
                     tempRow.State = RowStateFlag.TRASH;
                     tempRow.WriteToDisk();
+
+                    tempRow.RowMemoryLock.ReleaseWriterLock();
                     this._TableLock.Release();
+                    
                 }
             }
             else
@@ -591,9 +618,11 @@ namespace DLRDB.Core.DataStructure
             // Set the next auto incement ID
             row.Fields[0].Value = row.Fields[0].NativeToBytes(this._NextPK);
             row.RowNum = this._NumOfUsedPhysicalRows + 1;
-            row.State = RowStateFlag.ADDED;
+            
+            // Once we write it to disk, its state will become CLEAN
+            row.State = RowStateFlag.CLEAN;
             row.WriteToDisk();
-
+            
             this._NumOfRows++;
             this._NumOfUsedPhysicalRows++;
             this._NumOfAvailablePhysicalRows--;
@@ -603,7 +632,7 @@ namespace DLRDB.Core.DataStructure
             // Put the row that has just been inserted
             this._Rows[this._NumOfUsedPhysicalRows-1] = row;
 
-            Thread.Sleep(15000);
+            Thread.Sleep(10000);
             this._TableLock.ReleaseWriterLock();
 
             return row;

@@ -147,6 +147,10 @@ namespace DLRDB.Core.DataStructure
                 try
                 {
                     //this._RowFileLock.WriterLock();
+                    if (value == RowStateFlag.EMPTY)
+                    {
+                        Console.WriteLine("Rownum " + this._RowNum + " is Set into EMPTY");
+                    }
                     this._State = value;
                 }
                 finally
