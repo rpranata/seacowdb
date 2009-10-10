@@ -195,26 +195,31 @@ namespace DLRDB.Core.DataStructure
         public Row[] Select(int lowRange, int highRange)
         {            
             if (ValidateSelectRange(lowRange,highRange))
-            {
-                this._TableLock.ReaderLock();
-
+            {               
                 Row[] results = new Row[highRange - lowRange + 1];
-
+              
                 int index = 0;
 
-                for (int i = (lowRange); i <= (highRange); i++)
+                for (int i = (lowRange-1); i <= (highRange-1); i++)
                 {
-                    this._Rows[i - 1] = new Row(this, i, this._MyFileStream);
-                    this._Rows[i - 1].ReadFromDisk();
+                    this._TableLock.WriterLock();
+                        this._Rows[i] = new Row(this, i+1, this._MyFileStream);
+                    this._TableLock.ReleaseWriterLock();
 
-                    if (this._Rows[i - 1].StateFlag == RowStateFlag.CLEAN)
-                    {
-                        results[index] = this._Rows[i - 1];
-                        index++;
-                    }
+                    this._TableLock.ReaderLock();                        
+                        this._Rows[i].RowMemoryLock.WriterLock();
+                            this._Rows[i].ReadFromDisk();
+                        this._Rows[i].RowMemoryLock.ReleaseWriterLock();
+
+                        this._Rows[i].RowMemoryLock.ReaderLock();
+                            if (this._Rows[i].State == RowStateFlag.CLEAN)
+                            {
+                                results[index] = this._Rows[i];
+                                index++;
+                            }
+                        this._Rows[i].RowMemoryLock.Release();
+                    this._TableLock.Release();
                 }
-
-                this._TableLock.Release();
 
                 return results;
             }
@@ -280,6 +285,8 @@ namespace DLRDB.Core.DataStructure
                 {
                     isChangesMade = false;
 
+                    tempRow.RowMemoryLock.WriterLock();
+
                     // Start from index 1 (because index 0 is the ID)
                     for (int i = 1; i < this.Columns.Length; i++)
                     {
@@ -294,11 +301,15 @@ namespace DLRDB.Core.DataStructure
                     {
                         numberOfAffectedRows++;
 
-                        this._TableLock.ReaderLock();
+                        this._TableLock.WriterLock();
+                        
                         tempRow.State = RowStateFlag.CLEAN;
                         tempRow.WriteToDisk();
-                        this._TableLock.Release();
+                        
+                        this._TableLock.ReleaseWriterLock();
                     }
+
+                    tempRow.RowMemoryLock.ReleaseWriterLock();
                 }
                 
             }
@@ -562,7 +573,7 @@ namespace DLRDB.Core.DataStructure
             }
 
             Row tempNewRow = new Row(this, this._MyFileStream);
-            tempNewRow.StateFlag = RowStateFlag.ADDED;
+            tempNewRow.State = RowStateFlag.ADDED;
 
             return tempNewRow;
         }
@@ -589,7 +600,7 @@ namespace DLRDB.Core.DataStructure
             this._NextPK++;
             this.UpdateMetadata();
 
-            // Put it the row that has just been inserted
+            // Put the row that has just been inserted
             this._Rows[this._NumOfUsedPhysicalRows-1] = row;
 
             Thread.Sleep(15000);
@@ -660,5 +671,6 @@ namespace DLRDB.Core.DataStructure
 
             return totalBytes;
         }
+
     }
 }

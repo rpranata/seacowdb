@@ -32,7 +32,8 @@ namespace DLRDB.Core.DataStructure
 
         private FileStream _MyFileStream;
         public const int ROWSTATE_LENGTH = 1;  
-        private readonly ReadWriteLock _RowLock;
+        private readonly ReadWriteLock _RowFileLock;
+        private readonly ReadWriteLock _RowMemoryLock;
 
         /// <summary>
         /// Used for constructing the table to read data from the disk
@@ -49,7 +50,8 @@ namespace DLRDB.Core.DataStructure
         {
             this.ParentTable = parent;
             this._MyFileStream = myFileStream;
-            this._RowLock = new ReadWriteLock();
+            this._RowFileLock = new ReadWriteLock();
+            this._RowMemoryLock = new ReadWriteLock();
             //TODO: Create empty row and return            
         }
 
@@ -126,16 +128,31 @@ namespace DLRDB.Core.DataStructure
         /// <summary>
         /// Gets/Sets the State of the Row. DEFAULT(0) indicates CRUD can be performed. DELETED indicates Row is flagged for deletion, therefore becomes unaccessible.
         /// </summary>
-        public RowStateFlag StateFlag
+        public RowStateFlag State
         {
-            get {
-                this._RowLock.ReaderLock();
-                return this._State;
-                this._RowLock.Release();
+            get 
+            {
+                try
+                {
+                    //this._RowFileLock.ReaderLock();
+                    return this._State;
+                }
+                finally
+                {
+                    //this._RowFileLock.Release();
+                }
             }
-            set { 
-                
-                this._State = value;
+            set 
+            {
+                try
+                {
+                    //this._RowFileLock.WriterLock();
+                    this._State = value;
+                }
+                finally
+                {
+                    //this._RowFileLock.WriterLock();
+                }
             }
         }
 
@@ -174,7 +191,7 @@ namespace DLRDB.Core.DataStructure
 
         public void ReadFromDisk()
         {
-            this._RowLock.ReaderLock();
+            //this._RowFileLock.ReaderLock();
 
             this._MyFileStream.Seek(this._RowBytesStart, SeekOrigin.Begin);
             
@@ -187,13 +204,13 @@ namespace DLRDB.Core.DataStructure
                 index++;
             }
 
-            this._RowLock.Release();
+            //this._RowFileLock.Release();
           
         }
 
         public void WriteToDisk()
         {
-            this._RowLock.WriterLock();
+            //this._RowFileLock.WriterLock();
 
             this._MyFileStream.Seek(this._RowBytesStart, SeekOrigin.Begin);
 
@@ -212,7 +229,7 @@ namespace DLRDB.Core.DataStructure
                 Table.WriteBytesToDisk(this._MyFileStream, this._Fields[index].Value, tempColumn.Length);
                 index++;
             }
-            this._RowLock.ReleaseWriterLock();
+            //this._RowFileLock.ReleaseWriterLock();
 
         }
 
@@ -220,20 +237,34 @@ namespace DLRDB.Core.DataStructure
         {
             get
             {
-                return this._Fields;
+                try
+                {
+                    //this._RowFileLock.ReaderLock();
+                    return this._Fields;
+                }
+                finally
+                {
+                    //this._RowFileLock.Release();
+                }
             }
             set
             {
-                this._Fields = value;
+                try
+                {
+                    //this._RowFileLock.WriterLock();
+                    this._Fields = value;
+                }
+                finally
+                {
+                    //this._RowFileLock.ReleaseWriterLock();
+                }
             }
         }
 
-        public RowStateFlag State
+        public ReadWriteLock RowMemoryLock
         {
-            get { return this._State; }
-            set { this._State = value; }
+            get { return this._RowMemoryLock; }
         }
-
 
     }
 }
