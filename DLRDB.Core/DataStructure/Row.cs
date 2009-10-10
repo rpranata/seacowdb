@@ -128,8 +128,15 @@ namespace DLRDB.Core.DataStructure
         /// </summary>
         public RowStateFlag StateFlag
         {
-            get { return this._State; }
-            set { this._State = value; }
+            get {
+                this._RowLock.ReaderLock();
+                return this._State;
+                this._RowLock.Release();
+            }
+            set { 
+                
+                this._State = value;
+            }
         }
 
         public int RowNum
