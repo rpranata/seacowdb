@@ -1,0 +1,14 @@
+D:\Uni's Doc\A.NET\DLR_DB\seacow_v1\ClientHarness\bin\Debug\ClientHarness.exe
+D:\Uni's Doc\A.NET\DLR_DB\seacow_v1\ClientHarness\bin\Debug\ClientHarness.pdb
+D:\Uni's Doc\A.NET\DLR_DB\seacow_v1\ClientHarness\obj\Debug\ResolveAssemblyReference.cache
+D:\Uni's Doc\A.NET\DLR_DB\seacow_v1\ClientHarness\obj\Debug\ClientHarness.exe
+D:\Uni's Doc\A.NET\DLR_DB\seacow_v1\ClientHarness\obj\Debug\ClientHarness.pdb
+D:\Uni's Doc\A.NET\DLR_DB\seacow_v1\ClientHarness\bin\Debug\DLRDB.Core.dll
+D:\Uni's Doc\A.NET\DLR_DB\seacow_v1\ClientHarness\bin\Debug\DLRDB.Core.pdb
+D:\Campus_Swinburne\MIT\Semester2\Advanced .NET\Repository\ClientHarness\obj\Debug\ClientHarness.exe
+D:\Campus_Swinburne\MIT\Semester2\Advanced .NET\Repository\ClientHarness\obj\Debug\ClientHarness.pdb
+D:\Campus_Swinburne\MIT\Semester2\Advanced .NET\Repository\ClientHarness\bin\Debug\ClientHarness.exe
+D:\Campus_Swinburne\MIT\Semester2\Advanced .NET\Repository\ClientHarness\bin\Debug\ClientHarness.pdb
+D:\Campus_Swinburne\MIT\Semester2\Advanced .NET\Repository\ClientHarness\bin\Debug\DLRDB.Core.dll
+D:\Campus_Swinburne\MIT\Semester2\Advanced .NET\Repository\ClientHarness\bin\Debug\DLRDB.Core.pdb
+D:\Campus_Swinburne\MIT\Semester2\Advanced .NET\Repository\ClientHarness\obj\Debug\ResolveAssemblyReference.cache
