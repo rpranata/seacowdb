@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using DLRDB.Core.ConcurrencyUtils;
 
 namespace DLRDB.Core.DataStructure
 {
@@ -11,10 +12,11 @@ namespace DLRDB.Core.DataStructure
     /// </summary>
     public enum RowStateFlag : byte
     {
-        CLEAN = 0,
-        DIRTY = 1,
-        TRASH = 2,
-        ADDED = 3
+        EMPTY = 0,
+        CLEAN = 1,
+        DIRTY = 2,
+        TRASH = 3,
+        ADDED = 4
     }
 
     
@@ -23,13 +25,14 @@ namespace DLRDB.Core.DataStructure
         private int _RowNum;
         private Table _ParentTable;
         private Field[] _Fields;
-        private RowStateFlag _StateFlag;
+        private RowStateFlag _State;
         
         private int _RowBytesLength = 0;
         private int _RowBytesStart = 0;
 
         private FileStream _MyFileStream;
         public const int ROWSTATE_LENGTH = 1;  
+        private readonly ReadWriteLock _RowLock;
 
         /// <summary>
         /// Used for constructing the table to read data from the disk
@@ -46,6 +49,7 @@ namespace DLRDB.Core.DataStructure
         {
             this.ParentTable = parent;
             this._MyFileStream = myFileStream;
+            this._RowLock = new ReadWriteLock();
             //TODO: Create empty row and return            
         }
 
@@ -124,8 +128,8 @@ namespace DLRDB.Core.DataStructure
         /// </summary>
         public RowStateFlag StateFlag
         {
-            get { return this._StateFlag; }
-            set { this._StateFlag = value; }
+            get { return this._State; }
+            set { this._State = value; }
         }
 
         public int RowNum
@@ -162,10 +166,12 @@ namespace DLRDB.Core.DataStructure
         }
 
         public void ReadFromDisk()
-        {            
+        {
+            this._RowLock.ReaderLock();
+
             this._MyFileStream.Seek(this._RowBytesStart, SeekOrigin.Begin);
             
-            this._StateFlag = (RowStateFlag) Table.ReadByteFromDisk(this._MyFileStream);
+            this.State = (RowStateFlag) Table.ReadByteFromDisk(this._MyFileStream);
             
             int index = 0;
             foreach (Column tempColumn in this._ParentTable.Columns)
@@ -173,14 +179,25 @@ namespace DLRDB.Core.DataStructure
                 this._Fields[index].Value = Table.ReadBytesFromDisk(this._MyFileStream,tempColumn.Length);
                 index++;
             }
+
+            this._RowLock.Release();
           
         }
 
         public void WriteToDisk()
         {
+            this._RowLock.WriterLock();
+
             this._MyFileStream.Seek(this._RowBytesStart, SeekOrigin.Begin);
 
-            Table.WriteByteToDisk(this._MyFileStream,(Byte) RowStateFlag.CLEAN);
+            // when we put data into the disk, we'll only use .CLEAN, .EMPTY, and .TRASH flag
+            RowStateFlag tempDiskRowState = tempDiskRowState = RowStateFlag.CLEAN;
+            if (this.State == RowStateFlag.TRASH)
+            {
+                tempDiskRowState  = RowStateFlag.TRASH;
+            }
+
+            Table.WriteByteToDisk(this._MyFileStream,(Byte) tempDiskRowState);
 
             int index = 0;
             foreach (Column tempColumn in this._ParentTable.Columns)
@@ -188,6 +205,7 @@ namespace DLRDB.Core.DataStructure
                 Table.WriteBytesToDisk(this._MyFileStream, this._Fields[index].Value, tempColumn.Length);
                 index++;
             }
+            this._RowLock.ReleaseWriterLock();
 
         }
 
@@ -202,6 +220,13 @@ namespace DLRDB.Core.DataStructure
                 this._Fields = value;
             }
         }
+
+        public RowStateFlag State
+        {
+            get { return this._State; }
+            set { this._State = value; }
+        }
+
 
     }
 }
