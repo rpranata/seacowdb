@@ -5,6 +5,9 @@ using System.Threading;
 
 namespace DLRDB.Core.ConcurrencyUtils
 {
+    /// <summary>
+    /// Basic Semaphorewith expanded Acquire and Release functionalities.
+    /// </summary>
     public class Semaphore : ISync
 	{
         protected int _Token;
@@ -27,9 +30,7 @@ namespace DLRDB.Core.ConcurrencyUtils
         /// For timeout acquire, try to look at TryAcquire().
         /// </summary>
 		public virtual void Acquire()
-        {
-           this.TryAcquire(-1);
-        }
+        { this.TryAcquire(-1); }
 		
         /// <summary>
         /// Acquires 1 token from this semaphore. If there is no token available, it will timeout after a particular time.
@@ -53,10 +54,9 @@ namespace DLRDB.Core.ConcurrencyUtils
 					{
 						double now = System.DateTime.Now.Ticks / 10000;
 						ms = (int) (endTime - now);
-						if (ms <= 0)
-							return false;
+                        if (ms <= 0)
+                        { return false; }
 					}
-					
 					Monitor.Wait(this._Lock, ms);
 				}
 			}
@@ -94,9 +94,9 @@ namespace DLRDB.Core.ConcurrencyUtils
 					Thread.Sleep(0);
 				}
 			}
-			
-			if (wasInterrupted)
-				Thread.CurrentThread.Interrupt();
+
+            if (wasInterrupted)
+            { Thread.CurrentThread.Interrupt(); }
 		}
 		
 		#endregion

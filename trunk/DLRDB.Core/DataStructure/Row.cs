@@ -8,7 +8,14 @@ using DLRDB.Core.ConcurrencyUtils;
 namespace DLRDB.Core.DataStructure
 {
     /// <summary>
-    /// State of the Row. DEFAULT(0) means CRUD can be performed to the Row. DELETED(1) means Row flagged for deletion.
+    /// State of the Row. 
+    /// EMPTY(0) indicates an empty or potential Row.
+    /// CLEAN(1) indicates CRUD can be performed to the Row. 
+    /// DIRTY(2) indicates updates have been peformed on the Row, and
+    /// that the changes have not been persisted to file.
+    /// TRASH(3) indicates the Row has been flagged for deletion.
+    /// ADDED(4) indicates a newly added Row that exists on Memory,
+    /// but not file.
     /// </summary>
     public enum RowStateFlag : byte
     {
@@ -64,13 +71,9 @@ namespace DLRDB.Core.DataStructure
             foreach (Column tempColumn in this._ParentTable.Columns)
             {
                 if ((tempColumn.NativeType == typeof(System.Int32)))
-                {
-                    this._Fields[index] = new Int32Field(tempColumn);
-                }
+                { this._Fields[index] = new Int32Field(tempColumn); }
                 else if ((tempColumn.NativeType == typeof(System.String)))
-                {
-                    this._Fields[index] = new StringField(tempColumn);
-                }
+                { this._Fields[index] = new StringField(tempColumn); }
 
                 index++;
             }
@@ -163,8 +166,8 @@ namespace DLRDB.Core.DataStructure
         public int RowNum
         {
             get { return this._RowNum; }
-            set { 
-
+            set 
+            {
                 this._RowNum = value;
                 CalculateRowBytesStart();
             }
@@ -186,8 +189,8 @@ namespace DLRDB.Core.DataStructure
 
             for (int i = 0; i < this._Fields.Length; i++)
             {
-                tempResult += "[" + this._Fields[i].FieldColumn.Name + "]" + " = "
-                    + this._Fields[i].ToString() + "\t";  
+                tempResult += "[" + this._Fields[i].FieldColumn.Name 
+                    + "]" + " = " + this._Fields[i].ToString() + "\t";  
             }
 
             return tempResult;
@@ -199,12 +202,14 @@ namespace DLRDB.Core.DataStructure
 
             this._MyFileStream.Seek(this._RowBytesStart, SeekOrigin.Begin);
             
-            this.State = (RowStateFlag) Table.ReadByteFromDisk(this._MyFileStream);
+            this.State = (RowStateFlag) Table.ReadByteFromDisk
+                (this._MyFileStream);
             
             int index = 0;
             foreach (Column tempColumn in this._ParentTable.Columns)
             {
-                this._Fields[index].Value = Table.ReadBytesFromDisk(this._MyFileStream,tempColumn.Length);
+                this._Fields[index].Value = Table.ReadBytesFromDisk
+                    (this._MyFileStream,tempColumn.Length);
                 index++;
             }
 
@@ -221,9 +226,7 @@ namespace DLRDB.Core.DataStructure
             // when we put data into the disk, we'll only use .CLEAN, .EMPTY, and .TRASH flag
             RowStateFlag tempDiskRowState = tempDiskRowState = RowStateFlag.CLEAN;
             if (this.State == RowStateFlag.TRASH)
-            {
-                tempDiskRowState  = RowStateFlag.TRASH;
-            }
+            { tempDiskRowState  = RowStateFlag.TRASH; }
 
             Table.WriteByteToDisk(this._MyFileStream,(Byte) tempDiskRowState);
 
@@ -266,9 +269,6 @@ namespace DLRDB.Core.DataStructure
         }
 
         public ReadWriteLock RowMemoryLock
-        {
-            get { return this._RowMemoryLock; }
-        }
-
+        { get { return this._RowMemoryLock; } }
     }
 }

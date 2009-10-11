@@ -56,7 +56,7 @@ namespace DLRDB.Core.NetworkUtils
                                     myNewRow.Fields[2].Value = myNewRow.Fields[2].NativeToBytes(10 + (i % 10));
 
                                     this._Table.InsertRow(myNewRow);
-                                    response += Environment.NewLine + "[1 rows inserted]";
+                                    response += Environment.NewLine + "[1] row(s) inserted.";
                                 }
 
                                 this._Writer.Write(DateTime.Now + ">" + Environment.NewLine + response);
@@ -76,7 +76,7 @@ namespace DLRDB.Core.NetworkUtils
 
                                 int numOfUpdatedRows = this._Table.Update(updateLowRange, updateHighRange, arrUpdatedValues);
 
-                                response += Environment.NewLine + "[" + numOfUpdatedRows + " rows updated" + "]";
+                                response += Environment.NewLine + "[" + numOfUpdatedRows + "] row(s) updated.";
 
                                 this._Writer.Write(DateTime.Now + ">" + Environment.NewLine + response);
 
@@ -94,7 +94,7 @@ namespace DLRDB.Core.NetworkUtils
 
                                 int numOfDeletedRows = this._Table.Delete(deleteLowRange, deleteHighRange);
 
-                                response += Environment.NewLine + "[" + numOfDeletedRows + " rows deleted" + "]";
+                                response += Environment.NewLine + "[" + numOfDeletedRows + "] row(s) deleted";
 
                                 this._Writer.Write(DateTime.Now + ">" + Environment.NewLine + response);
 
@@ -119,7 +119,7 @@ namespace DLRDB.Core.NetworkUtils
                                     }
                                 }
 
-                                response += Environment.NewLine + "[" + numOfSelectedRows + " rows selected" + "]";
+                                response += Environment.NewLine + "[" + numOfSelectedRows + "] row(s) selected";
                                 this._Writer.Write(DateTime.Now + ">" + Environment.NewLine+ response);
                                 break;
                             }

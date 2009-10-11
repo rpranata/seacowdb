@@ -6,15 +6,17 @@ using System.IO;
 
 namespace DLRDB.Core.ConcurrencyUtils
 {
+    /// <summary>
+    /// First In First Out Semaphore. A Semaphore which enforces FIFO
+    /// behaviour.
+    /// </summary>
     public class FIFOSemaphore : Semaphore
     {
         public readonly Queue<Thread> _WaitQueue;
         
         public FIFOSemaphore(int token)
             : base(token)
-        {
-            this._WaitQueue = new Queue<Thread>();
-        }
+        { this._WaitQueue = new Queue<Thread>(); }
 
         #region Functions
 
@@ -41,9 +43,7 @@ namespace DLRDB.Core.ConcurrencyUtils
             if (doWait)
             {
                 lock (tempThread)
-                {
-                    Monitor.Wait(tempThread);
-                }
+                { Monitor.Wait(tempThread); }
             }
         }
 
