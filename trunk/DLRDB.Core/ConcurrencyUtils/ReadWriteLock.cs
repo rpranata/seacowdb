@@ -32,7 +32,7 @@ namespace DLRDB.Core.ConcurrencyUtils
         #endregion
 
         #region Functions
-        public void ReaderLock()
+        public void AcquireReader()
         {
             this._Turnstile.Acquire();
             this._Turnstile.Release();
@@ -58,7 +58,7 @@ namespace DLRDB.Core.ConcurrencyUtils
             }
         }
 
-        public void WriterLock()
+        public void AcquireWriter()
         {
             lock (_WaitingLock)
             { _WaitingWriters++; }
