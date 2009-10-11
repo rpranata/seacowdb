@@ -164,7 +164,6 @@ namespace DLRDB.Core.DataStructure
         public Column[] Columns
         { get { return this._Columns; } }
 
-
         /// <summary>
         /// Select operation based on lowRange and highRange parameters.
         /// The database is structured that the first ID begins with a 1,
@@ -176,56 +175,49 @@ namespace DLRDB.Core.DataStructure
         /// </param>
         /// <returns>Row Array of results.</returns>
         public Row[] Select(int lowRange, int highRange)
-        {            
+        {
             // Conditional to establish if the range is valid.
-            if (ValidateSelectRange(lowRange,highRange))
-            {               
+            if (ValidateSelectRange(lowRange, highRange))
+            {
                 Row[] results = new Row[highRange - lowRange + 1];
-              
+
                 int index = 0;
 
-                for (int i = (lowRange-1); i <= (highRange-1); i++)
+                for (int i = (lowRange - 1); i <= (highRange - 1); i++)
                 {
-                    bool isRowNull = false;
-
-                    this._TableLock.ReaderLock();                        
-                        if (this._Rows[i] == null)
-                        {
-                            isRowNull = true;
-                        }
-                    this._TableLock.ReleaseReader();
-
-                    if (isRowNull)
+                    this._TableLock.AcquireReader();
+                    if (this._Rows[i] == null)
                     {
-                        this._TableLock.WriterLock();
-                            this._Rows[i] = new Row(this, i + 1, 
-                                this._MyFileStream);
+                        this._TableLock.ReleaseReader();
+                        this._TableLock.AcquireWriter();
+
+                            this._Rows[i] = new Row(this, i + 1,
+                                    this._MyFileStream);
+
+                            this._Rows[i].RowMemoryLock.AcquireWriter();
+    
+                                this._Rows[i].ReadFromDisk();
+
+                            this._Rows[i].RowMemoryLock.ReleaseWriter();
+
                         this._TableLock.ReleaseWriter();
+                        this._TableLock.AcquireReader();
                     }
 
-                    this._TableLock.ReaderLock();
-
-                        if (isRowNull)
+                    this._Rows[i].RowMemoryLock.AcquireReader();
+                        if (this._Rows[i].State == RowStateFlag.CLEAN)
                         {
-                            this._Rows[i].RowMemoryLock.WriterLock();
-                                this._Rows[i].ReadFromDisk();
-                            this._Rows[i].RowMemoryLock.ReleaseWriter();
+                            results[index] = this._Rows[i];
+                            index++;
                         }
+                        else
+                        {
+                            Console.WriteLine("this._Rows[" + i
+                                + "].State is not CLEAN, instead => "
+                                + this._Rows[i].State);
+                        }
+                    this._Rows[i].RowMemoryLock.ReleaseReader();
 
-                        this._Rows[i].RowMemoryLock.ReaderLock();
-                            if (this._Rows[i].State == RowStateFlag.CLEAN)
-                            {
-                                results[index] = this._Rows[i];
-                                index++;
-                            }
-                            else
-                            {
-                                Console.WriteLine("this._Rows[" + i 
-                                    + "].State is not CLEAN, instead => " 
-                                    + this._Rows[i].State);
-                            }
-                        this._Rows[i].RowMemoryLock.ReleaseReader();
-                    
                     this._TableLock.ReleaseReader();
                 }
                 return results;
@@ -308,8 +300,8 @@ namespace DLRDB.Core.DataStructure
                 {
                     isChangesMade = false;
 
-                    this._TableLock.ReaderLock();
-                    tempRow.RowMemoryLock.WriterLock();
+                    this._TableLock.AcquireReader();
+                    tempRow.RowMemoryLock.AcquireWriter();
 
                     // Start from index 1 (because index 0 is the ID)
                     for (int i = 1; i < this.Columns.Length; i++)
@@ -370,8 +362,8 @@ namespace DLRDB.Core.DataStructure
                 {
                     numberOfAffectedRows++;
                     
-                    this._TableLock.ReaderLock();
-                    tempRow.RowMemoryLock.WriterLock();
+                    this._TableLock.AcquireReader();
+                    tempRow.RowMemoryLock.AcquireWriter();
                    
                     tempRow.State = RowStateFlag.TRASH;
                     tempRow.WriteToDisk();
@@ -424,7 +416,7 @@ namespace DLRDB.Core.DataStructure
         /// <returns></returns>
         public Row InsertRow(Row row)
         {
-            this._TableLock.WriterLock();
+            this._TableLock.AcquireWriter();
 
             if (this._NumOfAvailablePhysicalRows <= MIN_THRESHOLD_TO_RESIZE_ROWS)
             {
@@ -518,6 +510,79 @@ namespace DLRDB.Core.DataStructure
     }
 }
 #region oldstuff
+/*
+        /// <summary>
+        /// Select operation based on lowRange and highRange parameters.
+        /// The database is structured that the first ID begins with a 1,
+        /// and auto increments.
+        /// </summary>
+        /// <param name="lowRange">The low Range to start the seek from.
+        /// </param>
+        /// <param name="highRange">The high Range to start the seek from.
+        /// </param>
+        /// <returns>Row Array of results.</returns>
+        public Row[] Select(int lowRange, int highRange)
+        {            
+            // Conditional to establish if the range is valid.
+            if (ValidateSelectRange(lowRange,highRange))
+            {               
+                Row[] results = new Row[highRange - lowRange + 1];
+              
+                int index = 0;
+
+                for (int i = (lowRange-1); i <= (highRange-1); i++)
+                {
+                    bool isRowNull = false;
+
+                    this._TableLock.ReaderLock();                        
+                        if (this._Rows[i] == null)
+                        {
+                            isRowNull = true;
+                        }
+                    this._TableLock.ReleaseReader();
+
+                    if (isRowNull)
+                    {
+                        this._TableLock.WriterLock();
+                            this._Rows[i] = new Row(this, i + 1, 
+                                this._MyFileStream);
+                        this._TableLock.ReleaseWriter();
+                    }
+
+                    this._TableLock.ReaderLock();
+
+                        if (isRowNull)
+                        {
+                            this._Rows[i].RowMemoryLock.WriterLock();
+                                this._Rows[i].ReadFromDisk();
+                            this._Rows[i].RowMemoryLock.ReleaseWriter();
+                        }
+
+                        this._Rows[i].RowMemoryLock.ReaderLock();
+                            if (this._Rows[i].State == RowStateFlag.CLEAN)
+                            {
+                                results[index] = this._Rows[i];
+                                index++;
+                            }
+                            else
+                            {
+                                Console.WriteLine("this._Rows[" + i 
+                                    + "].State is not CLEAN, instead => " 
+                                    + this._Rows[i].State);
+                            }
+                        this._Rows[i].RowMemoryLock.ReleaseReader();
+                    
+                    this._TableLock.ReleaseReader();
+                }
+                return results;
+            }
+            else
+            {
+                throw new SelectException(
+                    "Invalid range supplied for Select operation.");
+            }
+
+        }
 
 ///// <summary>
 ///// Gets the index of the Field based on the name. Used for referencing.

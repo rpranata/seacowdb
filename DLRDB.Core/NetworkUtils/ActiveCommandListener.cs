@@ -119,7 +119,7 @@ namespace DLRDB.Core.NetworkUtils
                                     }
                                 }
 
-                                response += Environment.NewLine + "[" + numOfSelectedRows + "] row(s) selected";
+                                response += Environment.NewLine + "[" + numOfSelectedRows + "] row(s) selected.";
                                 this._Writer.Write(DateTime.Now + ">" + Environment.NewLine+ response);
                                 break;
                             }
