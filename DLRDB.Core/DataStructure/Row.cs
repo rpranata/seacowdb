@@ -270,5 +270,12 @@ namespace DLRDB.Core.DataStructure
 
         public ReadWriteLock RowMemoryLock
         { get { return this._RowMemoryLock; } }
+
+        internal void OutputTo(TextWriter output)
+        {
+            //TODO: read locks etc.
+
+            output.WriteLine(this);
+        }
     }
 }

@@ -37,6 +37,7 @@ namespace DLRDB.Core.NetworkUtils
             //Connect to the server
             this._TCPClient.Connect(this._IPAddress, Client.PORT);
             this._Stream = this._TCPClient.GetStream();
+            
 
             //Initialize the reader and writer
             _Writer = new BinaryWriter(this._Stream);

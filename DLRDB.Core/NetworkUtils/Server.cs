@@ -46,6 +46,8 @@ namespace DLRDB.Core.NetworkUtils
             Socket socket = this._Listener.AcceptSocket();
             ActiveCommandListener client = new ActiveCommandListener(socket,this._Table);
             this._Client.Enqueue(client);
+            Console.WriteLine("1 Client  connected");
+
             client.Start();
         }
 

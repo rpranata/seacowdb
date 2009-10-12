@@ -15,8 +15,8 @@ namespace DLRDB.Core.NetworkUtils
     {
         private Table _Table;
         private Socket _Socket;
-        private BinaryReader _Reader;
-        private BinaryWriter _Writer;
+        private TextReader _Reader;
+        private TextWriter _Writer;
         private String _Command;
         private NetworkStream _NetworkStream;
 
@@ -26,10 +26,11 @@ namespace DLRDB.Core.NetworkUtils
             this._Table = table;
 			this._Socket = newSocket;
 			this._NetworkStream =  new NetworkStream(this._Socket);
-            this._Reader = new BinaryReader(this._NetworkStream);
-            this._Writer = new BinaryWriter(this._NetworkStream);
+            this._Reader = new StreamReader(this._NetworkStream);
+            this._Writer = new StreamWriter(this._NetworkStream);
             
-            this._Writer.Write("SERVER>>> Connection Successful\n");
+            this._Writer.WriteLine("SERVER>>> Connection Successful\n");
+            this._Writer.Flush();
 		}
 
         public override void DoSomething()
@@ -38,7 +39,7 @@ namespace DLRDB.Core.NetworkUtils
             {
                 try
                 {
-                    this._Command = this._Reader.ReadString();
+                    this._Command = this._Reader.ReadLine();
                     //Proccess command
                     this._Command = this._Command.Trim();
                     string commandType = this._Command.Substring(0, 6);
@@ -59,8 +60,8 @@ namespace DLRDB.Core.NetworkUtils
                                     response += Environment.NewLine + "[1] row(s) inserted.";
                                 }
 
-                                this._Writer.Write(DateTime.Now + ">" + Environment.NewLine + response);
-
+                                this._Writer.WriteLine(DateTime.Now + ">" + Environment.NewLine + response);
+                                this._Writer.Flush();
                                 break;
                             }
                         case "update":
@@ -78,8 +79,8 @@ namespace DLRDB.Core.NetworkUtils
 
                                 response += Environment.NewLine + "[" + numOfUpdatedRows + "] row(s) updated.";
 
-                                this._Writer.Write(DateTime.Now + ">" + Environment.NewLine + response);
-
+                                this._Writer.WriteLine(DateTime.Now + ">" + Environment.NewLine + response);
+                                this._Writer.Flush();
                                 break;
                             }
                         case "delete":
@@ -96,36 +97,38 @@ namespace DLRDB.Core.NetworkUtils
 
                                 response += Environment.NewLine + "[" + numOfDeletedRows + "] row(s) deleted";
 
-                                this._Writer.Write(DateTime.Now + ">" + Environment.NewLine + response);
-
+                                this._Writer.WriteLine(DateTime.Now + ">" + Environment.NewLine + response);
+                                this._Writer.Flush();
                                 break;
                             }
                         case "select":
                             {
-                                // this._Writer.Write("SELECT COMMAND");
+                                // this._Writer.WriteLine("SELECT COMMAND");
                              
                                 Row[] arrSelectRow = null;
-                                arrSelectRow  = this._Table.SelectAll();
+                                this._Table.SelectAll(this._Writer);
 
                                 String response = "";
                                 int numOfSelectedRows = 0;
 
-                                foreach (Row tempRow in arrSelectRow)
-                                {
-                                    if (tempRow != null)
-                                    {
-                                        numOfSelectedRows++;
-                                        response += Environment.NewLine + tempRow.ToString();
-                                    }
-                                }
+                                //foreach (Row tempRow in arrSelectRow)
+                                //{
+                                //    if (tempRow != null)
+                                //    {
+                                //        numOfSelectedRows++;
+                                //        response += Environment.NewLine + tempRow.ToString();
+                                //    }
+                                //}
 
                                 response += Environment.NewLine + "[" + numOfSelectedRows + "] row(s) selected.";
-                                this._Writer.Write(DateTime.Now + ">" + Environment.NewLine+ response);
+                                this._Writer.WriteLine(DateTime.Now + ">" + Environment.NewLine+ response);
+                                this._Writer.Flush();
                                 break;
                             }
                        default:
                             {
-                                this._Writer.Write("UNKNOWN COMMAND");
+                                this._Writer.WriteLine("UNKNOWN COMMAND");
+                                this._Writer.Flush();
                                 break;
                             }
                     }
@@ -134,7 +137,7 @@ namespace DLRDB.Core.NetworkUtils
                 catch (Exception e)
                 {
                     if (this._Socket.Connected)
-                        this._Writer.Write(e.Message);
+                        this._Writer.WriteLine(e.Message);
                     Console.WriteLine("Error has occured when trying to listen" +
                         "\nto the command sent by client\n" + e.Message);
                 }
