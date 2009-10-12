@@ -174,53 +174,50 @@ namespace DLRDB.Core.DataStructure
         /// <param name="highRange">The high Range to start the seek from.
         /// </param>
         /// <returns>Row Array of results.</returns>
-        public Row[] Select(int lowRange, int highRange)
+        public void Select(int lowRange, int highRange, TextWriter output)
         {
             // Conditional to establish if the range is valid.
             if (ValidateSelectRange(lowRange, highRange))
             {
                 Row[] results = new Row[highRange - lowRange + 1];
+                Row read;
 
                 int index = 0;
 
                 for (int i = (lowRange - 1); i <= (highRange - 1); i++)
                 {
                     this._TableLock.AcquireReader();
-                    if (this._Rows[i] == null)
+                    lock (this)
                     {
-                        this._TableLock.ReleaseReader();
-                        this._TableLock.AcquireWriter();
+                        if (this._Rows[i] == null)
+                        {
+                            //this._TableLock.ReleaseReader();
+                            ReadRowFromDisk(i);
+                            //this._TableLock.AcquireReader();
+                        }
 
-                            this._Rows[i] = new Row(this, i + 1,
-                                    this._MyFileStream);
-
-                            this._Rows[i].RowMemoryLock.AcquireWriter();
-    
-                                this._Rows[i].ReadFromDisk();
-
-                            this._Rows[i].RowMemoryLock.ReleaseWriter();
-
-                        this._TableLock.ReleaseWriter();
-                        this._TableLock.AcquireReader();
+                        read = this._Rows[i];
                     }
 
-                    this._Rows[i].RowMemoryLock.AcquireReader();
-                        if (this._Rows[i].State == RowStateFlag.CLEAN)
-                        {
-                            results[index] = this._Rows[i];
-                            index++;
-                        }
-                        else
-                        {
-                            Console.WriteLine("this._Rows[" + i
-                                + "].State is not CLEAN, instead => "
-                                + this._Rows[i].State);
-                        }
-                    this._Rows[i].RowMemoryLock.ReleaseReader();
+                    read.OutputTo(output);
+
+                    //read.RowMemoryLock.AcquireReader();
+                        //if (this._Rows[i].State == RowStateFlag.CLEAN)
+                        //{
+                        //    results[index] = this._Rows[i];
+                        //    index++;
+                        //}
+                        //else
+                        //{
+                        //    Console.WriteLine("this._Rows[" + i
+                        //        + "].State is not CLEAN, instead => "
+                        //        + this._Rows[i].State);
+                        //}
+                    //this._Rows[i].RowMemoryLock.ReleaseReader();
 
                     this._TableLock.ReleaseReader();
                 }
-                return results;
+                //return results;
             }
             else
             {
@@ -228,6 +225,16 @@ namespace DLRDB.Core.DataStructure
                     "Invalid range supplied for Select operation.");
             }
 
+        }
+
+        private void ReadRowFromDisk(int i)
+        {
+            lock (this)
+            {
+                this._Rows[i] = new Row(this, i + 1, this._MyFileStream);
+                //TODO:REDO!
+                this._Rows[i].ReadFromDisk();
+            }
         }
 
         /// <summary>
@@ -270,8 +277,10 @@ namespace DLRDB.Core.DataStructure
         /// and the end range to the number of physical rows.
         /// </summary>
         /// <returns>Row Array of results.</returns>
-        public Row[] SelectAll()
-        { return Select(1,this._NumOfUsedPhysicalRows); }
+        public void SelectAll(TextWriter output)
+        { 
+            Select(1,this._NumOfUsedPhysicalRows, output); 
+        }
 
         /// <summary>
         /// Update operation based on range of affected or affectable
@@ -290,7 +299,7 @@ namespace DLRDB.Core.DataStructure
             
             if (ValidateSelectRange(lowRange, highRange))
             {
-                Row[] arrSelectedRows = Select(lowRange, highRange);
+                Row[] arrSelectedRows = null; //TODO: Select(lowRange, highRange);
 
                 // To indicate whether in a row, we have some changes
 
@@ -354,7 +363,7 @@ namespace DLRDB.Core.DataStructure
 
             if (ValidateSelectRange(lowRange, highRange))
             {
-                Row[] arrSelectedRows = Select(lowRange, highRange);
+                Row[] arrSelectedRows = null; //TODO: Select(lowRange, highRange);
 
                 // To indicate whether in a row, we have some changes
 

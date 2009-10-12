@@ -23,14 +23,15 @@ namespace DLR_Harness
             Console.WriteLine();
             try
             {
-                arrSelectRow = myTable.Select(1, 6);
-                foreach (Row tempRow in arrSelectRow)
-                {
-                    if (tempRow != null)
-                    {
-                        Console.WriteLine(tempRow.ToString());
-                    }
-                }
+
+                myTable.Select(1, 6, Console.Out);
+                //foreach (Row tempRow in arrSelectRow)
+                //{
+                //    if (tempRow != null)
+                //    {
+                //        Console.WriteLine(tempRow.ToString());
+                //    }
+                //}
             }
             catch (SelectException ex)
             {
@@ -57,14 +58,14 @@ namespace DLR_Harness
             // ===================================
 
             Console.WriteLine();
-            arrSelectRow = myTable.SelectAll();
-            foreach (Row tempRow in arrSelectRow)
-            {
-                if (tempRow != null)
-                {
-                    Console.WriteLine(tempRow.ToString());
-                }
-            }
+            myTable.SelectAll(Console.Out);
+            //foreach (Row tempRow in arrSelectRow)
+            //{
+            //    if (tempRow != null)
+            //    {
+            //        Console.WriteLine(tempRow.ToString());
+            //    }
+            //}
 
             // Updating the data
             // ===================================
@@ -86,11 +87,11 @@ namespace DLR_Harness
             // ===================================
 
             Console.WriteLine();
-            arrSelectRow = myTable.Select(2,5);
-            foreach (Row tempRow in arrSelectRow)
-            {
-                Console.WriteLine(tempRow.ToString());
-            }
+            myTable.Select(2,5, Console.Out);
+            //foreach (Row tempRow in arrSelectRow)
+            //{
+            //    Console.WriteLine(tempRow.ToString());
+            //}
 
 
             // Deleting the data
@@ -109,14 +110,14 @@ namespace DLR_Harness
             // ===================================
 
             Console.WriteLine();
-            arrSelectRow = myTable.Select(1, 10);
-            foreach (Row tempRow in arrSelectRow)
-            {
-                if (tempRow != null)
-                {
-                    Console.WriteLine(tempRow.ToString());
-                }
-            }
+            myTable.Select(1, 10, Console.Out);
+            //foreach (Row tempRow in arrSelectRow)
+            //{
+            //    if (tempRow != null)
+            //    {
+            //        Console.WriteLine(tempRow.ToString());
+            //    }
+            //}
 
 
             Console.ReadLine();
