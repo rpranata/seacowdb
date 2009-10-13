@@ -7,11 +7,13 @@ namespace DLRDB.Core.DataStructure
 {
     public abstract class Field
     {
-        private Column _Column;
-        private Row _ParentRow;
+        private readonly Column _Column;
+        private readonly Row _ParentRow;
 
         private byte[] _Value;
         private byte[] _OriginalValue;
+
+        protected readonly Object _ObjForLock = new Object();
 
         /// <summary>
         /// Constructor. Name of Field, Type of Field(Int32 or String)
@@ -48,18 +50,23 @@ namespace DLRDB.Core.DataStructure
         public Row ParentRow
         {
             get {return this._ParentRow;}
-            set {this._ParentRow = value;}
         }
 
         public Byte[] Value
         {
             get
             {
-                return this._Value;
+                lock (this._ObjForLock)
+                {
+                    return this._Value;
+                }
             }
             set
             {
-                this._Value = value;
+                lock (this._ObjForLock)
+                {
+                    this._Value = value;
+                }
             }
         }
 
@@ -67,11 +74,17 @@ namespace DLRDB.Core.DataStructure
         {
             get
             {
-                return this._OriginalValue;
+                lock (this._ObjForLock)
+                {
+                    return this._OriginalValue;
+                }
             }
             set
             {
-                this._OriginalValue = value;
+                lock (this._ObjForLock)
+                {
+                    this._OriginalValue = value;
+                }
             }
         }
 
