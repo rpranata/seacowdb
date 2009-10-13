@@ -29,18 +29,20 @@ namespace DLRDB.Core.DataStructure
     
     public class Row
     {
+        // DANGEROUS FIELDS
+        // ==================
         private int _RowNum;
-        private Table _ParentTable;
-        private Field[] _Fields;
         private RowStateFlag _State;
-        
         private int _RowBytesLength = 0;
         private int _RowBytesStart = 0;
 
-        private FileStream _MyFileStream;
+        private readonly Table _ParentTable;
+        private readonly Field[] _Fields;
+        private readonly FileStream _MyFileStream;
         public const int ROWSTATE_LENGTH = 1;  
         private readonly ReadWriteLock _RowFileLock;
-        private readonly ReadWriteLock _RowMemoryLock;
+       
+        private readonly Object _ObjForLock = new Object();
 
         /// <summary>
         /// Used for constructing the table to read data from the disk
@@ -55,19 +57,12 @@ namespace DLRDB.Core.DataStructure
 
         public Row(Table parent, FileStream myFileStream)
         {
-            this.ParentTable = parent;
-            this._MyFileStream = myFileStream;
-            this._RowFileLock = new ReadWriteLock();
-            this._RowMemoryLock = new ReadWriteLock();
-            //TODO: Create empty row and return            
-        }
+            this._ParentTable = parent;
 
-        private void constructFields()
-        {
+            // Construct the fields
+            // ========================
             this._Fields = new Field[this._ParentTable.Columns.Length];
-
             int index = 0;
-
             foreach (Column tempColumn in this._ParentTable.Columns)
             {
                 if ((tempColumn.NativeType == typeof(System.Int32)))
@@ -78,39 +73,11 @@ namespace DLRDB.Core.DataStructure
                 index++;
             }
 
+            this._MyFileStream = myFileStream;
+            this._RowFileLock = new ReadWriteLock();
+            //TODO: Create empty row and return            
         }
-
-        /// <summary>
-        /// This will be called ONLY when we set the RowNum
-        /// </summary>
-        private void CalculateRowBytesStart()
-        {
-            _RowBytesLength = 0;
-            _RowBytesLength += ROWSTATE_LENGTH;
-            foreach (Column tempColumn in this._ParentTable.Columns)
-            {
-                // Calculate the total length for this row
-                _RowBytesLength += tempColumn.Length;
-            }
-
-            this._RowBytesStart += Table.METADATA_TOTAL_LENGTH;
-            this._RowBytesStart += (this.RowNum - 1) * this._RowBytesLength;
-        }
-               
-        /// <summary>
-        /// Get/Set Parent Table, used for backward referencing.
-        /// </summary>
-        public Table ParentTable
-        {
-            get
-            { return this._ParentTable; }
-            set
-            { 
-                this._ParentTable = value;
-                constructFields();
-            }
-        }
-
+    
         /// <summary>
         /// Gets Field based on Field Name, returns relevant Field Object.
         /// </summary>
@@ -122,7 +89,6 @@ namespace DLRDB.Core.DataStructure
             this._DictFields.TryGetValue(fieldName, out tempField);
             return tempField;
         }*/
-
         //public Field GetField(int fieldIndex)
         //{
         //    return this._ListFields[fieldIndex];
@@ -135,48 +101,54 @@ namespace DLRDB.Core.DataStructure
         {
             get 
             {
-                try
+                RowStateFlag tempResult;
+                lock (this._ObjForLock)
                 {
-                    //this._RowFileLock.ReaderLock();
-                    return this._State;
+                    tempResult = this._State;
                 }
-                finally
-                {
-                    //this._RowFileLock.Release();
-                }
+                return tempResult;
             }
             set 
             {
-                try
+                lock (this._ObjForLock)
                 {
-                    //this._RowFileLock.WriterLock();
-                    if (value == RowStateFlag.EMPTY)
-                    {
-                        Console.WriteLine("Rownum " + this._RowNum + " is Set into EMPTY");
-                    }
                     this._State = value;
-                }
-                finally
-                {
-                    //this._RowFileLock.WriterLock();
                 }
             }
         }
 
         public int RowNum
         {
-            get { return this._RowNum; }
+            get {
+
+                int tempResult;
+                lock (this._ObjForLock)
+                {
+                    tempResult = this._RowNum; 
+                }
+                return tempResult;
+            }
             set 
             {
-                this._RowNum = value;
-                CalculateRowBytesStart();
-            }
-        }
+                lock (this._ObjForLock)
+                {
+                    this._RowNum = value;
+                    
+                    // CalculateRowBytesStart
+                    // ========================
 
-        public FileStream MyFileStream
-        {
-            get { return this._MyFileStream; }
-            set { this._MyFileStream = value; }
+                    _RowBytesLength = 0;
+                    _RowBytesLength += ROWSTATE_LENGTH;
+                    foreach (Column tempColumn in this._ParentTable.Columns)
+                    {
+                        // Calculate the total length for this row
+                        _RowBytesLength += tempColumn.Length;
+                    }
+
+                    this._RowBytesStart += Table.METADATA_TOTAL_LENGTH;
+                    this._RowBytesStart += (this.RowNum - 1) * this._RowBytesLength;
+                }
+            }
         }
 
         /// <summary>
@@ -187,10 +159,13 @@ namespace DLRDB.Core.DataStructure
         {
             String tempResult = "";
 
-            for (int i = 0; i < this._Fields.Length; i++)
+            lock (this._ObjForLock)
             {
-                tempResult += "[" + this._Fields[i].FieldColumn.Name 
-                    + "]" + " = " + this._Fields[i].ToString() + "\t";  
+                for (int i = 0; i < this._Fields.Length; i++)
+                {
+                    tempResult += "[" + this._Fields[i].FieldColumn.Name
+                        + "]" + " = " + this._Fields[i].ToString() + "\t";
+                }
             }
 
             return tempResult;
@@ -198,84 +173,68 @@ namespace DLRDB.Core.DataStructure
 
         public void ReadFromDisk()
         {
-            //this._RowFileLock.ReaderLock();
+            this._RowFileLock.AcquireReader();
 
-            this._MyFileStream.Seek(this._RowBytesStart, SeekOrigin.Begin);
-            
-            this.State = (RowStateFlag) Table.ReadByteFromDisk
-                (this._MyFileStream);
-            
-            int index = 0;
-            foreach (Column tempColumn in this._ParentTable.Columns)
+            lock (this._ObjForLock)
             {
-                this._Fields[index].Value = Table.ReadBytesFromDisk
-                    (this._MyFileStream,tempColumn.Length);
-                index++;
+                this._MyFileStream.Seek(this._RowBytesStart, SeekOrigin.Begin);
+
+                this.State = (RowStateFlag)Table.ReadByteFromDisk
+                    (this._MyFileStream);
+            
+                
+                int index = 0;
+                foreach (Column tempColumn in this._ParentTable.Columns)
+                {
+                    this._Fields[index].Value = Table.ReadBytesFromDisk
+                        (this._MyFileStream,tempColumn.Length);
+                    index++;
+                }
             }
 
-            //this._RowFileLock.Release();
-          
+            this._RowFileLock.ReleaseReader();
         }
 
         public void WriteToDisk()
         {
-            //this._RowFileLock.WriterLock();
+            this._RowFileLock.AcquireWriter();
 
-            this._MyFileStream.Seek(this._RowBytesStart, SeekOrigin.Begin);
-
-            // when we put data into the disk, we'll only use .CLEAN, .EMPTY, and .TRASH flag
-            RowStateFlag tempDiskRowState = tempDiskRowState = RowStateFlag.CLEAN;
-            if (this.State == RowStateFlag.TRASH)
-            { tempDiskRowState  = RowStateFlag.TRASH; }
-
-            Table.WriteByteToDisk(this._MyFileStream,(Byte) tempDiskRowState);
-
-            int index = 0;
-            foreach (Column tempColumn in this._ParentTable.Columns)
+            lock (this._ObjForLock)
             {
-                Table.WriteBytesToDisk(this._MyFileStream, this._Fields[index].Value, tempColumn.Length);
-                index++;
-            }
-            //this._RowFileLock.ReleaseWriterLock();
+                this._MyFileStream.Seek(this._RowBytesStart, SeekOrigin.Begin);
 
+                // when we put data into the disk, we'll only use .CLEAN, .EMPTY, and .TRASH flag
+                RowStateFlag tempDiskRowState = tempDiskRowState = RowStateFlag.CLEAN;
+                if (this.State == RowStateFlag.TRASH)
+                { tempDiskRowState = RowStateFlag.TRASH; }
+
+                Table.WriteByteToDisk(this._MyFileStream, (Byte)tempDiskRowState);
+
+                int index = 0;
+                foreach (Column tempColumn in this._ParentTable.Columns)
+                {
+                    Table.WriteBytesToDisk(this._MyFileStream, this._Fields[index].Value, tempColumn.Length);
+                    index++;
+                }
+            }
+
+            this._RowFileLock.ReleaseWriter();
         }
 
         public Field[] Fields
         {
             get
             {
-                try
-                {
-                    //this._RowFileLock.ReaderLock();
-                    return this._Fields;
-                }
-                finally
-                {
-                    //this._RowFileLock.Release();
-                }
-            }
-            set
-            {
-                try
-                {
-                    //this._RowFileLock.WriterLock();
-                    this._Fields = value;
-                }
-                finally
-                {
-                    //this._RowFileLock.ReleaseWriterLock();
-                }
+                return this._Fields;
             }
         }
 
-        public ReadWriteLock RowMemoryLock
-        { get { return this._RowMemoryLock; } }
-
-        internal void OutputTo(TextWriter output)
+        public void OutputTo(TextWriter output)
         {
             //TODO: read locks etc.
 
             output.WriteLine(this);
+            
         }
     }
 }
