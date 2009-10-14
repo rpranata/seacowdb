@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 
 using DLRDB.Core.NetworkUtils;
 using System.IO;
@@ -14,11 +15,13 @@ namespace ServerHarness
 
         static void Main(string[] args)
         {
-            // generateSampleDatabase();
+            //generateSampleDatabase();
+            Trace.Listeners.Add(new ConsoleTraceListener());
 
-            _Server = new Server();
+            _Server = new Server(6806);
             Console.WriteLine("Seacow Server Database Started");
             Console.WriteLine("Please keep this window open");
+            Console.WriteLine("");
             _Server.Start();
         }
 

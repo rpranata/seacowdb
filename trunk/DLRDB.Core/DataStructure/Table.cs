@@ -194,8 +194,6 @@ namespace DLRDB.Core.DataStructure
                 Row[] results = new Row[highRange - lowRange + 1];
                 Row read;
 
-                int index = 0;
-
                 for (int i = (lowRange - 1); i <= (highRange - 1); i++)
                 {
                     this._TableLock.AcquireReader();

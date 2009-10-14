@@ -92,7 +92,7 @@ namespace DLRDB.Core.DataStructure
         /// Overrides the ToString method to only return the Value of this Field.
         /// </summary>
         /// <returns>Value of this Field. IS already a String type, so no conversion is required.</returns>
-        public String ToString()
+        public override String ToString()
         {
             return this.BytesToNative(this.Value).ToString();
         }

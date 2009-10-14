@@ -5,6 +5,7 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
+using System.Diagnostics;
 
 using DLRDB.Core.ConcurrencyUtils;
 using DLRDB.Core.DataStructure;
@@ -13,13 +14,13 @@ namespace DLRDB.Core.NetworkUtils
 {
     class ActiveCommandListener : ActiveObject
     {
-        private Table _Table;
-        private Socket _Socket;
-        private TextReader _Reader;
-        private TextWriter _Writer;
+        private readonly Table _Table;
+        private readonly Socket _Socket;
+        private readonly StreamReader _Reader;
+        private readonly StreamWriter _Writer;
+        private readonly NetworkStream _NetworkStream;
         private String _Command;
-        private NetworkStream _NetworkStream;
-
+       
         public ActiveCommandListener(Socket newSocket, Table table)
             : base()
 		{
@@ -29,7 +30,10 @@ namespace DLRDB.Core.NetworkUtils
             this._Reader = new StreamReader(this._NetworkStream);
             this._Writer = new StreamWriter(this._NetworkStream);
             
-            this._Writer.WriteLine("SERVER>>> Connection Successful\n");
+            this._Writer.WriteLine("SERVER>>> Connection Successful");
+            this._Writer.WriteLine("Welcome to the Seacow Database ");
+            this._Writer.WriteLine("===============================");
+            this._Writer.WriteLine("");
             this._Writer.Flush();
 		}
 
@@ -42,7 +46,12 @@ namespace DLRDB.Core.NetworkUtils
                     this._Command = this._Reader.ReadLine();
                     //Proccess command
                     this._Command = this._Command.Trim();
-                    string commandType = this._Command.Substring(0, 6);
+                    this._Command = this._Command.Remove(this._Command.Length - 1);
+                    String commandType = "";
+                    String[] commands = this._Command.Split(' ');
+                    if (commands.Length >= 0)
+                        commandType = commands[0];
+                    
                     switch (commandType.ToLower())
                     {
                         case "insert":
@@ -104,8 +113,6 @@ namespace DLRDB.Core.NetworkUtils
                         case "select":
                             {
                                 // this._Writer.WriteLine("SELECT COMMAND");
-                             
-                                Row[] arrSelectRow = null;
                                 this._Table.Select(9999999,10000000,this._Writer);
 
                                 String response = "";
@@ -125,10 +132,19 @@ namespace DLRDB.Core.NetworkUtils
                                 this._Writer.Flush();
                                 break;
                             }
-                       default:
+                        case "exit":
+                            {
+                                this._Writer.WriteLine("Thanks for using seacow");
+                                this._Writer.WriteLine("Bye...");
+                                this._Writer.Flush();
+                                this._Socket.Disconnect(true);
+                                break;
+                            }
+                        default:
                             {
                                 this._Writer.WriteLine("UNKNOWN COMMAND");
                                 this._Writer.Flush();
+                                Trace.WriteLine(this._Socket.RemoteEndPoint + " Send this command " + this._Command);
                                 break;
                             }
                     }
@@ -137,7 +153,12 @@ namespace DLRDB.Core.NetworkUtils
                 catch (Exception e)
                 {
                     if (this._Socket.Connected)
+                    {
+                        this._Writer.WriteLine("======================================");
+                        this._Writer.Write("ERROR : ");
                         this._Writer.WriteLine(e.Message);
+                        this._Writer.Flush();
+                    }
                     Console.WriteLine("Error has occured when trying to listen" +
                         "\nto the command sent by client\n" + e.Message);
                 }
@@ -150,7 +171,7 @@ namespace DLRDB.Core.NetworkUtils
             this._Socket.Close();
 
             //kill the thread
-            base._Thread.Abort();
+            base._Thread.Interrupt();
         }
     }
 }
