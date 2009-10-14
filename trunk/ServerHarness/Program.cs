@@ -14,7 +14,7 @@ namespace ServerHarness
 
         static void Main(string[] args)
         {
-            generateSampleDatabase();
+            // generateSampleDatabase();
 
             _Server = new Server();
             Console.WriteLine("Seacow Server Database Started");
@@ -59,7 +59,7 @@ namespace ServerHarness
 
             int ByteCount_TOTAL = ByteCount_FLAG + ByteCount_ID + ByteCount_NAME + ByteCount_AGE;
 
-            int numDataRow = 1000000;
+            int numDataRow = 0;
 
 
             Random myRandomGenerator = new Random();
@@ -71,10 +71,10 @@ namespace ServerHarness
             Byte minorVersion = 0; // 1 bytes
             Byte detailVersion = 0; // 1 bytes
 
-            Int32 numOfRows = 100000; // 4 bytes
+            Int32 numOfRows = numDataRow; // 4 bytes
             Int32 nextPK = numOfRows + 1; // 4 bytes
-            Int32 numOfUsedPhysicalRows = 1000000; // 4 bytes
-            Int32 numOfAvailablePhysicalRows = 1000000; // 4 bytes
+            Int32 numOfUsedPhysicalRows = numDataRow; // 4 bytes
+            Int32 numOfAvailablePhysicalRows = numDataRow; // 4 bytes
 
             // Prepare the data to be written to the file
             // ===========================================

@@ -574,7 +574,7 @@ namespace DLRDB.Core.DataStructure
                 this._Rows[this._PhysicalRows - 1].Target = row;
             }
 
-            Thread.Sleep(3000);
+            // Thread.Sleep(3000);
             this._TableLock.ReleaseWriter();
 
             return row;
@@ -589,19 +589,26 @@ namespace DLRDB.Core.DataStructure
         {
             // Updating the metadata
             int newPotentialRows;
-            int newPhysicalRows;
+            int newTotalRows;
 
             lock (this._Lock)
             {
                 // Persist the old number of physical rows
                 newPotentialRows = this._PhysicalRows; 
-
+                
                 // Multiplying the size of the file by factor of two
-                newPhysicalRows = newPotentialRows + this._PhysicalRows;
+                newTotalRows = newPotentialRows + this._PhysicalRows;
+
+                // Just in case, at the first time, we have no rows at all
+                if (newTotalRows <= 0)
+                {
+                    newTotalRows = 1000;
+                    newPotentialRows = 1000;
+                }
 
                 // Sets the File size to correspond to data
                 this._MyFileStream.SetLength(METADATA_TOTAL_LENGTH
-                    + newPhysicalRows * GetBytesLengthPerRow());
+                    + newTotalRows * GetBytesLengthPerRow());
 
                 // Persists the new amount of Potential 
                 // Rows to reflect File
@@ -613,7 +620,7 @@ namespace DLRDB.Core.DataStructure
 
             // Create the new sized collection 
             // and copy the old collection over
-            WeakReference[] tempRows = new WeakReference[newPhysicalRows];
+            WeakReference[] tempRows = new WeakReference[newTotalRows];
 
             lock (this._Lock)
             {
@@ -622,7 +629,7 @@ namespace DLRDB.Core.DataStructure
 
                 for (int i = _Rows.Length; i < tempRows.Length; i++)
                 {
-                    _Rows[i] = new WeakReference(null);
+                    tempRows[i] = new WeakReference(null);
                 }
                 // Restore it back
                 this._Rows = tempRows;
