@@ -42,7 +42,7 @@ namespace DLRDB.Core.DataStructure
         public const int ROWSTATE_LENGTH = 1;  
         private readonly ReadWriteLock _RowFileLock;
        
-        private readonly Object _ObjForLock = new Object();
+        private readonly Object _Lock = new Object();
 
         /// <summary>
         /// Used for constructing the table to read data from the disk
@@ -102,7 +102,7 @@ namespace DLRDB.Core.DataStructure
             get 
             {
                 RowStateFlag tempResult;
-                lock (this._ObjForLock)
+                lock (this._Lock)
                 {
                     tempResult = this._State;
                 }
@@ -110,7 +110,7 @@ namespace DLRDB.Core.DataStructure
             }
             set 
             {
-                lock (this._ObjForLock)
+                lock (this._Lock)
                 {
                     this._State = value;
                 }
@@ -122,7 +122,7 @@ namespace DLRDB.Core.DataStructure
             get {
 
                 int tempResult;
-                lock (this._ObjForLock)
+                lock (this._Lock)
                 {
                     tempResult = this._RowNum; 
                 }
@@ -130,7 +130,7 @@ namespace DLRDB.Core.DataStructure
             }
             set 
             {
-                lock (this._ObjForLock)
+                lock (this._Lock)
                 {
                     this._RowNum = value;
                     
@@ -159,7 +159,7 @@ namespace DLRDB.Core.DataStructure
         {
             String tempResult = "";
 
-            lock (this._ObjForLock)
+            lock (this._Lock)
             {
                 for (int i = 0; i < this._Fields.Length; i++)
                 {
@@ -175,7 +175,7 @@ namespace DLRDB.Core.DataStructure
         {
             this._RowFileLock.AcquireReader();
 
-            lock (this._ObjForLock)
+            lock (this._Lock)
             {
                 this._MyFileStream.Seek(this._RowBytesStart, SeekOrigin.Begin);
 
@@ -199,7 +199,7 @@ namespace DLRDB.Core.DataStructure
         {
             this._RowFileLock.AcquireWriter();
 
-            lock (this._ObjForLock)
+            lock (this._Lock)
             {
                 this._MyFileStream.Seek(this._RowBytesStart, SeekOrigin.Begin);
 

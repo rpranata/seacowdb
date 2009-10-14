@@ -27,7 +27,7 @@ namespace DLRDB.Core.DataStructure
         /// <returns></returns>
         public override Object BytesToNative(Byte[] value)
         {
-            lock (base._ObjForLock)
+            lock (base._Lock)
             {
                 return ASCIIEncoding.ASCII.GetString(value).TrimEnd();
             }
@@ -40,7 +40,7 @@ namespace DLRDB.Core.DataStructure
         /// <returns></returns>
         public override Byte[] NativeToBytes(Object value)
         {
-            lock (base._ObjForLock)
+            lock (base._Lock)
             {
                 return ASCIIEncoding.Default.GetBytes(value.ToString().PadRight(this.FieldColumn.Length, ' '));
             }

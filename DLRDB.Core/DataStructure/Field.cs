@@ -13,7 +13,7 @@ namespace DLRDB.Core.DataStructure
         private byte[] _Value;
         private byte[] _OriginalValue;
 
-        protected readonly Object _ObjForLock = new Object();
+        protected readonly Object _Lock = new Object();
 
         /// <summary>
         /// Constructor. Name of Field, Type of Field(Int32 or String)
@@ -56,14 +56,14 @@ namespace DLRDB.Core.DataStructure
         {
             get
             {
-                lock (this._ObjForLock)
+                lock (this._Lock)
                 {
                     return this._Value;
                 }
             }
             set
             {
-                lock (this._ObjForLock)
+                lock (this._Lock)
                 {
                     this._Value = value;
                 }
@@ -74,14 +74,14 @@ namespace DLRDB.Core.DataStructure
         {
             get
             {
-                lock (this._ObjForLock)
+                lock (this._Lock)
                 {
                     return this._OriginalValue;
                 }
             }
             set
             {
-                lock (this._ObjForLock)
+                lock (this._Lock)
                 {
                     this._OriginalValue = value;
                 }
