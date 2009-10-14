@@ -73,7 +73,7 @@ namespace ServerHarness
 
             Int32 numOfRows = 100000; // 4 bytes
             Int32 nextPK = numOfRows + 1; // 4 bytes
-            Int32 numOfUsedPhysicalRows = 100000; // 4 bytes
+            Int32 numOfUsedPhysicalRows = 1000000; // 4 bytes
             Int32 numOfAvailablePhysicalRows = 1000000; // 4 bytes
 
             // Prepare the data to be written to the file
