@@ -35,7 +35,7 @@ namespace DLRDB.Core.DataStructure
         private const int ROW_SIZE_INCREMENT = 1000;
         private const int MIN_THRESHOLD_TO_RESIZE_ROWS = 0;
 
-        private Row[] _Rows;
+        private WeakReference[] _Rows;
         private readonly Column[] _Columns;
         private readonly String _Name;
         private readonly String _FileName;
@@ -121,8 +121,12 @@ namespace DLRDB.Core.DataStructure
                         (ReadBytesFromDisk(this._MyFileStream,
                             METADATA_NUM_USED_PHYSICAL_ROWS_LENGTH), 0);
 
-                    this._Rows = new Row[this._PhysicalRows
+                    this._Rows = new WeakReference[this._PhysicalRows
                         + this._PotentialRows];
+                    for (int i = 0; i < _Rows.Length; i++)
+                    {
+                        _Rows[i] = new WeakReference(null);
+                    }
                 }
                 else
                 { throw new Exception("Seacow file not found"); }
@@ -148,7 +152,7 @@ namespace DLRDB.Core.DataStructure
                     (this._DetailVersion), 0, METADATA_DETAIL_VERSION_LENGTH);
 
                 this._MyFileStream.Write(System.BitConverter.GetBytes
-                    (this._ActualRows), 0, METADATA_NUM_ROWS_LENGTH);
+                     (this._ActualRows), 0, METADATA_NUM_ROWS_LENGTH);
 
                 this._MyFileStream.Write(System.BitConverter.GetBytes
                     (this._NextPK), 0, METADATA_NEXT_PK_LENGTH);
@@ -197,13 +201,13 @@ namespace DLRDB.Core.DataStructure
                     this._TableLock.AcquireReader();
                     lock (this._Lock)
                     {
-                        if (this._Rows[i] == null)
+                        read = _Rows[i].Target as Row;
+                        if (read == null)
                         {
                             //this._TableLock.ReleaseReader();
-                            ReadRowFromDisk(i);
+                            read = ReadRowFromDisk(i);
                             //this._TableLock.AcquireReader();
                         }
-                        read = this._Rows[i];
                     }
 
 
@@ -226,7 +230,7 @@ namespace DLRDB.Core.DataStructure
                         //}
                     //this._Rows[i].RowMemoryLock.ReleaseReader();
 
-                    //Thread.Sleep(3000);
+                    // Thread.Sleep(3000);
                     this._TableLock.ReleaseReader();
                 }
                 //return results;
@@ -259,14 +263,15 @@ namespace DLRDB.Core.DataStructure
                     this._TableLock.AcquireReader();
                     lock (this._Lock)
                     {
-                        if (this._Rows[i] == null)
+                        read = this._Rows[i].Target as Row;
+                        if (read == null)
                         {
                             //this._TableLock.ReleaseReader();
-                            ReadRowFromDisk(i);
+                            read = ReadRowFromDisk(i);
                             //this._TableLock.AcquireReader();
                         }
-                        read = this._Rows[i];
-                    }
+                       
+ 					}
 
                     if (read.State == RowStateFlag.CLEAN)
                     {
@@ -298,13 +303,16 @@ namespace DLRDB.Core.DataStructure
 
 
 
-        private void ReadRowFromDisk(int i)
+        private Row ReadRowFromDisk(int i)
         {
             lock (this._Lock)
             {
-                this._Rows[i] = new Row(this, i + 1, this._MyFileStream);
+                Row result = new Row(this, i + 1, this._MyFileStream);
+
                 //TODO:REDO!
-                this._Rows[i].ReadFromDisk();
+                result.ReadFromDisk();
+                this._Rows[i].Target = result;
+                return result;
             }
         }
 
@@ -410,7 +418,7 @@ namespace DLRDB.Core.DataStructure
                         
                     }
 
-                    Thread.Sleep(0);
+                    Thread.Sleep(3000);
                     
                     //tempRow.RowMemoryLock.ReleaseWriter();
                     this._TableLock.ReleaseReader();
@@ -563,7 +571,7 @@ namespace DLRDB.Core.DataStructure
             lock (this._Lock)
             {
                 // Put the row that has just been inserted
-                this._Rows[this._PhysicalRows - 1] = row;
+                this._Rows[this._PhysicalRows - 1].Target = row;
             }
 
             Thread.Sleep(3000);
@@ -605,14 +613,20 @@ namespace DLRDB.Core.DataStructure
 
             // Create the new sized collection 
             // and copy the old collection over
-            Row[] tempRows = new Row[newPhysicalRows];
+            WeakReference[] tempRows = new WeakReference[newPhysicalRows];
 
             lock (this._Lock)
             {
                 this._Rows.CopyTo(tempRows, 0);
-            
+           
+
+                for (int i = _Rows.Length; i < tempRows.Length; i++)
+                {
+                    _Rows[i] = new WeakReference(null);
+                }
                 // Restore it back
                 this._Rows = tempRows;
+                
             }
 
         }
