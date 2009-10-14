@@ -233,7 +233,8 @@ namespace DLRDB.Core.DataStructure
         {
             //TODO: read locks etc.
 
-            output.WriteLine(this);
+            output.WriteLine(DateTime.Now + " > " + this);
+            output.Flush();
             
         }
     }
