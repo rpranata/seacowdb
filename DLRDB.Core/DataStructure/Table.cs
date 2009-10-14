@@ -226,7 +226,7 @@ namespace DLRDB.Core.DataStructure
                         //}
                     //this._Rows[i].RowMemoryLock.ReleaseReader();
 
-                    Thread.Sleep(3000);
+                    //Thread.Sleep(3000);
                     this._TableLock.ReleaseReader();
                 }
                 //return results;
