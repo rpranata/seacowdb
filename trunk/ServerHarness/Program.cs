@@ -71,10 +71,10 @@ namespace ServerHarness
             Byte minorVersion = 0; // 1 bytes
             Byte detailVersion = 0; // 1 bytes
 
-            Int32 numOfRows = 5; // 4 bytes
+            Int32 numOfRows = 100000; // 4 bytes
             Int32 nextPK = numOfRows + 1; // 4 bytes
-            Int32 numOfUsedPhysicalRows = 5; // 4 bytes
-            Int32 numOfAvailablePhysicalRows = 995; // 4 bytes
+            Int32 numOfUsedPhysicalRows = 100000; // 4 bytes
+            Int32 numOfAvailablePhysicalRows = 1000000; // 4 bytes
 
             // Prepare the data to be written to the file
             // ===========================================
