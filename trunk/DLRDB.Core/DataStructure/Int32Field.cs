@@ -21,7 +21,7 @@ namespace DLRDB.Core.DataStructure
 
         public override Object BytesToNative(Byte[] value)
         {
-            lock (base._ObjForLock)
+            lock (base._Lock)
             {
                 return BitConverter.ToInt32(value, 0);
             }
@@ -29,7 +29,7 @@ namespace DLRDB.Core.DataStructure
 
         public override Byte[] NativeToBytes(Object value)
         {
-            lock (base._ObjForLock)
+            lock (base._Lock)
             {
                 return BitConverter.GetBytes(Convert.ToInt32(value));
             }

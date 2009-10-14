@@ -53,7 +53,7 @@ namespace DLRDB.Core.DataStructure
 
         private readonly ReadWriteLock _TableLock;
 
-        private readonly Object _ObjForLock = new Object();
+        private readonly Object _Lock = new Object();
 
         #endregion
 
@@ -92,7 +92,7 @@ namespace DLRDB.Core.DataStructure
 
         public void ReadMetadata()
         {
-            lock (this._ObjForLock)
+            lock (this._Lock)
             {
                 this._MyFileStream.Seek(0, SeekOrigin.Begin);
 
@@ -131,7 +131,7 @@ namespace DLRDB.Core.DataStructure
 
         public void UpdateMetadata()
         {
-            lock (this._ObjForLock)
+            lock (this._Lock)
             {
                 this._MyFileStream.Seek(0, SeekOrigin.Begin);
 
@@ -195,7 +195,7 @@ namespace DLRDB.Core.DataStructure
                 for (int i = (lowRange - 1); i <= (highRange - 1); i++)
                 {
                     this._TableLock.AcquireReader();
-                    lock (this._ObjForLock)
+                    lock (this._Lock)
                     {
                         if (this._Rows[i] == null)
                         {
@@ -257,7 +257,7 @@ namespace DLRDB.Core.DataStructure
                 for (int i = (lowRange - 1); i <= (highRange - 1); i++)
                 {
                     this._TableLock.AcquireReader();
-                    lock (this._ObjForLock)
+                    lock (this._Lock)
                     {
                         if (this._Rows[i] == null)
                         {
@@ -300,7 +300,7 @@ namespace DLRDB.Core.DataStructure
 
         private void ReadRowFromDisk(int i)
         {
-            lock (this._ObjForLock)
+            lock (this._Lock)
             {
                 this._Rows[i] = new Row(this, i + 1, this._MyFileStream);
                 //TODO:REDO!
@@ -324,7 +324,7 @@ namespace DLRDB.Core.DataStructure
 
             int tempNumOfUsedPhysicalRows;
 
-            lock (this._ObjForLock)
+            lock (this._Lock)
             {
                 tempNumOfUsedPhysicalRows = this._NumOfUsedPhysicalRows;
             }
@@ -475,7 +475,7 @@ namespace DLRDB.Core.DataStructure
         {
             int tempResult;
 
-            lock (this._ObjForLock)
+            lock (this._Lock)
             {
                 tempResult = this._Rows.Length;
             }
@@ -519,7 +519,7 @@ namespace DLRDB.Core.DataStructure
             this._TableLock.AcquireWriter();
 
             int tempNumOfAvailablePhysicalRows;
-            lock (this._ObjForLock)
+            lock (this._Lock)
             {
                 tempNumOfAvailablePhysicalRows = this._NumOfAvailablePhysicalRows;
             }
@@ -533,14 +533,14 @@ namespace DLRDB.Core.DataStructure
             // Set the next auto incement ID
 
             int tempNextPK;
-            lock (this._ObjForLock)
+            lock (this._Lock)
             {
                 tempNextPK = this._NextPK;
             }
             row.Fields[0].Value = row.Fields[0].NativeToBytes(tempNextPK);
 
             int tempNumOfUsedPhysicalRows;
-            lock (this._ObjForLock)
+            lock (this._Lock)
             {
                 tempNumOfUsedPhysicalRows = this._NumOfUsedPhysicalRows;
             }
@@ -550,7 +550,7 @@ namespace DLRDB.Core.DataStructure
             row.State = RowStateFlag.CLEAN;
             row.WriteToDisk();
 
-            lock (this._ObjForLock)
+            lock (this._Lock)
             {
                 this._NumOfRows++;
                 this._NumOfUsedPhysicalRows++;
@@ -560,7 +560,7 @@ namespace DLRDB.Core.DataStructure
             
             this.UpdateMetadata();
 
-            lock (this._ObjForLock)
+            lock (this._Lock)
             {
                 // Put the row that has just been inserted
                 this._Rows[this._NumOfUsedPhysicalRows - 1] = row;
@@ -583,7 +583,7 @@ namespace DLRDB.Core.DataStructure
             int newAvailablePhysicalRows;
             int newTotalPhysicalRows;
 
-            lock (this._ObjForLock)
+            lock (this._Lock)
             {
                 newAvailablePhysicalRows = this._NumOfUsedPhysicalRows; // +ROW_SIZE_INCREMENT;
                 newTotalPhysicalRows = newAvailablePhysicalRows
@@ -601,7 +601,7 @@ namespace DLRDB.Core.DataStructure
             // and copy the old collection over
             Row[] tempRows = new Row[newTotalPhysicalRows];
 
-            lock (this._ObjForLock)
+            lock (this._Lock)
             {
                 this._Rows.CopyTo(tempRows, 0);
             
