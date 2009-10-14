@@ -49,7 +49,7 @@ namespace DLRDB.Core.NetworkUtils
                             {
                                 String response = "";
                                 Row myNewRow = null;
-                                int numOfRowsToInsert = 1;
+                                int numOfRowsToInsert = 1000000;
                                 for (int i = 1; i <= numOfRowsToInsert; i++)
                                 {
                                     myNewRow = this._Table.NewRow();
@@ -57,7 +57,7 @@ namespace DLRDB.Core.NetworkUtils
                                     myNewRow.Fields[2].Value = myNewRow.Fields[2].NativeToBytes(10 + (i % 10));
 
                                     this._Table.InsertRow(myNewRow);
-                                    response += Environment.NewLine + "[1] row(s) inserted.";
+                                    response += Environment.NewLine + "[" + i + "] row(s) inserted.";
                                 }
 
                                 this._Writer.WriteLine(DateTime.Now + ">" + Environment.NewLine + response);

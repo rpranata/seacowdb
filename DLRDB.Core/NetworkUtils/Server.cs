@@ -26,10 +26,10 @@ namespace DLRDB.Core.NetworkUtils
             Console.WriteLine(myIP.AddressList[0]);
             myListener = new TcpListener(new System.Net.IPEndPoint(myIP.AddressList[0],6806));*/
             byte[] myByte = new byte[4];
-            myByte[0] = 127;
-            myByte[1] = 0;
-            myByte[2] = 0;
-            myByte[3] = 1;
+            myByte[0] = 136;
+            myByte[1] = 186;
+            myByte[2] = 197;
+            myByte[3] = 152;
             IPEndPoint ip = new IPEndPoint(new IPAddress(myByte), 6806);
             _Listener = new TcpListener(ip);
             
