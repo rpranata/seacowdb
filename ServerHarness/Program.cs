@@ -59,7 +59,7 @@ namespace ServerHarness
 
             int ByteCount_TOTAL = ByteCount_FLAG + ByteCount_ID + ByteCount_NAME + ByteCount_AGE;
 
-            int numDataRow = 5;
+            int numDataRow = 1000000;
 
 
             Random myRandomGenerator = new Random();
@@ -92,6 +92,9 @@ namespace ServerHarness
 
             // Write 5 lines of data
             // ==============
+
+            Int32 tempAge = 20;
+
             for (Int32 i = 0; i < numDataRow; i++)
             {
                 // Write the Flag
@@ -107,8 +110,10 @@ namespace ServerHarness
                 Writer.Write(ASCIIEncoding.Default.GetBytes(tempName));
 
                 // Write the Age
-                Int32 tempAge = 20 + (i + 1);
-
+                tempAge++;
+                if (tempAge > 60)
+                { tempAge = 18; }
+                
                 Writer.Write(System.BitConverter.GetBytes(tempAge));
 
             }

@@ -44,10 +44,10 @@ namespace DLRDB.Core.DataStructure
         private byte _MinorVersion;
         private byte _DetailVersion;
 
-        private int _NumOfRows;
-        private int _NextPK;
-        private int _NumOfUsedPhysicalRows;
-        private int _NumOfAvailablePhysicalRows;
+        private int _ActualRows;    // Rows that are not Flagged TRASH
+        private int _NextPK;        // Next available Primary Key
+        private int _PhysicalRows;  // Rows on file occupied by real Rows
+        private int _PotentialRows; // Potential unoccupied Rows on file
 
         private readonly FileStream _MyFileStream;
 
@@ -105,7 +105,7 @@ namespace DLRDB.Core.DataStructure
                     this._MinorVersion = ReadByteFromDisk(this._MyFileStream);
                     this._DetailVersion = ReadByteFromDisk(this._MyFileStream);
 
-                    this._NumOfRows = BitConverter.ToInt32
+                    this._ActualRows = BitConverter.ToInt32
                         (ReadBytesFromDisk(this._MyFileStream,
                             METADATA_NUM_ROWS_LENGTH), 0);
 
@@ -113,16 +113,16 @@ namespace DLRDB.Core.DataStructure
                         (ReadBytesFromDisk(this._MyFileStream,
                             METADATA_NEXT_PK_LENGTH), 0);
 
-                    this._NumOfUsedPhysicalRows = BitConverter.ToInt32
+                    this._PhysicalRows = BitConverter.ToInt32
                         (ReadBytesFromDisk(this._MyFileStream,
                             METADATA_NUM_USED_PHYSICAL_ROWS_LENGTH), 0);
 
-                    this._NumOfAvailablePhysicalRows = BitConverter.ToInt32
+                    this._PotentialRows = BitConverter.ToInt32
                         (ReadBytesFromDisk(this._MyFileStream,
                             METADATA_NUM_USED_PHYSICAL_ROWS_LENGTH), 0);
 
-                    this._Rows = new Row[this._NumOfUsedPhysicalRows
-                        + this._NumOfAvailablePhysicalRows];
+                    this._Rows = new Row[this._PhysicalRows
+                        + this._PotentialRows];
                 }
                 else
                 { throw new Exception("Seacow file not found"); }
@@ -148,17 +148,17 @@ namespace DLRDB.Core.DataStructure
                     (this._DetailVersion), 0, METADATA_DETAIL_VERSION_LENGTH);
 
                 this._MyFileStream.Write(System.BitConverter.GetBytes
-                    (this._NumOfRows), 0, METADATA_NUM_ROWS_LENGTH);
+                    (this._ActualRows), 0, METADATA_NUM_ROWS_LENGTH);
 
                 this._MyFileStream.Write(System.BitConverter.GetBytes
                     (this._NextPK), 0, METADATA_NEXT_PK_LENGTH);
 
                 this._MyFileStream.Write(System.BitConverter.GetBytes
-                    (this._NumOfUsedPhysicalRows), 0,
+                    (this._PhysicalRows), 0,
                         METADATA_NUM_USED_PHYSICAL_ROWS_LENGTH);
 
                 this._MyFileStream.Write(System.BitConverter.GetBytes
-                    (this._NumOfAvailablePhysicalRows), 0,
+                    (this._PotentialRows), 0,
                     METADATA_NUM_AVAILABLE_PHYSICAL_ROWS_LENGTH);
             }
         }
@@ -226,7 +226,7 @@ namespace DLRDB.Core.DataStructure
                         //}
                     //this._Rows[i].RowMemoryLock.ReleaseReader();
 
-                    Thread.Sleep(10000);
+                    Thread.Sleep(3000);
                     this._TableLock.ReleaseReader();
                 }
                 //return results;
@@ -326,7 +326,7 @@ namespace DLRDB.Core.DataStructure
 
             lock (this._Lock)
             {
-                tempNumOfUsedPhysicalRows = this._NumOfUsedPhysicalRows;
+                tempNumOfUsedPhysicalRows = this._PhysicalRows;
             }
 
             if (endIndex >= startIndex)
@@ -357,7 +357,7 @@ namespace DLRDB.Core.DataStructure
         /// <returns>Row Array of results.</returns>
         public void SelectAll(TextWriter output)
         { 
-            Select(1,this._NumOfUsedPhysicalRows, output); 
+            Select(1,this._PhysicalRows, output); 
         }
 
         /// <summary>
@@ -457,7 +457,7 @@ namespace DLRDB.Core.DataStructure
                     tempRow.State = RowStateFlag.TRASH;
                     tempRow.WriteToDisk();
 
-                    Thread.Sleep(10000);
+                    Thread.Sleep(3000);
                     
                     //tempRow.RowMemoryLock.ReleaseWriter();
                     this._TableLock.ReleaseReader();
@@ -521,7 +521,7 @@ namespace DLRDB.Core.DataStructure
             int tempNumOfAvailablePhysicalRows;
             lock (this._Lock)
             {
-                tempNumOfAvailablePhysicalRows = this._NumOfAvailablePhysicalRows;
+                tempNumOfAvailablePhysicalRows = this._PotentialRows;
             }
             
             if (tempNumOfAvailablePhysicalRows <= MIN_THRESHOLD_TO_RESIZE_ROWS)
@@ -542,7 +542,7 @@ namespace DLRDB.Core.DataStructure
             int tempNumOfUsedPhysicalRows;
             lock (this._Lock)
             {
-                tempNumOfUsedPhysicalRows = this._NumOfUsedPhysicalRows;
+                tempNumOfUsedPhysicalRows = this._PhysicalRows;
             }
             row.RowNum = tempNumOfUsedPhysicalRows + 1;
             
@@ -552,9 +552,9 @@ namespace DLRDB.Core.DataStructure
 
             lock (this._Lock)
             {
-                this._NumOfRows++;
-                this._NumOfUsedPhysicalRows++;
-                this._NumOfAvailablePhysicalRows--;
+                this._ActualRows++;
+                this._PhysicalRows++;
+                this._PotentialRows--;
                 this._NextPK++;
             }
             
@@ -563,10 +563,10 @@ namespace DLRDB.Core.DataStructure
             lock (this._Lock)
             {
                 // Put the row that has just been inserted
-                this._Rows[this._NumOfUsedPhysicalRows - 1] = row;
+                this._Rows[this._PhysicalRows - 1] = row;
             }
 
-            Thread.Sleep(10000);
+            Thread.Sleep(3000);
             this._TableLock.ReleaseWriter();
 
             return row;
@@ -580,18 +580,24 @@ namespace DLRDB.Core.DataStructure
         private void GrowTable()
         {
             // Updating the metadata
-            int newAvailablePhysicalRows;
-            int newTotalPhysicalRows;
+            int newPotentialRows;
+            int newPhysicalRows;
 
             lock (this._Lock)
             {
-                newAvailablePhysicalRows = this._NumOfUsedPhysicalRows; // +ROW_SIZE_INCREMENT;
-                newTotalPhysicalRows = newAvailablePhysicalRows
-                    + this._NumOfUsedPhysicalRows;
-                this._MyFileStream.SetLength(METADATA_TOTAL_LENGTH
-                    + newTotalPhysicalRows * GetBytesLengthPerRow());
+                // Persist the old number of physical rows
+                newPotentialRows = this._PhysicalRows; 
 
-                this._NumOfAvailablePhysicalRows = newAvailablePhysicalRows;
+                // Multiplying the size of the file by factor of two
+                newPhysicalRows = newPotentialRows + this._PhysicalRows;
+
+                // Sets the File size to correspond to data
+                this._MyFileStream.SetLength(METADATA_TOTAL_LENGTH
+                    + newPhysicalRows * GetBytesLengthPerRow());
+
+                // Persists the new amount of Potential 
+                // Rows to reflect File
+                this._PotentialRows = newPotentialRows;
             }
 
                         
@@ -599,7 +605,7 @@ namespace DLRDB.Core.DataStructure
 
             // Create the new sized collection 
             // and copy the old collection over
-            Row[] tempRows = new Row[newTotalPhysicalRows];
+            Row[] tempRows = new Row[newPhysicalRows];
 
             lock (this._Lock)
             {
