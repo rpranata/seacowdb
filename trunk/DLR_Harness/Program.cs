@@ -12,115 +12,115 @@ namespace DLR_Harness
     {
         static void Main(string[] args)
         {
-            generateSampleDatabase();
+            //generateSampleDatabase();
 
-            Table myTable = new Table("Contact", "TestDB/test.dlr");
-            Row[] arrSelectRow = null;
-            Row myNewRow = null;
+            //Table myTable = new Table("Contact", "TestDB/test.dlr");
+            //Row[] arrSelectRow = null;
+            //Row myNewRow = null;
 
-            // Selecting rows from the disk
-            // ===================================
-            Console.WriteLine();
-            try
-            {
-
-                myTable.Select(1, 6, Console.Out);
-                //foreach (Row tempRow in arrSelectRow)
-                //{
-                //    if (tempRow != null)
-                //    {
-                //        Console.WriteLine(tempRow.ToString());
-                //    }
-                //}
-            }
-            catch (SelectException ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
-
-            // Insert 1000 row to the disk
-            // ===========================
-            // Fields[0] is an ID, thus, we don't need to specify this
-
-            int numOfRowsToInsert = 1000;
-            for (int i = 1; i <= numOfRowsToInsert; i++)
-            {
-                myNewRow = myTable.NewRow();
-                myNewRow.Fields[1].Value = myNewRow.Fields[1].NativeToBytes("NewName" + i);
-                myNewRow.Fields[2].Value = myNewRow.Fields[2].NativeToBytes(10 + (i % 10));
-
-                myTable.InsertRow(myNewRow);
-            }
-
-
-            // Selecting all in the disk
-            // ===================================
-
-            Console.WriteLine();
-            myTable.SelectAll(Console.Out);
-            //foreach (Row tempRow in arrSelectRow)
+            //// Selecting rows from the disk
+            //// ===================================
+            //Console.WriteLine();
+            //try
             //{
-            //    if (tempRow != null)
-            //    {
-            //        Console.WriteLine(tempRow.ToString());
-            //    }
+
+            //    myTable.Select(1, 6, Console.Out);
+            //    //foreach (Row tempRow in arrSelectRow)
+            //    //{
+            //    //    if (tempRow != null)
+            //    //    {
+            //    //        Console.WriteLine(tempRow.ToString());
+            //    //    }
+            //    //}
             //}
-
-            // Updating the data
-            // ===================================
-
-            Console.WriteLine();
-            int updateLowRange = 2;
-            int updateHighRange = 5;
-            Object [] arrUpdatedValues = new Object[3];
-            arrUpdatedValues[0] = null; // for ID
-            arrUpdatedValues[1] = "UpdatedName";
-            arrUpdatedValues[2] = 999;
-
-            int numOfUpdatedRows = myTable.Update(updateLowRange, updateHighRange, arrUpdatedValues);
-
-            Console.WriteLine("Number of updated rows => " + numOfUpdatedRows);
-
-
-            // Selecting all in the disk
-            // ===================================
-
-            Console.WriteLine();
-            myTable.Select(2,5, Console.Out);
-            //foreach (Row tempRow in arrSelectRow)
+            //catch (SelectException ex)
             //{
-            //    Console.WriteLine(tempRow.ToString());
+            //    Console.WriteLine(ex.Message);
             //}
 
 
-            // Deleting the data
-            // ===================================
+            //// Insert 1000 row to the disk
+            //// ===========================
+            //// Fields[0] is an ID, thus, we don't need to specify this
 
-            Console.WriteLine();
-            int deleteLowRange = 2;
-            int deleteHighRange = 3;
-
-            int numOfDeletedRows = myTable.Delete(deleteLowRange, deleteHighRange);
-
-            Console.WriteLine("Number of deleted rows => " + numOfDeletedRows);
-
-
-            // Selecting all in the disk
-            // ===================================
-
-            Console.WriteLine();
-            myTable.Select(1, 10, Console.Out);
-            //foreach (Row tempRow in arrSelectRow)
+            //int numOfRowsToInsert = 1000;
+            //for (int i = 1; i <= numOfRowsToInsert; i++)
             //{
-            //    if (tempRow != null)
-            //    {
-            //        Console.WriteLine(tempRow.ToString());
-            //    }
+            //    myNewRow = myTable.NewRow();
+            //    myNewRow.Fields[1].Value = myNewRow.Fields[1].NativeToBytes("NewName" + i);
+            //    myNewRow.Fields[2].Value = myNewRow.Fields[2].NativeToBytes(10 + (i % 10));
+
+            //    myTable.InsertRow(myNewRow);
             //}
 
 
-            Console.ReadLine();
+            //// Selecting all in the disk
+            //// ===================================
+
+            //Console.WriteLine();
+            //myTable.SelectAll(Console.Out);
+            ////foreach (Row tempRow in arrSelectRow)
+            ////{
+            ////    if (tempRow != null)
+            ////    {
+            ////        Console.WriteLine(tempRow.ToString());
+            ////    }
+            ////}
+
+            //// Updating the data
+            //// ===================================
+
+            //Console.WriteLine();
+            //int updateLowRange = 2;
+            //int updateHighRange = 5;
+            //Object [] arrUpdatedValues = new Object[3];
+            //arrUpdatedValues[0] = null; // for ID
+            //arrUpdatedValues[1] = "UpdatedName";
+            //arrUpdatedValues[2] = 999;
+
+            //int numOfUpdatedRows = myTable.Update(updateLowRange, updateHighRange, arrUpdatedValues);
+
+            //Console.WriteLine("Number of updated rows => " + numOfUpdatedRows);
+
+
+            //// Selecting all in the disk
+            //// ===================================
+
+            //Console.WriteLine();
+            //myTable.Select(2,5, Console.Out);
+            ////foreach (Row tempRow in arrSelectRow)
+            ////{
+            ////    Console.WriteLine(tempRow.ToString());
+            ////}
+
+
+            //// Deleting the data
+            //// ===================================
+
+            //Console.WriteLine();
+            //int deleteLowRange = 2;
+            //int deleteHighRange = 3;
+
+            //int numOfDeletedRows = myTable.Delete(deleteLowRange, deleteHighRange,this._Writer);
+
+            //Console.WriteLine("Number of deleted rows => " + numOfDeletedRows);
+
+
+            //// Selecting all in the disk
+            //// ===================================
+
+            //Console.WriteLine();
+            //myTable.Select(1, 10, Console.Out);
+            ////foreach (Row tempRow in arrSelectRow)
+            ////{
+            ////    if (tempRow != null)
+            ////    {
+            ////        Console.WriteLine(tempRow.ToString());
+            ////    }
+            ////}
+
+
+            //Console.ReadLine();
 
         }
 

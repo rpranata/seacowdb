@@ -424,7 +424,7 @@ namespace DLRDB.Core.DataStructure
         /// <param name="highRange">The end range to seek and delete by.
         /// </param>
         /// <returns></returns>
-        public int Delete(int lowRange, int highRange)
+        public int Delete(int lowRange, int highRange, TextWriter output)
         {
             int numberOfAffectedRows = 0;
 
@@ -449,6 +449,7 @@ namespace DLRDB.Core.DataStructure
                     //tempRow.RowMemoryLock.ReleaseWriter();
                     this._TableLock.ReleaseReader();
                 }
+
             }
             else
             {
@@ -468,6 +469,11 @@ namespace DLRDB.Core.DataStructure
             }
 
             return tempResult; 
+        }
+
+        public int DeleteAll(TextWriter output)
+        {
+            return Delete(1, this._PhysicalRows, output);
         }
 
         /// <summary>
