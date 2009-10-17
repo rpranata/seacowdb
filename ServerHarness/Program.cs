@@ -15,7 +15,7 @@ namespace ServerHarness
 
         static void Main(string[] args)
         {
-            //generateSampleDatabase();
+            generateSampleDatabase();
             Trace.Listeners.Add(new ConsoleTraceListener());
 
             _Server = new Server(6806);

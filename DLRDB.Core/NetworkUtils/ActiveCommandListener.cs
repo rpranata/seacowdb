@@ -9,6 +9,7 @@ using System.Diagnostics;
 
 using DLRDB.Core.ConcurrencyUtils;
 using DLRDB.Core.DataStructure;
+using System.Text.RegularExpressions;
 
 namespace DLRDB.Core.NetworkUtils
 {
@@ -46,12 +47,16 @@ namespace DLRDB.Core.NetworkUtils
                     this._Command = this._Reader.ReadLine();
                     //Proccess command
                     this._Command = this._Command.Trim();
+
+                    // Remove the semicolon
                     this._Command = this._Command.Remove(this._Command.Length - 1);
+                    
+                    // Checking the existence of SELECT,INSERT,UPDATE,DELETE
                     String commandType = "";
                     String[] commands = this._Command.Split(' ');
                     if (commands.Length >= 0)
                         commandType = commands[0];
-                    
+
                     switch (commandType.ToLower())
                     {
                         case "insert":
@@ -59,6 +64,9 @@ namespace DLRDB.Core.NetworkUtils
                                 String response = "";
                                 Row myNewRow = null;
                                 int numOfRowsToInsert = 10000000;
+
+                                DateTime start = DateTime.Now;
+
                                 for (int i = 1; i <= numOfRowsToInsert; i++)
                                 {
                                     myNewRow = this._Table.NewRow();
@@ -69,6 +77,13 @@ namespace DLRDB.Core.NetworkUtils
                                     //response += Environment.NewLine + "[" + i + "] row(s) inserted.";
                                 }
 
+
+                                DateTime end = DateTime.Now;
+
+                                TimeSpan theSpan = end - start;
+
+                                this._Writer.WriteLine(DateTime.Now + ">" + "insert takes " + theSpan.TotalMilliseconds + " ms");
+                                
                                 this._Writer.WriteLine(DateTime.Now + ">" + Environment.NewLine + response);
                                 this._Writer.Flush();
                                 break;
@@ -112,12 +127,30 @@ namespace DLRDB.Core.NetworkUtils
                             }
                         case "select":
                             {
+
                                 // this._Writer.WriteLine("SELECT COMMAND");
-                                this._Table.Select(9999999,10000000,this._Writer);
 
-                                String response = "";
-                                int numOfSelectedRows = 0;
+                                if (commands[1] == "*")
+                                {
+                                    this._Table.SelectAll(this._Writer);
+                                }
+                                else
+                                {
+                                    String[] arrSplitExpression = Regex.Split(commands[1], "-");
 
+                                    Int32 startIndex = Convert.ToInt32(arrSplitExpression[0]) - 1;
+                                    Int32 endIndex = Convert.ToInt32(arrSplitExpression[1]) - 1;
+
+                                    this._Table.Select(startIndex, endIndex, this._Writer);
+                                }
+
+                                this._Writer.WriteLine(DateTime.Now + ">" + "Finish select");
+                                this._Writer.Flush();
+                                break;
+
+                                //this._Table.Select(9999990,9999992,this._Writer);
+                                //String response = "";
+                                //int numOfSelectedRows = 0;
                                 //foreach (Row tempRow in arrSelectRow)
                                 //{
                                 //    if (tempRow != null)
@@ -127,10 +160,8 @@ namespace DLRDB.Core.NetworkUtils
                                 //    }
                                 //}
 
-                                response += Environment.NewLine + "[" + numOfSelectedRows + "] row(s) selected.";
-                                this._Writer.WriteLine(DateTime.Now + ">" + Environment.NewLine+ response);
-                                this._Writer.Flush();
-                                break;
+                                // response += Environment.NewLine + "[" + numOfSelectedRows + "] row(s) selected.";
+                                
                             }
                         case "exit":
                             {
@@ -173,5 +204,15 @@ namespace DLRDB.Core.NetworkUtils
             //kill the thread
             base._Thread.Interrupt();
         }
+
+        private void parseSelect (String command)
+        {
+          
+
+
+            
+        }
+
+
     }
 }

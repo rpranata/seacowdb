@@ -101,12 +101,12 @@ namespace DLRDB.Core.DataStructure
         {
             get 
             {
-                RowStateFlag tempResult;
-                lock (this._Lock)
-                {
-                    tempResult = this._State;
-                }
-                return tempResult;
+                //RowStateFlag tempResult;
+                //lock (this._Lock)
+                //{
+                //    tempResult = this._State;
+                //}
+                return this._State;
             }
             set 
             {
@@ -121,12 +121,12 @@ namespace DLRDB.Core.DataStructure
         {
             get {
 
-                int tempResult;
-                lock (this._Lock)
-                {
-                    tempResult = this._RowNum; 
-                }
-                return tempResult;
+                //int tempResult;
+                //lock (this._Lock)
+                //{
+                //    tempResult = this._RowNum; 
+                //}
+                return this._RowNum;
             }
             set 
             {

@@ -86,57 +86,61 @@ namespace DLRDB.Core.DataStructure
 
             this._MyFileStream = new FileStream(this._FileName, 
                 FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                        
+            #region "ReadMetadata"
 
-            ReadMetadata();
-        }
+            // ReadMetadata();
+            // ==============
 
-        public void ReadMetadata()
-        {
-            lock (this._Lock)
+            this._MyFileStream.Seek(0, SeekOrigin.Begin);
+
+            // Conditional checks if the file is a valid seacow file
+            if (TRADEMARK == ASCIIEncoding.ASCII.GetString
+                (ReadBytesFromDisk(this._MyFileStream,
+                    METADATA_TRADEMARK_LENGTH)))
             {
-                this._MyFileStream.Seek(0, SeekOrigin.Begin);
+                this._MajorVersion = ReadByteFromDisk(this._MyFileStream);
+                this._MinorVersion = ReadByteFromDisk(this._MyFileStream);
+                this._DetailVersion = ReadByteFromDisk(this._MyFileStream);
 
-                // Conditional checks if the file is a valid seacow file
-                if (TRADEMARK == ASCIIEncoding.ASCII.GetString
+                this._ActualRows = BitConverter.ToInt32
                     (ReadBytesFromDisk(this._MyFileStream,
-                        METADATA_TRADEMARK_LENGTH)))
+                        METADATA_NUM_ROWS_LENGTH), 0);
+
+                this._NextPK = BitConverter.ToInt32
+                    (ReadBytesFromDisk(this._MyFileStream,
+                        METADATA_NEXT_PK_LENGTH), 0);
+
+                this._PhysicalRows = BitConverter.ToInt32
+                    (ReadBytesFromDisk(this._MyFileStream,
+                        METADATA_NUM_USED_PHYSICAL_ROWS_LENGTH), 0);
+
+                this._PotentialRows = BitConverter.ToInt32
+                    (ReadBytesFromDisk(this._MyFileStream,
+                        METADATA_NUM_USED_PHYSICAL_ROWS_LENGTH), 0);
+
+                this._Rows = new WeakReference[this._PhysicalRows
+                    + this._PotentialRows];
+                for (int i = 0; i < _Rows.Length; i++)
                 {
-                    this._MajorVersion = ReadByteFromDisk(this._MyFileStream);
-                    this._MinorVersion = ReadByteFromDisk(this._MyFileStream);
-                    this._DetailVersion = ReadByteFromDisk(this._MyFileStream);
-
-                    this._ActualRows = BitConverter.ToInt32
-                        (ReadBytesFromDisk(this._MyFileStream,
-                            METADATA_NUM_ROWS_LENGTH), 0);
-
-                    this._NextPK = BitConverter.ToInt32
-                        (ReadBytesFromDisk(this._MyFileStream,
-                            METADATA_NEXT_PK_LENGTH), 0);
-
-                    this._PhysicalRows = BitConverter.ToInt32
-                        (ReadBytesFromDisk(this._MyFileStream,
-                            METADATA_NUM_USED_PHYSICAL_ROWS_LENGTH), 0);
-
-                    this._PotentialRows = BitConverter.ToInt32
-                        (ReadBytesFromDisk(this._MyFileStream,
-                            METADATA_NUM_USED_PHYSICAL_ROWS_LENGTH), 0);
-
-                    this._Rows = new WeakReference[this._PhysicalRows
-                        + this._PotentialRows];
-                    for (int i = 0; i < _Rows.Length; i++)
-                    {
-                        _Rows[i] = new WeakReference(null);
-                    }
+                    _Rows[i] = new WeakReference(null);
                 }
-                else
-                { throw new Exception("Seacow file not found"); }
             }
+            else
+            { throw new Exception("Seacow file not found"); }
+
+            #endregion
+
+            // ===========
+
         }
 
-        public void UpdateMetadata()
+        /// <summary>
+        /// This call to this procedure must be surrounded by LOCK
+        /// </summary>
+        private void UpdateMetadata()
         {
-            lock (this._Lock)
-            {
+           
                 this._MyFileStream.Seek(0, SeekOrigin.Begin);
 
                 this._MyFileStream.Write(ASCIIEncoding.Default.GetBytes
@@ -164,7 +168,7 @@ namespace DLRDB.Core.DataStructure
                 this._MyFileStream.Write(System.BitConverter.GetBytes
                     (this._PotentialRows), 0,
                     METADATA_NUM_AVAILABLE_PHYSICAL_ROWS_LENGTH);
-            }
+           
         }
 
         /// <summary>
@@ -214,21 +218,8 @@ namespace DLRDB.Core.DataStructure
                         read.OutputTo(output);
                     }
 
-                    //read.RowMemoryLock.AcquireReader();
-                        //if (this._Rows[i].State == RowStateFlag.CLEAN)
-                        //{
-                        //    results[index] = this._Rows[i];
-                        //    index++;
-                        //}
-                        //else
-                        //{
-                        //    Console.WriteLine("this._Rows[" + i
-                        //        + "].State is not CLEAN, instead => "
-                        //        + this._Rows[i].State);
-                        //}
-                    //this._Rows[i].RowMemoryLock.ReleaseReader();
+                    read = null;
 
-                    // Thread.Sleep(3000);
                     this._TableLock.ReleaseReader();
                 }
                 //return results;
@@ -277,21 +268,6 @@ namespace DLRDB.Core.DataStructure
                         index++;
                     }
 
-
-                    //read.RowMemoryLock.AcquireReader();
-                    //if (this._Rows[i].State == RowStateFlag.CLEAN)
-                    //{
-                    //    results[index] = this._Rows[i];
-                    //    index++;
-                    //}
-                    //else
-                    //{
-                    //    Console.WriteLine("this._Rows[" + i
-                    //        + "].State is not CLEAN, instead => "
-                    //        + this._Rows[i].State);
-                    //}
-                    //this._Rows[i].RowMemoryLock.ReleaseReader();
-
                     this._TableLock.ReleaseReader();
                 }
 
@@ -303,15 +279,20 @@ namespace DLRDB.Core.DataStructure
 
         private Row ReadRowFromDisk(int i)
         {
+            Row result = null;
+            
+            result = new Row(this, i + 1, this._MyFileStream);
+
+            //TODO:REDO!
+            result.ReadFromDisk();
+
             lock (this._Lock)
             {
-                Row result = new Row(this, i + 1, this._MyFileStream);
-
-                //TODO:REDO!
-                result.ReadFromDisk();
                 this._Rows[i].Target = result;
-                return result;
             }
+            
+            return result;
+            
         }
 
         /// <summary>
@@ -562,12 +543,9 @@ namespace DLRDB.Core.DataStructure
                 this._PhysicalRows++;
                 this._PotentialRows--;
                 this._NextPK++;
-            }
-            
-            this.UpdateMetadata();
-
-            lock (this._Lock)
-            {
+         
+                this.UpdateMetadata();
+          
                 // Put the row that has just been inserted
                 this._Rows[this._PhysicalRows - 1].Target = row;
             }
@@ -611,17 +589,14 @@ namespace DLRDB.Core.DataStructure
                 // Persists the new amount of Potential 
                 // Rows to reflect File
                 this._PotentialRows = newPotentialRows;
-            }
+            
+                this.UpdateMetadata();
 
-                        
-            this.UpdateMetadata();
+            
+                // Create the new sized collection 
+                // and copy the old collection over
+                WeakReference[] tempRows = new WeakReference[newTotalRows];
 
-            // Create the new sized collection 
-            // and copy the old collection over
-            WeakReference[] tempRows = new WeakReference[newTotalRows];
-
-            lock (this._Lock)
-            {
                 this._Rows.CopyTo(tempRows, 0);
            
 
@@ -629,6 +604,7 @@ namespace DLRDB.Core.DataStructure
                 {
                     tempRows[i] = new WeakReference(null);
                 }
+
                 // Restore it back
                 this._Rows = tempRows;
                 
