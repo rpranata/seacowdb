@@ -94,42 +94,45 @@ namespace DLRDB.Core.NetworkUtils
                                 }
                             case "update":
                                 {
-                                    // Supported format : 
-                                    // -> UPDATE 1-2,dany,22
-                                    // -> UPDATE *,hoon,22
-                                    // -> UPDATE *,rendy,
+                                     //Supported format : 
+                                     //-> UPDATE 1-2,dany,22
+                                     //-> UPDATE *,hoon,22
+                                     //-> UPDATE *,rendy,
 
-                                    //int updatedRows = 0;
+                                    int updatedRows = 0;
 
-                                    //if (commands[1] == "*")
-                                    //{
-                                    //    updatedRows = this._Table.DeleteAll(this._Writer);
+                                    // Split by comma
+                                    // ==================
+                                    String[] arrSplitByComma = Regex.Split(commands[1], ",");
+
+                                    // Allocate for (length - 1), because one of the element of arrSplitByComma will be the "range" 
+                                    // - which is about to be ignored
+                                    // Moreover, we add the number of element by 1, to allocate for the auto generated ID
+                                    Object[] arrUpdatedValue = new Object[(arrSplitByComma.Length - 1) + 1];
+                                    for (int i = 1; i < arrSplitByComma.Length; i++)
+                                    {
+                                        arrUpdatedValue[i] = arrSplitByComma[i];
+                                    }
+
+                                    if (arrSplitByComma[0] == "*")
+                                    {
+                                        updatedRows = this._Table.UpdateAll(arrUpdatedValue);
                                         
-                                    //}
-                                    //else
-                                    //{
-//                                        String[] arrSplitMessage = Regex.Split(commands[1], ",");
+                                    }
+                                    else
+                                    {
+                                        String[] arrRange = Regex.Split(arrSplitByComma[0], "-");
+
+                                        Int32 startIndex = Convert.ToInt32(arrRange[0]);
+                                        Int32 endIndex = Convert.ToInt32(arrRange[1]);
+
+                                        updatedRows = this._Table.Update(startIndex, endIndex, arrUpdatedValue);
                                         
+                                    }
 
-                                        
-
-//                                        String[] arrSplitExpression = Regex.Split(commands[1], "-");
-
-//                                        Int32 startIndex = Convert.ToInt32(arrSplitExpression[0]);
-//                                        Int32 endIndex = Convert.ToInt32(arrSplitExpression[1]);
-
-//                                        Object[] arrUpdatedValue = new Object [2];
-//arrUpdatedValue [0] =  
-//                                        this._Table.Update(startIndex,endIndex,
-                                        
-//                                        updatedRows = this._Table.Delete(startIndex, endIndex, this._Writer);
-//                                    }
-
-
-
-//                                    this._Writer.WriteLine(DateTime.Now + ">" + "Finish updating" + deletedRows + " row(s)");
-//                                    this._Writer.Flush();
-//                                    break;
+                                    this._Writer.WriteLine(DateTime.Now + ">" + "Finish updating " + updatedRows + " row(s)");
+                                    this._Writer.Flush();
+                                    break;
 
 
                                     // ==

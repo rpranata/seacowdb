@@ -369,8 +369,10 @@ namespace DLRDB.Core.DataStructure
                 // To indicate whether in a row, we have some changes
 
                 Boolean isChangesMade = false;
-            
-                foreach (Row tempRow in arrSelectedRows)
+
+                int lastRowNumber = -1;
+
+                foreach (Row tempRow in arrSelectedRows.Where(tempRow => tempRow != null))
                 {
                     isChangesMade = false;
 
@@ -383,8 +385,16 @@ namespace DLRDB.Core.DataStructure
                         if (arrValueUpdates[i] != null)
                         {
                             isChangesMade = true;
-                            tempRow.Fields[i].Value = tempRow.Fields[i]
-                                .NativeToBytes(arrValueUpdates[i]);
+                            try
+                            {
+                                tempRow.Fields[i].Value = tempRow.Fields[i]
+                                    .NativeToBytes(arrValueUpdates[i]);
+                            }
+                            catch (Exception ex)
+                            {
+                                int a = 10;
+
+                            }
                         }
                     }
 
@@ -397,8 +407,7 @@ namespace DLRDB.Core.DataStructure
                         
                     }
 
-                    Thread.Sleep(3000);
-                    
+                    lastRowNumber = tempRow.RowNum;
                     //tempRow.RowMemoryLock.ReleaseWriter();
                     this._TableLock.ReleaseReader();
                 }                
@@ -410,6 +419,11 @@ namespace DLRDB.Core.DataStructure
             }
 
             return numberOfAffectedRows;
+        }
+
+        public int UpdateAll(params Object[] arrValueUpdates)
+        {
+            return Update(1, this._PhysicalRows, arrValueUpdates);
         }
 
         /// <summary>
@@ -434,7 +448,7 @@ namespace DLRDB.Core.DataStructure
 
                 // To indicate whether in a row, we have some changes
 
-                foreach (Row tempRow in arrSelectedRows)
+                foreach (Row tempRow in arrSelectedRows.Where(tempRow => tempRow != null))
                 {
                     numberOfAffectedRows++;
                     
@@ -443,8 +457,6 @@ namespace DLRDB.Core.DataStructure
                    
                     tempRow.State = RowStateFlag.TRASH;
                     tempRow.WriteToDisk();
-
-                    Thread.Sleep(3000);
                     
                     //tempRow.RowMemoryLock.ReleaseWriter();
                     this._TableLock.ReleaseReader();
