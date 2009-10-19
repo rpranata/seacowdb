@@ -37,13 +37,15 @@ namespace DLRDB.Core.ConcurrencyUtils
 					//Console.WriteLine(Thread.CurrentThread.Name + " waits for token");
                     this._WaitQueue.Enqueue(tempThread);
                     doWait = true;
+                    Monitor.Enter(tempThread);
 				}
             }
 
             if (doWait)
             {
-                lock (tempThread)
+                //lock (tempThread)
                 { Monitor.Wait(tempThread); }
+                Monitor.Exit(tempThread);
             }
         }
 

@@ -4,12 +4,51 @@ using System.Text;
 
 namespace DLRDB.Core.ConcurrencyUtils
 {
+    public interface ILock : IDisposable
+    {
+        void Release();
+    }
+
     /// <summary>
     /// ReadWriteLock utility that utilises the FIFOSemaphore to prevent
     /// reader or writer starvation.
     /// </summary>
     public class ReadWriteLock
     {
+        private class RWLock : ILock
+        {
+            private bool isWriter;
+            private bool released = false;
+            private ReadWriteLock parent;
+
+            public RWLock(bool writer, ReadWriteLock parent)
+            {
+                isWriter = writer;
+                this.parent = parent;
+            }
+
+            public void Release()
+            {
+                if (!released)
+                {
+                    released = true;
+                    if (isWriter)
+                        parent.ReleaseWriter();
+                    else
+                        parent.ReleaseReader();
+                }
+            }
+
+            #region IDisposable Members
+
+            public void Dispose()
+            {
+                Release();
+            }
+
+            #endregion
+        }
+
         #region Initialisers
 
         private readonly FIFOSemaphore _WriterTurnstile 
@@ -32,7 +71,7 @@ namespace DLRDB.Core.ConcurrencyUtils
         #endregion
 
         #region Functions
-        public void AcquireReader()
+        public ILock AcquireReader()
         {
             this._Turnstile.Acquire();
             this._Turnstile.Release();
@@ -56,9 +95,11 @@ namespace DLRDB.Core.ConcurrencyUtils
                     hasBlockedTurnstile = false;
                 }
             }
+
+            return new RWLock(false, this);
         }
 
-        public void AcquireWriter()
+        public ILock AcquireWriter()
         {
             lock (_WaitingLock)
             { _WaitingWriters++; }
@@ -71,9 +112,11 @@ namespace DLRDB.Core.ConcurrencyUtils
             
             this._Mutex.Acquire();
             this._Turnstile.Release();
+
+            return new RWLock(true, this);
         }
 
-        public void ReleaseWriter()
+        private void ReleaseWriter()
         {
             this._Mutex.Release();
 
@@ -92,7 +135,7 @@ namespace DLRDB.Core.ConcurrencyUtils
             }
         }
 
-        public void ReleaseReader()
+        private void ReleaseReader()
         {
             lock (this)
             {
