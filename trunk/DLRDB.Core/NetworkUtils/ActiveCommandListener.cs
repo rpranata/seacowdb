@@ -63,7 +63,7 @@ namespace DLRDB.Core.NetworkUtils
 
                         switch (commandType.ToLower())
                         {
-                            case "insert":
+                            case "insertall":
                                 {
                                     String response = "";
                                     Row myNewRow = null;
@@ -78,6 +78,14 @@ namespace DLRDB.Core.NetworkUtils
                                         myNewRow.Fields[2].Value = myNewRow.Fields[2].NativeToBytes(10 + (i % 10));
 
                                         this._Table.InsertRow(myNewRow);
+
+                                        this._Writer.Write(".");
+
+                                        if (i % 80 - (3 + ("" + numOfRowsToInsert).Length)  == 0)
+                                        {
+                                            this._Writer.WriteLine(" (" + i + ")");
+                                        }
+                                        this._Writer.Flush();
                                         //response += Environment.NewLine + "[" + i + "] row(s) inserted.";
                                     }
 

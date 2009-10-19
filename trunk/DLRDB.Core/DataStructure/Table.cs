@@ -200,27 +200,27 @@ namespace DLRDB.Core.DataStructure
 
                 for (int i = (lowRange - 1); i <= (highRange - 1); i++)
                 {
-                    this._TableLock.AcquireReader();
-                    lock (this._Lock)
+                    using (_TableLock.AcquireReader())
                     {
-                        read = _Rows[i].Target as Row;
-                        if (read == null)
+                        lock (this._Lock)
                         {
-                            //this._TableLock.ReleaseReader();
-                            read = ReadRowFromDisk(i);
-                            //this._TableLock.AcquireReader();
+                            read = _Rows[i].Target as Row;
+                            if (read == null)
+                            {
+                                //this._TableLock.ReleaseReader();
+                                read = ReadRowFromDisk(i);
+                                //this._TableLock.AcquireReader();
+                            }
                         }
+
+
+                        if (read.State == RowStateFlag.CLEAN)
+                        {
+                            read.OutputTo(output);
+                        }
+
+                        read = null;
                     }
-
-
-                    if (read.State == RowStateFlag.CLEAN)
-                    {
-                        read.OutputTo(output);
-                    }
-
-                    read = null;
-
-                    this._TableLock.ReleaseReader();
                 }
                 //return results;
             }
@@ -249,26 +249,25 @@ namespace DLRDB.Core.DataStructure
 
                 for (int i = (lowRange - 1); i <= (highRange - 1); i++)
                 {
-                    this._TableLock.AcquireReader();
-                    lock (this._Lock)
+                    using (_TableLock.AcquireReader())
                     {
-                        read = this._Rows[i].Target as Row;
-                        if (read == null)
+                        lock (this._Lock)
                         {
-                            //this._TableLock.ReleaseReader();
-                            read = ReadRowFromDisk(i);
-                            //this._TableLock.AcquireReader();
+                            read = this._Rows[i].Target as Row;
+                            if (read == null)
+                            {
+                                //this._TableLock.ReleaseReader();
+                                read = ReadRowFromDisk(i);
+                                //this._TableLock.AcquireReader();
+                            }
                         }
-                       
- 					}
 
-                    if (read.State == RowStateFlag.CLEAN)
-                    {
-                        results[index] = read;
-                        index++;
+                        if (read.State == RowStateFlag.CLEAN)
+                        {
+                            results[index] = read;
+                            index++;
+                        }
                     }
-
-                    this._TableLock.ReleaseReader();
                 }
 
                 return results;
@@ -376,40 +375,38 @@ namespace DLRDB.Core.DataStructure
                 {
                     isChangesMade = false;
 
-                    this._TableLock.AcquireReader();
-                    //tempRow.RowMemoryLock.AcquireWriter();
-
-                    // Start from index 1 (because index 0 is the ID)
-                    for (int i = 1; i < this.Columns.Length; i++)
+                    using (_TableLock.AcquireReader())
                     {
-                        if (arrValueUpdates[i] != null)
-                        {
-                            isChangesMade = true;
-                            try
-                            {
-                                tempRow.Fields[i].Value = tempRow.Fields[i]
-                                    .NativeToBytes(arrValueUpdates[i]);
-                            }
-                            catch (Exception ex)
-                            {
-                                int a = 10;
+                        //tempRow.RowMemoryLock.AcquireWriter();
 
+                        // Start from index 1 (because index 0 is the ID)
+                        for (int i = 1; i < this.Columns.Length; i++)
+                        {
+                            if (arrValueUpdates[i] != null)
+                            {
+                                isChangesMade = true;
+                                try
+                                {
+                                    tempRow.Fields[i].Value = tempRow.Fields[i]
+                                        .NativeToBytes(arrValueUpdates[i]);
+                                }
+                                catch (Exception ex)
+                                {
+                                   
+                                }
                             }
                         }
+
+                        if (isChangesMade)
+                        {
+                            numberOfAffectedRows++;
+                            tempRow.WriteToDisk();
+
+                        }
+
+                        lastRowNumber = tempRow.RowNum;
+                        //tempRow.RowMemoryLock.ReleaseWriter();
                     }
-
-                    if (isChangesMade)
-                    {
-                        numberOfAffectedRows++;
-
-                        tempRow.State = RowStateFlag.CLEAN;
-                        tempRow.WriteToDisk();
-                        
-                    }
-
-                    lastRowNumber = tempRow.RowNum;
-                    //tempRow.RowMemoryLock.ReleaseWriter();
-                    this._TableLock.ReleaseReader();
                 }                
             }
             else
@@ -451,15 +448,16 @@ namespace DLRDB.Core.DataStructure
                 foreach (Row tempRow in arrSelectedRows.Where(tempRow => tempRow != null))
                 {
                     numberOfAffectedRows++;
-                    
-                    this._TableLock.AcquireReader();
-                    //tempRow.RowMemoryLock.AcquireWriter();
-                   
-                    tempRow.State = RowStateFlag.TRASH;
-                    tempRow.WriteToDisk();
-                    
-                    //tempRow.RowMemoryLock.ReleaseWriter();
-                    this._TableLock.ReleaseReader();
+
+                    using (_TableLock.AcquireReader())
+                    {
+                        //tempRow.RowMemoryLock.AcquireWriter();
+
+                        tempRow.State = RowStateFlag.TRASH;
+                        tempRow.WriteToDisk();
+
+                        //tempRow.RowMemoryLock.ReleaseWriter();
+                    }
                 }
 
             }
@@ -521,55 +519,57 @@ namespace DLRDB.Core.DataStructure
         /// <returns></returns>
         public Row InsertRow(Row row)
         {
-            this._TableLock.AcquireWriter();
-
-            int tempNumOfAvailablePhysicalRows;
-            lock (this._Lock)
+            using (_TableLock.AcquireWriter())
             {
-                tempNumOfAvailablePhysicalRows = this._PotentialRows;
-            }
-            
-            if (tempNumOfAvailablePhysicalRows <= MIN_THRESHOLD_TO_RESIZE_ROWS)
-            {
-                // grow the table
-                GrowTable();
-            }
 
-            // Set the next auto incement ID
+                int tempNumOfAvailablePhysicalRows;
+                lock (this._Lock)
+                {
+                    tempNumOfAvailablePhysicalRows = this._PotentialRows;
+                }
 
-            int tempNextPK;
-            lock (this._Lock)
-            {
-                tempNextPK = this._NextPK;
+                if (tempNumOfAvailablePhysicalRows <= MIN_THRESHOLD_TO_RESIZE_ROWS)
+                {
+                    // grow the table
+                    GrowTable();
+                }
+
+                // Set the next auto incement ID
+
+                int tempNextPK;
+                lock (this._Lock)
+                {
+                    tempNextPK = this._NextPK;
+                }
+                row.Fields[0].Value = row.Fields[0].NativeToBytes(tempNextPK);
+
+                int tempNumOfUsedPhysicalRows;
+                lock (this._Lock)
+                {
+                    tempNumOfUsedPhysicalRows = this._PhysicalRows;
+                }
+                row.RowNum = tempNumOfUsedPhysicalRows + 1;
+
+                // Once we write it to disk, its state will become CLEAN
+                row.State = RowStateFlag.CLEAN;
+                row.WriteToDisk();
+
+                lock (this._Lock)
+                {
+                    this._ActualRows++;
+                    this._PhysicalRows++;
+                    this._PotentialRows--;
+                    this._NextPK++;
+
+                    this.UpdateMetadata();
+
+                    // Put the row that has just been inserted
+                    this._Rows[this._PhysicalRows - 1].Target = row;
+                }
+
+
+                // Thread.Sleep(3000);
             }
-            row.Fields[0].Value = row.Fields[0].NativeToBytes(tempNextPK);
-
-            int tempNumOfUsedPhysicalRows;
-            lock (this._Lock)
-            {
-                tempNumOfUsedPhysicalRows = this._PhysicalRows;
-            }
-            row.RowNum = tempNumOfUsedPhysicalRows + 1;
-            
-            // Once we write it to disk, its state will become CLEAN
-            row.State = RowStateFlag.CLEAN;
-            row.WriteToDisk();
-
-            lock (this._Lock)
-            {
-                this._ActualRows++;
-                this._PhysicalRows++;
-                this._PotentialRows--;
-                this._NextPK++;
-         
-                this.UpdateMetadata();
-          
-                // Put the row that has just been inserted
-                this._Rows[this._PhysicalRows - 1].Target = row;
-            }
-
-            // Thread.Sleep(3000);
-            this._TableLock.ReleaseWriter();
 
             return row;
         }

@@ -173,52 +173,56 @@ namespace DLRDB.Core.DataStructure
 
         public void ReadFromDisk()
         {
-            this._RowFileLock.AcquireReader();
-
-            lock (this._Lock)
+            using (_RowFileLock.AcquireReader())
             {
-                this._MyFileStream.Seek(this._RowBytesStart, SeekOrigin.Begin);
-
-                this.State = (RowStateFlag)Table.ReadByteFromDisk
-                    (this._MyFileStream);
-            
-                
-                int index = 0;
-                foreach (Column tempColumn in this._ParentTable.Columns)
+                lock (this._Lock)
                 {
-                    this._Fields[index].Value = Table.ReadBytesFromDisk
-                        (this._MyFileStream,tempColumn.Length);
-                    index++;
+                    this._MyFileStream.Seek(this._RowBytesStart, SeekOrigin.Begin);
+
+                    this.State = (RowStateFlag)Table.ReadByteFromDisk
+                        (this._MyFileStream);
+
+
+                    int index = 0;
+                    foreach (Column tempColumn in this._ParentTable.Columns)
+                    {
+                        this._Fields[index].Value = Table.ReadBytesFromDisk
+                            (this._MyFileStream, tempColumn.Length);
+                        index++;
+                    }
                 }
             }
-
-            this._RowFileLock.ReleaseReader();
         }
 
         public void WriteToDisk()
         {
-            this._RowFileLock.AcquireWriter();
-
-            lock (this._Lock)
+            using (_RowFileLock.AcquireWriter())
             {
-                this._MyFileStream.Seek(this._RowBytesStart, SeekOrigin.Begin);
-
-                // when we put data into the disk, we'll only use .CLEAN, .EMPTY, and .TRASH flag
-                RowStateFlag tempDiskRowState = tempDiskRowState = RowStateFlag.CLEAN;
-                if (this.State == RowStateFlag.TRASH)
-                { tempDiskRowState = RowStateFlag.TRASH; }
-
-                Table.WriteByteToDisk(this._MyFileStream, (Byte)tempDiskRowState);
-
-                int index = 0;
-                foreach (Column tempColumn in this._ParentTable.Columns)
+                lock (this._Lock)
                 {
-                    Table.WriteBytesToDisk(this._MyFileStream, this._Fields[index].Value, tempColumn.Length);
-                    index++;
-                }
-            }
+                    this._MyFileStream.Seek(this._RowBytesStart, SeekOrigin.Begin);
 
-            this._RowFileLock.ReleaseWriter();
+                    // when we put data into the disk, we'll only use .CLEAN, .EMPTY, and .TRASH flag
+                    RowStateFlag tempDiskRowState = RowStateFlag.CLEAN;
+                    if (this.State == RowStateFlag.TRASH)
+                    { tempDiskRowState = RowStateFlag.TRASH; }
+
+                    Table.WriteByteToDisk(this._MyFileStream, (Byte)tempDiskRowState);
+                    
+
+                    int index = 0;
+                    foreach (Column tempColumn in this._ParentTable.Columns)
+                    {
+                        Table.WriteBytesToDisk(this._MyFileStream, this._Fields[index].Value, tempColumn.Length);
+                        index++;
+                    }
+
+                    if (State != RowStateFlag.TRASH)
+                    {
+                        State = RowStateFlag.CLEAN;
+                    }
+                }
+            } //release lock
         }
 
         public Field[] Fields
