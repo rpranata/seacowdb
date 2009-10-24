@@ -15,6 +15,8 @@ namespace DLRDB.Core.ConcurrencyUtils
     /// </summary>
     public class ReadWriteLock
     {
+        private System.Threading.Thread _CurrentWriterThread = null;
+        private List<System.Threading.Thread> _CurrentReaderThread = new List<System.Threading.Thread>();
         private class RWLock : ILock
         {
             private bool isWriter;
@@ -101,17 +103,33 @@ namespace DLRDB.Core.ConcurrencyUtils
 
         public ILock AcquireWriter()
         {
+            System.Threading.Thread localThread = null;
             lock (_WaitingLock)
-            { _WaitingWriters++; }
+            {
+                localThread = this._CurrentWriterThread;
+            }
 
-            this._WriterTurnstile.Acquire();
-            _Turnstile.Acquire();
+            if ((localThread != null) && (localThread == System.Threading.Thread.CurrentThread))
+            {
+                // this Thread has acquired writer lock before
+            }
+            else
+            {
+                lock (_WaitingLock)
+                { _WaitingWriters++; }
 
-            lock (_WaitingLock)
-            { _WaitingWriters--; }
-            
-            this._Mutex.Acquire();
-            this._Turnstile.Release();
+                this._WriterTurnstile.Acquire();
+                _Turnstile.Acquire();
+
+                lock (_WaitingLock)
+                { _WaitingWriters--; }
+
+                _CurrentWriterThread = System.Threading.Thread.CurrentThread;
+
+                this._Mutex.Acquire();
+                this._Turnstile.Release();
+
+            }
 
             return new RWLock(true, this);
         }
@@ -131,7 +149,10 @@ namespace DLRDB.Core.ConcurrencyUtils
                     hasBlockedTurnstile = true;
                 }
                 else
-                { _WriterTurnstile.Release(); }
+                {
+                    this._CurrentWriterThread = null;
+                    _WriterTurnstile.Release(); 
+                }
             }
         }
 

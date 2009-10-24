@@ -190,7 +190,7 @@ namespace DLRDB.Core.DataStructure
         /// <param name="highRange">The high Range to start the seek from.
         /// </param>
         /// <returns>Row Array of results.</returns>
-        public void Select(int lowRange, int highRange, TextWriter output)
+        public void Select(int lowRange, int highRange, Transaction theTransaction, TextWriter output)
         {
             // Conditional to establish if the range is valid.
             if (ValidateSelectRange(lowRange, highRange))
@@ -200,8 +200,10 @@ namespace DLRDB.Core.DataStructure
 
                 for (int i = (lowRange - 1); i <= (highRange - 1); i++)
                 {
-                    using (_TableLock.AcquireReader())
-                    {
+                    theTransaction.StartReadTable(this);
+                    
+                    //using (_TableLock.AcquireReader())
+                    //{
                         lock (this._Lock)
                         {
                             read = _Rows[i].Target as Row;
@@ -213,14 +215,18 @@ namespace DLRDB.Core.DataStructure
                             }
                         }
 
+                        theTransaction.StartReadRow(read);
 
                         if (read.State == RowStateFlag.CLEAN)
                         {
                             read.OutputTo(output);
                         }
 
+                        theTransaction.EndReadRow(read);
+
                         read = null;
-                    }
+                    //}
+                    theTransaction.EndReadTable(this);
                 }
                 //return results;
             }
@@ -239,7 +245,7 @@ namespace DLRDB.Core.DataStructure
         /// <param name="lowRange"></param>
         /// <param name="highRange"></param>
         /// <returns></returns>
-        private Row[] Select(int lowRange, int highRange)
+        private Row[] Select(int lowRange, int highRange, Transaction theTransaction)
         {
            
                 Row[] results = new Row[highRange - lowRange + 1];
@@ -249,8 +255,9 @@ namespace DLRDB.Core.DataStructure
 
                 for (int i = (lowRange - 1); i <= (highRange - 1); i++)
                 {
-                    using (_TableLock.AcquireReader())
-                    {
+                    theTransaction.StartReadTable(this);
+                    //using (_TableLock.AcquireReader())
+                    //{
                         lock (this._Lock)
                         {
                             read = this._Rows[i].Target as Row;
@@ -262,12 +269,16 @@ namespace DLRDB.Core.DataStructure
                             }
                         }
 
+                        theTransaction.StartReadRow(read);
                         if (read.State == RowStateFlag.CLEAN)
                         {
                             results[index] = read;
                             index++;
                         }
-                    }
+                        theTransaction.EndReadRow(read);
+                        
+                    //}
+                    theTransaction.EndReadTable(this);
                 }
 
                 return results;
@@ -341,9 +352,9 @@ namespace DLRDB.Core.DataStructure
         /// and the end range to the number of physical rows.
         /// </summary>
         /// <returns>Row Array of results.</returns>
-        public void SelectAll(TextWriter output)
-        { 
-            Select(1,this._PhysicalRows, output); 
+        public void SelectAll(TextWriter output,Transaction theTransaction)
+        {
+            Select(1, this._PhysicalRows, theTransaction, output); 
         }
 
         /// <summary>
@@ -357,13 +368,13 @@ namespace DLRDB.Core.DataStructure
         /// <param name="arrValueUpdates">The values to update to.
         /// </param>
         /// <returns>The number of affected rows.</returns>
-        public int Update(int lowRange, int highRange, params Object [] arrValueUpdates)
+        public int Update(int lowRange, int highRange, Transaction theTransaction, params Object[] arrValueUpdates)
         {
             int numberOfAffectedRows = 0;
             
             if (ValidateSelectRange(lowRange, highRange))
             {
-                Row[] arrSelectedRows = Select(lowRange, highRange);
+                Row[] arrSelectedRows = Select(lowRange, highRange, theTransaction);
 
                 // To indicate whether in a row, we have some changes
 
@@ -375,10 +386,10 @@ namespace DLRDB.Core.DataStructure
                 {
                     isChangesMade = false;
 
-                    using (_TableLock.AcquireReader())
-                    {
+                    theTransaction.StartReadTable(this);
+                    theTransaction.StartWriteRow(tempRow);
+                                           
                         //tempRow.RowMemoryLock.AcquireWriter();
-
                         // Start from index 1 (because index 0 is the ID)
                         for (int i = 1; i < this.Columns.Length; i++)
                         {
@@ -399,15 +410,21 @@ namespace DLRDB.Core.DataStructure
 
                         if (isChangesMade)
                         {
+                       
                             numberOfAffectedRows++;
-                            tempRow.WriteToDisk();
-
+                            // tempRow.WriteToDisk();
                         }
 
                         lastRowNumber = tempRow.RowNum;
                         //tempRow.RowMemoryLock.ReleaseWriter();
+
+                        theTransaction.EndWriteRow(tempRow);
+                        theTransaction.EndReadTable(this);
+
                     }
-                }                
+
+                
+
             }
             else
             {
@@ -418,9 +435,9 @@ namespace DLRDB.Core.DataStructure
             return numberOfAffectedRows;
         }
 
-        public int UpdateAll(params Object[] arrValueUpdates)
+        public int UpdateAll(Transaction theTransaction, params Object[] arrValueUpdates)
         {
-            return Update(1, this._PhysicalRows, arrValueUpdates);
+            return Update(1, this._PhysicalRows, theTransaction,arrValueUpdates);
         }
 
         /// <summary>
@@ -435,13 +452,13 @@ namespace DLRDB.Core.DataStructure
         /// <param name="highRange">The end range to seek and delete by.
         /// </param>
         /// <returns></returns>
-        public int Delete(int lowRange, int highRange, TextWriter output)
+        public int Delete(int lowRange, int highRange, Transaction theTransaction,TextWriter output)
         {
             int numberOfAffectedRows = 0;
 
             if (ValidateSelectRange(lowRange, highRange))
             {
-                Row[] arrSelectedRows = Select(lowRange, highRange);
+                Row[] arrSelectedRows = Select(lowRange, highRange,theTransaction);
 
                 // To indicate whether in a row, we have some changes
 
@@ -449,15 +466,21 @@ namespace DLRDB.Core.DataStructure
                 {
                     numberOfAffectedRows++;
 
-                    using (_TableLock.AcquireReader())
-                    {
+                    theTransaction.StartReadTable(this);
+                    theTransaction.StartWriteRow(tempRow);
+                    //using (_TableLock.AcquireReader())
+                    //{
                         //tempRow.RowMemoryLock.AcquireWriter();
 
                         tempRow.State = RowStateFlag.TRASH;
-                        tempRow.WriteToDisk();
+                        // tempRow.WriteToDisk();
 
                         //tempRow.RowMemoryLock.ReleaseWriter();
-                    }
+                    //}
+
+                        theTransaction.EndReadTable(this);
+                        theTransaction.EndWriteRow(tempRow);
+                    
                 }
 
             }
@@ -481,9 +504,9 @@ namespace DLRDB.Core.DataStructure
             return tempResult; 
         }
 
-        public int DeleteAll(TextWriter output)
+        public int DeleteAll(Transaction theTransaction, TextWriter output)
         {
-            return Delete(1, this._PhysicalRows, output);
+            return Delete(1, this._PhysicalRows, theTransaction, output);
         }
 
         /// <summary>
@@ -517,10 +540,11 @@ namespace DLRDB.Core.DataStructure
         /// </summary>
         /// <param name="row">Row to be added to the Table.</param>
         /// <returns></returns>
-        public Row InsertRow(Row row)
+        public Row InsertRow(Row row,Transaction theTransaction)
         {
-            using (_TableLock.AcquireWriter())
-            {
+            theTransaction.StartRowInsertOnTable(this);
+            //using (_TableLock.AcquireWriter())
+            //{
 
                 int tempNumOfAvailablePhysicalRows;
                 lock (this._Lock)
@@ -552,7 +576,7 @@ namespace DLRDB.Core.DataStructure
 
                 // Once we write it to disk, its state will become CLEAN
                 row.State = RowStateFlag.CLEAN;
-                row.WriteToDisk();
+                // row.WriteToDisk();
 
                 lock (this._Lock)
                 {
@@ -569,7 +593,9 @@ namespace DLRDB.Core.DataStructure
 
 
                 // Thread.Sleep(3000);
-            }
+            //}
+
+            theTransaction.EndRowInsertOnTable(this);
 
             return row;
         }
