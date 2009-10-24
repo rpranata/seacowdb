@@ -20,6 +20,7 @@ namespace DLRDB.Core.NetworkUtils
         private readonly StreamReader _Reader;
         private readonly StreamWriter _Writer;
         private readonly NetworkStream _NetworkStream;
+        private Transaction _TheTransaction;
         private String _Command;
        
         public ActiveCommandListener(Socket newSocket, Table table)
@@ -63,6 +64,23 @@ namespace DLRDB.Core.NetworkUtils
 
                         switch (commandType.ToLower())
                         {
+                            case "begintransaction":
+                                {
+                                    this._TheTransaction = new Transaction();
+                                    break;
+                                }
+
+                            case "commit":
+                                {
+                                    this._TheTransaction.Commit();
+                                    break;
+                                }
+                            case "rollback":
+                                {
+                                    this._TheTransaction.Rollback();
+                                    break;
+                                }
+
                             case "insertall":
                                 {
                                     String response = "";
@@ -77,7 +95,7 @@ namespace DLRDB.Core.NetworkUtils
                                         myNewRow.Fields[1].Value = myNewRow.Fields[1].NativeToBytes("NewName");
                                         myNewRow.Fields[2].Value = myNewRow.Fields[2].NativeToBytes(10 + (i % 10));
 
-                                        this._Table.InsertRow(myNewRow);
+                                        this._Table.InsertRow(myNewRow, this._TheTransaction);
 
                                         this._Writer.Write(".");
 
@@ -124,7 +142,7 @@ namespace DLRDB.Core.NetworkUtils
 
                                     if (arrSplitByComma[0] == "*")
                                     {
-                                        updatedRows = this._Table.UpdateAll(arrUpdatedValue);
+                                        updatedRows = this._Table.UpdateAll(this._TheTransaction, arrUpdatedValue);
                                         
                                     }
                                     else
@@ -134,7 +152,7 @@ namespace DLRDB.Core.NetworkUtils
                                         Int32 startIndex = Convert.ToInt32(arrRange[0]);
                                         Int32 endIndex = Convert.ToInt32(arrRange[1]);
 
-                                        updatedRows = this._Table.Update(startIndex, endIndex, arrUpdatedValue);
+                                        updatedRows = this._Table.Update(startIndex, endIndex,this._TheTransaction, arrUpdatedValue);
                                         
                                     }
 
@@ -154,7 +172,7 @@ namespace DLRDB.Core.NetworkUtils
                                     arrUpdatedValues[1] = "UpdatedName";
                                     arrUpdatedValues[2] = 999;
 
-                                    int numOfUpdatedRows = this._Table.Update(updateLowRange, updateHighRange, arrUpdatedValues);
+                                    int numOfUpdatedRows = this._Table.Update(updateLowRange, updateHighRange, this._TheTransaction,arrUpdatedValues);
 
                                     response += Environment.NewLine + "[" + numOfUpdatedRows + "] row(s) updated.";
 
@@ -171,7 +189,7 @@ namespace DLRDB.Core.NetworkUtils
 
                                     if (commands[1] == "*")
                                     {
-                                        deletedRows = this._Table.DeleteAll(this._Writer);
+                                        deletedRows = this._Table.DeleteAll(this._TheTransaction, this._Writer);
                                     }
                                     else
                                     {
@@ -180,7 +198,7 @@ namespace DLRDB.Core.NetworkUtils
                                         Int32 startIndex = Convert.ToInt32(arrSplitExpression[0]);
                                         Int32 endIndex = Convert.ToInt32(arrSplitExpression[1]);
 
-                                        deletedRows = this._Table.Delete(startIndex, endIndex, this._Writer);
+                                        deletedRows = this._Table.Delete(startIndex, endIndex, this._TheTransaction, this._Writer);
                                     }
 
                                     this._Writer.WriteLine(DateTime.Now + ">" + "Finish deleting " + deletedRows + " row(s)");
@@ -207,7 +225,7 @@ namespace DLRDB.Core.NetworkUtils
 
                                     if (commands[1] == "*")
                                     {
-                                        this._Table.SelectAll(this._Writer);
+                                        this._Table.SelectAll(this._Writer, this._TheTransaction);
                                     }
                                     else
                                     {
@@ -216,7 +234,7 @@ namespace DLRDB.Core.NetworkUtils
                                         Int32 startIndex = Convert.ToInt32(arrSplitExpression[0]);
                                         Int32 endIndex = Convert.ToInt32(arrSplitExpression[1]);
 
-                                        this._Table.Select(startIndex, endIndex, this._Writer);
+                                        this._Table.Select(startIndex, endIndex, this._TheTransaction, this._Writer);
                                     }
 
                                     this._Writer.WriteLine(DateTime.Now + ">" + "Finish select");

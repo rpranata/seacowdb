@@ -173,25 +173,23 @@ namespace DLRDB.Core.DataStructure
 
         public void ReadFromDisk()
         {
-            using (_RowFileLock.AcquireReader())
+            lock (this._Lock)
             {
-                lock (this._Lock)
+                this._MyFileStream.Seek(this._RowBytesStart, SeekOrigin.Begin);
+
+                this.State = (RowStateFlag)Table.ReadByteFromDisk
+                    (this._MyFileStream);
+
+
+                int index = 0;
+                foreach (Column tempColumn in this._ParentTable.Columns)
                 {
-                    this._MyFileStream.Seek(this._RowBytesStart, SeekOrigin.Begin);
-
-                    this.State = (RowStateFlag)Table.ReadByteFromDisk
-                        (this._MyFileStream);
-
-
-                    int index = 0;
-                    foreach (Column tempColumn in this._ParentTable.Columns)
-                    {
-                        this._Fields[index].Value = Table.ReadBytesFromDisk
-                            (this._MyFileStream, tempColumn.Length);
-                        index++;
-                    }
+                    this._Fields[index].Value = Table.ReadBytesFromDisk
+                        (this._MyFileStream, tempColumn.Length);
+                    index++;
                 }
-            }
+            }        
+            
         }
 
         public void WriteToDisk()
@@ -240,6 +238,11 @@ namespace DLRDB.Core.DataStructure
             output.WriteLine(DateTime.Now + " > " + this);
             output.Flush();
             
+        }
+
+        public ReadWriteLock RowFileLock
+        {
+            get { return this._RowFileLock; }
         }
     }
 }
