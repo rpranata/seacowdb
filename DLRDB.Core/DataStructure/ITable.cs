@@ -13,7 +13,7 @@ namespace DLRDB.Core.DataStructure
         /// <param name="selectedFields">List of Fields to indication which Columns we want returned. In SQL Syntax, this refers to input between SELECT and FROM keywords.</param>
         /// <param name="criteria">List of Fields to indicated what is/are the search criteria(s) by Column and Value pairs.</param>
         /// <returns></returns>
-        //List<Row> Select(List<String> selectedFields, List<Field> criteria);
+        //List<Row> FetchRows(List<String> selectedFields, List<Field> criteria);
 
         Row[] Select(int startIndex, int endIndex);
         

@@ -24,7 +24,7 @@ namespace DLR_Harness
             //try
             //{
 
-            //    myTable.Select(1, 6, Console.Out);
+            //    myTable.FetchRows(1, 6, Console.Out);
             //    //foreach (Row tempRow in arrSelectRow)
             //    //{
             //    //    if (tempRow != null)
@@ -87,7 +87,7 @@ namespace DLR_Harness
             //// ===================================
 
             //Console.WriteLine();
-            //myTable.Select(2,5, Console.Out);
+            //myTable.FetchRows(2,5, Console.Out);
             ////foreach (Row tempRow in arrSelectRow)
             ////{
             ////    Console.WriteLine(tempRow.ToString());
@@ -110,7 +110,7 @@ namespace DLR_Harness
             //// ===================================
 
             //Console.WriteLine();
-            //myTable.Select(1, 10, Console.Out);
+            //myTable.FetchRows(1, 10, Console.Out);
             ////foreach (Row tempRow in arrSelectRow)
             ////{
             ////    if (tempRow != null)

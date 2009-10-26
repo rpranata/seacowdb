@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace DLRDB.Core.ConcurrencyUtils
 {
@@ -34,6 +35,7 @@ namespace DLRDB.Core.ConcurrencyUtils
                 if (!released)
                 {
                     released = true;
+                    if (parent == null) return;
                     if (isWriter)
                         parent.ReleaseWriter();
                     else
@@ -79,7 +81,15 @@ namespace DLRDB.Core.ConcurrencyUtils
             this._Turnstile.Release();
 
             lock (_WaitingLock)
-            { _WaitingReaders++; }
+            {
+                // if this thread has already hold the read lock, we'd just return no nore lock
+                if (_CurrentReaderThread.Contains(Thread.CurrentThread) ||
+                    Thread.CurrentThread == _CurrentWriterThread)
+                {
+                    return new RWLock(false, null);
+                }
+                _WaitingReaders++; 
+            }
 
             lock (this)
             {
@@ -90,6 +100,7 @@ namespace DLRDB.Core.ConcurrencyUtils
             lock (_WaitingLock)
             {
                 _WaitingReaders--;
+                _CurrentReaderThread.Add(Thread.CurrentThread);
                 if (_WaitingReaders == 0 && hasBlockedTurnstile)
                 {
                     _Turnstile.Release();
@@ -112,6 +123,8 @@ namespace DLRDB.Core.ConcurrencyUtils
             if ((localThread != null) && (localThread == System.Threading.Thread.CurrentThread))
             {
                 // this Thread has acquired writer lock before
+
+                return new RWLock(true, null);
             }
             else
             {
@@ -129,9 +142,9 @@ namespace DLRDB.Core.ConcurrencyUtils
                 this._Mutex.Acquire();
                 this._Turnstile.Release();
 
+                return new RWLock(true, this);
             }
 
-            return new RWLock(true, this);
         }
 
         private void ReleaseWriter()
@@ -158,12 +171,18 @@ namespace DLRDB.Core.ConcurrencyUtils
 
         private void ReleaseReader()
         {
-            lock (this)
+            lock (_WaitingLock)
             {
+                _CurrentReaderThread.Remove(Thread.CurrentThread);
+
                 if (this._ReaderCount > 0)
-                { this._ReaderCount--; }
+                { 
+                    this._ReaderCount--; 
+                }
                 if (this._ReaderCount == 0)
-                { this._Mutex.Release(); }
+                { 
+                    this._Mutex.Release(); 
+                }
             }
         }
 

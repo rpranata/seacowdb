@@ -14,10 +14,10 @@ namespace DLRDB.Core.CommandPattern
         /// This is the supported format : 
         /// 
         /// - SELECT *
-        ///   (i.e. Select all rows )
+        ///   (i.e. FetchRows all rows )
         ///   
         /// - SELECT 1-7 
-        ///   (i.e. Select Row 1 -> 7)
+        ///   (i.e. FetchRows Row 1 -> 7)
         ///   
         /// Notes : 
         /// - All criteria are assumed to be and AND operator, OR operator is not supported

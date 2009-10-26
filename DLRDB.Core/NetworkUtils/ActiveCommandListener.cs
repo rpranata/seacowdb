@@ -10,11 +10,22 @@ using System.Diagnostics;
 using DLRDB.Core.ConcurrencyUtils;
 using DLRDB.Core.DataStructure;
 using System.Text.RegularExpressions;
+using DLRDB.Core.NewCommandPattern;
 
 namespace DLRDB.Core.NetworkUtils
 {
     class ActiveCommandListener : ActiveObject
     {
+        private static readonly TransactionCreater _DefaultIsolation;
+        private static readonly List<Command> _Commands = new List<Command>();
+
+        static ActiveCommandListener()
+        {
+            SetIsolationLevelCommand cmd = new SetIsolationLevelCommand();
+            _Commands.Add(cmd);
+            _DefaultIsolation = cmd.CreateReadCommitted;
+        }
+
         private readonly Table _Table;
         private readonly Socket _Socket;
         private readonly StreamReader _Reader;
@@ -41,6 +52,9 @@ namespace DLRDB.Core.NetworkUtils
 
         public override void DoSomething()
         {
+            DbEnvironment myEnv = new DbEnvironment();
+            myEnv.CreateTransactionForIsolationLevel = _DefaultIsolation;
+            myEnv.Writer = _Writer;
             while (this._Socket.Connected)
             {
                 try
@@ -62,11 +76,34 @@ namespace DLRDB.Core.NetworkUtils
                         if (commands.Length >= 0)
                             commandType = commands[0];
 
+                        String command = _Command.Trim().ToLower().Replace("  ", " ");
+
+                        foreach (Command cmd in _Commands)
+                        {
+                            if (cmd.RunFor(command))
+                            {
+                                bool createTransaction = myEnv.CurrentTransaction == null;
+                                if (createTransaction)
+                                {
+                                    myEnv.CurrentTransaction = myEnv.CreateTransactionForIsolationLevel();
+                                }
+
+                                cmd.Run(command, _Table, myEnv);
+
+                                if (createTransaction)
+                                {
+                                    myEnv.CurrentTransaction.Commit();
+                                    myEnv.CurrentTransaction = null;
+                                }
+                                break;
+                            }
+                        }
+
                         switch (commandType.ToLower())
                         {
                             case "begintransaction":
                                 {
-                                    this._TheTransaction = new Transaction();
+                                    this._TheTransaction = myEnv.CreateTransactionForIsolationLevel();
                                     break;
                                 }
 
@@ -241,7 +278,7 @@ namespace DLRDB.Core.NetworkUtils
                                     this._Writer.Flush();
                                     break;
 
-                                    //this._Table.Select(9999990,9999992,this._Writer);
+                                    //this._Table.FetchRows(9999990,9999992,this._Writer);
                                     //String response = "";
                                     //int numOfSelectedRows = 0;
                                     //foreach (Row tempRow in arrSelectRow)

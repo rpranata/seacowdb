@@ -77,6 +77,9 @@
     <Compile Include="NetworkUtils\ActiveCommandListener.cs" />
     <Compile Include="NetworkUtils\Client.cs" />
     <Compile Include="NetworkUtils\Server.cs" />
+    <Compile Include="NewCommandPattern\Command.cs" />
+    <Compile Include="NewCommandPattern\DbEnvironment.cs" />
+    <Compile Include="NewCommandPattern\SetIsolationLevelCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
