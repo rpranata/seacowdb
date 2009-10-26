@@ -43,7 +43,7 @@ namespace DLRDB.Core.CommandPattern
 
             Row[] results = null;
 
-            // listResult = base._TheTable.Select(this._ListSelected, this._ListCriteria);
+            // listResult = base._TheTable.FetchRows(this._ListSelected, this._ListCriteria);
             results = base._TheTable.Select(this._StartIndex,this._EndIndex);
 
             for (int i = 0; i < results.Length; i++) 

@@ -21,12 +21,12 @@ namespace DLRDB.Core.DataStructure
         private const int METADATA_TRADEMARK_LENGTH = 6;
         private const int METADATA_MAJOR_VERSION_LENGTH = 1;
         private const int METADATA_MINOR_VERSION_LENGTH = 1;
-        private const int METADATA_DETAIL_VERSION_LENGTH = 1;        
+        private const int METADATA_DETAIL_VERSION_LENGTH = 1;
         private const int METADATA_NUM_ROWS_LENGTH = 4;
         private const int METADATA_NUM_USED_PHYSICAL_ROWS_LENGTH = 4;
         private const int METADATA_NUM_AVAILABLE_PHYSICAL_ROWS_LENGTH = 4;
         private const int METADATA_NEXT_PK_LENGTH = 4;
-        
+
         public const int METADATA_TOTAL_LENGTH =
             METADATA_TRADEMARK_LENGTH + METADATA_MAJOR_VERSION_LENGTH + METADATA_MINOR_VERSION_LENGTH +
             METADATA_DETAIL_VERSION_LENGTH + METADATA_NUM_ROWS_LENGTH + METADATA_NEXT_PK_LENGTH +
@@ -51,7 +51,7 @@ namespace DLRDB.Core.DataStructure
 
         private readonly FileStream _MyFileStream;
 
-        private readonly ReadWriteLock _TableLock;
+        public readonly ReadWriteLock _TableLock;
 
         private readonly Object _Lock = new Object();
 
@@ -64,7 +64,7 @@ namespace DLRDB.Core.DataStructure
         /// <param name="name">Name of Table. Not mutable.</param>
         /// <param name="filename">Name of File. Not mutable.</param>
         public Table(String name, String filename)
-        {   
+        {
             // TODO: Open the file
             // read in the number of rows
             // read in the file version - check
@@ -73,20 +73,20 @@ namespace DLRDB.Core.DataStructure
 
             this._Name = name;
             this._FileName = filename;
-            
+
             // Constructs columns (Currently hardcoded)
             // ===================
             this._Columns = new Column[3];
 
-            this._Columns[0] = new Column("ID",typeof(System.Int32), 4);
+            this._Columns[0] = new Column("ID", typeof(System.Int32), 4);
             this._Columns[1] = new Column
                 ("Name", typeof(System.String), 20);
             this._Columns[2] = new Column
                 ("Age", typeof(System.Int32), 4);
 
-            this._MyFileStream = new FileStream(this._FileName, 
+            this._MyFileStream = new FileStream(this._FileName,
                 FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                        
+
             #region "ReadMetadata"
 
             // ReadMetadata();
@@ -140,35 +140,35 @@ namespace DLRDB.Core.DataStructure
         /// </summary>
         private void UpdateMetadata()
         {
-           
-                this._MyFileStream.Seek(0, SeekOrigin.Begin);
 
-                this._MyFileStream.Write(ASCIIEncoding.Default.GetBytes
-                    (TRADEMARK), 0, METADATA_TRADEMARK_LENGTH);
+            this._MyFileStream.Seek(0, SeekOrigin.Begin);
 
-                this._MyFileStream.Write(System.BitConverter.GetBytes
-                    (this._MajorVersion), 0, METADATA_MAJOR_VERSION_LENGTH);
+            this._MyFileStream.Write(ASCIIEncoding.Default.GetBytes
+                (TRADEMARK), 0, METADATA_TRADEMARK_LENGTH);
 
-                this._MyFileStream.Write(System.BitConverter.GetBytes
-                    (this._MinorVersion), 0, METADATA_MINOR_VERSION_LENGTH);
+            this._MyFileStream.Write(System.BitConverter.GetBytes
+                (this._MajorVersion), 0, METADATA_MAJOR_VERSION_LENGTH);
 
-                this._MyFileStream.Write(System.BitConverter.GetBytes
-                    (this._DetailVersion), 0, METADATA_DETAIL_VERSION_LENGTH);
+            this._MyFileStream.Write(System.BitConverter.GetBytes
+                (this._MinorVersion), 0, METADATA_MINOR_VERSION_LENGTH);
 
-                this._MyFileStream.Write(System.BitConverter.GetBytes
-                     (this._ActualRows), 0, METADATA_NUM_ROWS_LENGTH);
+            this._MyFileStream.Write(System.BitConverter.GetBytes
+                (this._DetailVersion), 0, METADATA_DETAIL_VERSION_LENGTH);
 
-                this._MyFileStream.Write(System.BitConverter.GetBytes
-                    (this._NextPK), 0, METADATA_NEXT_PK_LENGTH);
+            this._MyFileStream.Write(System.BitConverter.GetBytes
+                 (this._ActualRows), 0, METADATA_NUM_ROWS_LENGTH);
 
-                this._MyFileStream.Write(System.BitConverter.GetBytes
-                    (this._PhysicalRows), 0,
-                        METADATA_NUM_USED_PHYSICAL_ROWS_LENGTH);
+            this._MyFileStream.Write(System.BitConverter.GetBytes
+                (this._NextPK), 0, METADATA_NEXT_PK_LENGTH);
 
-                this._MyFileStream.Write(System.BitConverter.GetBytes
-                    (this._PotentialRows), 0,
-                    METADATA_NUM_AVAILABLE_PHYSICAL_ROWS_LENGTH);
-           
+            this._MyFileStream.Write(System.BitConverter.GetBytes
+                (this._PhysicalRows), 0,
+                    METADATA_NUM_USED_PHYSICAL_ROWS_LENGTH);
+
+            this._MyFileStream.Write(System.BitConverter.GetBytes
+                (this._PotentialRows), 0,
+                METADATA_NUM_AVAILABLE_PHYSICAL_ROWS_LENGTH);
+
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace DLRDB.Core.DataStructure
         { get { return this._Columns; } }
 
         /// <summary>
-        /// Select operation based on lowRange and highRange parameters.
+        /// FetchRows operation based on lowRange and highRange parameters.
         /// The database is structured that the first ID begins with a 1,
         /// and auto increments.
         /// </summary>
@@ -198,42 +198,42 @@ namespace DLRDB.Core.DataStructure
                 Row[] results = new Row[highRange - lowRange + 1];
                 Row read;
 
+                theTransaction.StartReadTable(this);
+
                 for (int i = (lowRange - 1); i <= (highRange - 1); i++)
                 {
-                    theTransaction.StartReadTable(this);
-                    
                     //using (_TableLock.AcquireReader())
                     //{
-                        lock (this._Lock)
+                    lock (this._Lock)
+                    {
+                        read = _Rows[i].Target as Row;
+                        if (read == null)
                         {
-                            read = _Rows[i].Target as Row;
-                            if (read == null)
-                            {
-                                //this._TableLock.ReleaseReader();
-                                read = ReadRowFromDisk(i);
-                                //this._TableLock.AcquireReader();
-                            }
+                            //this._TableLock.ReleaseReader();
+                            read = ReadRowFromDisk(i);
+                            //this._TableLock.AcquireReader();
                         }
+                    }
 
-                        theTransaction.StartReadRow(read);
+                    theTransaction.StartReadRow(read);
 
-                        if (read.State == RowStateFlag.CLEAN)
-                        {
-                            read.OutputTo(output);
-                        }
+                    if (read.State != RowStateFlag.TRASH)
+                    {
+                        read.OutputTo(output);
+                    }
 
-                        theTransaction.EndReadRow(read);
+                    theTransaction.EndReadRow(read);
 
-                        read = null;
+                    read = null;
                     //}
-                    theTransaction.EndReadTable(this);
                 }
                 //return results;
+                theTransaction.EndReadTable(this);
             }
             else
             {
                 throw new SelectException(
-                    "Invalid range supplied for Select operation.");
+                    "Invalid range supplied for FetchRows operation.");
             }
 
         }
@@ -245,64 +245,50 @@ namespace DLRDB.Core.DataStructure
         /// <param name="lowRange"></param>
         /// <param name="highRange"></param>
         /// <returns></returns>
-        private Row[] Select(int lowRange, int highRange, Transaction theTransaction)
+        private Row[] FetchRows(int lowRange, int highRange)
         {
-           
-                Row[] results = new Row[highRange - lowRange + 1];
-                Row read;
+            Row[] results = new Row[highRange - lowRange + 1];
+            Row read;
 
-                int index = 0;
+            int index = 0;
 
-                for (int i = (lowRange - 1); i <= (highRange - 1); i++)
+            for (int i = (lowRange - 1); i <= (highRange - 1); i++)
+            {
+                lock (this._Lock)
                 {
-                    theTransaction.StartReadTable(this);
-                    //using (_TableLock.AcquireReader())
-                    //{
-                        lock (this._Lock)
-                        {
-                            read = this._Rows[i].Target as Row;
-                            if (read == null)
-                            {
-                                //this._TableLock.ReleaseReader();
-                                read = ReadRowFromDisk(i);
-                                //this._TableLock.AcquireReader();
-                            }
-                        }
-
-                        theTransaction.StartReadRow(read);
-                        if (read.State == RowStateFlag.CLEAN)
-                        {
-                            results[index] = read;
-                            index++;
-                        }
-                        theTransaction.EndReadRow(read);
-                        
-                    //}
-                    theTransaction.EndReadTable(this);
+                    read = this._Rows[i].Target as Row;
+                    if (read == null)
+                    {
+                        read = ReadRowFromDisk(i);
+                    }
                 }
 
-                return results;
-            
+                if (read.State == RowStateFlag.CLEAN)
+                {
+                    results[index] = read;
+                    index++;
+                }
+            }
+
+            return results;
         }
-
-
 
         private Row ReadRowFromDisk(int i)
         {
             Row result = null;
-            
+
             result = new Row(this, i + 1, this._MyFileStream);
 
-            //TODO:REDO!
+            //File stream takes care of read lock
             result.ReadFromDisk();
 
             lock (this._Lock)
             {
                 this._Rows[i].Target = result;
             }
-            
+
             return result;
-            
+
         }
 
         /// <summary>
@@ -352,9 +338,9 @@ namespace DLRDB.Core.DataStructure
         /// and the end range to the number of physical rows.
         /// </summary>
         /// <returns>Row Array of results.</returns>
-        public void SelectAll(TextWriter output,Transaction theTransaction)
+        public void SelectAll(TextWriter output, Transaction theTransaction)
         {
-            Select(1, this._PhysicalRows, theTransaction, output); 
+            Select(1, this._PhysicalRows, theTransaction, output);
         }
 
         /// <summary>
@@ -371,10 +357,10 @@ namespace DLRDB.Core.DataStructure
         public int Update(int lowRange, int highRange, Transaction theTransaction, params Object[] arrValueUpdates)
         {
             int numberOfAffectedRows = 0;
-            
+
             if (ValidateSelectRange(lowRange, highRange))
             {
-                Row[] arrSelectedRows = Select(lowRange, highRange, theTransaction);
+                Row[] arrSelectedRows = FetchRows(lowRange, highRange);
 
                 // To indicate whether in a row, we have some changes
 
@@ -386,45 +372,52 @@ namespace DLRDB.Core.DataStructure
                 {
                     isChangesMade = false;
 
-                    theTransaction.StartReadTable(this);
                     theTransaction.StartWriteRow(tempRow);
-                                           
-                        //tempRow.RowMemoryLock.AcquireWriter();
-                        // Start from index 1 (because index 0 is the ID)
-                        for (int i = 1; i < this.Columns.Length; i++)
+
+                    Row currentRow = tempRow;
+
+                    //tempRow.RowMemoryLock.AcquireWriter();
+                    // Start from index 1 (because index 0 is the ID)
+                    for (int i = 1; i < this.Columns.Length; i++)
+                    {
+                        if (arrValueUpdates[i] != null)
                         {
-                            if (arrValueUpdates[i] != null)
+                            isChangesMade = true;
+                            try
                             {
-                                isChangesMade = true;
-                                try
-                                {
-                                    tempRow.Fields[i].Value = tempRow.Fields[i]
-                                        .NativeToBytes(arrValueUpdates[i]);
-                                }
-                                catch (Exception ex)
-                                {
-                                   
-                                }
+                                currentRow.Fields[i].Value = currentRow.Fields[i]
+                                    .NativeToBytes(arrValueUpdates[i]);
+                            }
+                            catch (Exception ex)
+                            {
+
                             }
                         }
-
-                        if (isChangesMade)
-                        {
-                       
-                            numberOfAffectedRows++;
-                            // tempRow.WriteToDisk();
-                        }
-
-                        lastRowNumber = tempRow.RowNum;
-                        //tempRow.RowMemoryLock.ReleaseWriter();
-
-                        theTransaction.EndWriteRow(tempRow);
-                        theTransaction.EndReadTable(this);
-
                     }
 
-                
+                    if (isChangesMade)
+                    {
 
+                        numberOfAffectedRows++;
+                        theTransaction.AddCommitAction(
+                            () =>
+                            {
+                                currentRow.WriteToDisk();
+                            }
+                            );
+                        theTransaction.AddRollbackAction(
+                            () =>
+                            {
+                                currentRow.ReadFromDisk();
+                            }
+                            );
+                    }
+
+                    lastRowNumber = currentRow.RowNum;
+                    //tempRow.RowMemoryLock.ReleaseWriter();
+
+                    theTransaction.EndWriteRow(tempRow);
+                }
             }
             else
             {
@@ -437,7 +430,7 @@ namespace DLRDB.Core.DataStructure
 
         public int UpdateAll(Transaction theTransaction, params Object[] arrValueUpdates)
         {
-            return Update(1, this._PhysicalRows, theTransaction,arrValueUpdates);
+            return Update(1, this._PhysicalRows, theTransaction, arrValueUpdates);
         }
 
         /// <summary>
@@ -452,36 +445,65 @@ namespace DLRDB.Core.DataStructure
         /// <param name="highRange">The end range to seek and delete by.
         /// </param>
         /// <returns></returns>
-        public int Delete(int lowRange, int highRange, Transaction theTransaction,TextWriter output)
+        public int Delete(int lowRange, int highRange, Transaction theTransaction, TextWriter output)
         {
             int numberOfAffectedRows = 0;
 
             if (ValidateSelectRange(lowRange, highRange))
             {
-                Row[] arrSelectedRows = Select(lowRange, highRange,theTransaction);
+                Row[] arrSelectedRows = FetchRows(lowRange, highRange);
 
                 // To indicate whether in a row, we have some changes
 
+                theTransaction.StartWriteTable(this);
+
                 foreach (Row tempRow in arrSelectedRows.Where(tempRow => tempRow != null))
                 {
+                    Row currentRow = tempRow;
+
                     numberOfAffectedRows++;
 
-                    theTransaction.StartReadTable(this);
-                    theTransaction.StartWriteRow(tempRow);
+                    theTransaction.StartWriteRow(currentRow);
                     //using (_TableLock.AcquireReader())
                     //{
-                        //tempRow.RowMemoryLock.AcquireWriter();
+                    //tempRow.RowMemoryLock.AcquireWriter();
 
-                        tempRow.State = RowStateFlag.TRASH;
-                        // tempRow.WriteToDisk();
+                    currentRow.State = RowStateFlag.TRASH;
+                    // tempRow.WriteToDisk();
 
-                        //tempRow.RowMemoryLock.ReleaseWriter();
+                    lock (_Lock)
+                    {
+                        _ActualRows--;
+                    }
+
+                    theTransaction.AddCommitAction(
+                    () =>
+                    {
+                        currentRow.WriteToDisk();
+                        lock (this._Lock)
+                        {
+                            UpdateMetadata();
+                        }
+                    });
+
+                    theTransaction.AddRollbackAction(
+                    () =>
+                    {
+                        currentRow.ReadFromDisk();
+                        lock (this._Lock)
+                        {
+                            //undo the -- of the actual rows
+                            _ActualRows++;
+                            UpdateMetadata();
+                        }
+                    });
+
+                    //tempRow.RowMemoryLock.ReleaseWriter();
                     //}
 
-                        theTransaction.EndReadTable(this);
-                        theTransaction.EndWriteRow(tempRow);
-                    
+                    theTransaction.EndWriteRow(currentRow);
                 }
+                theTransaction.EndWriteTable(this);
 
             }
             else
@@ -491,21 +513,25 @@ namespace DLRDB.Core.DataStructure
             }
             return numberOfAffectedRows;
         }
-        
-        public int RowCount()
-        {
-            int tempResult;
 
-            lock (this._Lock)
-            {
-                tempResult = this._Rows.Length;
-            }
+        //public int RowCount()
+        //{
+        //    int tempResult;
 
-            return tempResult; 
-        }
+        //    //TODO: Need table read lock / or remove this (prefered)
+
+        //    lock (this._Lock)
+        //    {
+        //        tempResult = this._Rows.Length;
+        //    }
+
+        //    return tempResult; 
+        //}
 
         public int DeleteAll(Transaction theTransaction, TextWriter output)
         {
+            //Note: _PhysicalRows read outside of lock.
+            // This may get stale data, but will be valid
             return Delete(1, this._PhysicalRows, theTransaction, output);
         }
 
@@ -517,14 +543,14 @@ namespace DLRDB.Core.DataStructure
         public Row NewRow()
         {
             Field[] tempField = new Field[this.Columns.Length];
-            
+
             int index = 0;
             foreach (Column tempColumn in this.Columns)
             {
                 if (tempColumn.NativeType == typeof(System.Int32))
-                { tempField[index] = new Int32Field (tempColumn); }
+                { tempField[index] = new Int32Field(tempColumn); }
                 else if (tempColumn.NativeType == typeof(System.String))
-                { tempField[index] = new StringField (tempColumn); }
+                { tempField[index] = new StringField(tempColumn); }
                 index++;
             }
 
@@ -540,62 +566,79 @@ namespace DLRDB.Core.DataStructure
         /// </summary>
         /// <param name="row">Row to be added to the Table.</param>
         /// <returns></returns>
-        public Row InsertRow(Row row,Transaction theTransaction)
+        public Row InsertRow(Row row, Transaction theTransaction)
         {
-            theTransaction.StartRowInsertOnTable(this);
+            theTransaction.StartWriteTable(this);
             //using (_TableLock.AcquireWriter())
             //{
 
-                int tempNumOfAvailablePhysicalRows;
-                lock (this._Lock)
-                {
-                    tempNumOfAvailablePhysicalRows = this._PotentialRows;
-                }
+            int tempNumOfAvailablePhysicalRows;
+            lock (this._Lock)
+            {
+                tempNumOfAvailablePhysicalRows = this._PotentialRows;
+            }
 
-                if (tempNumOfAvailablePhysicalRows <= MIN_THRESHOLD_TO_RESIZE_ROWS)
-                {
-                    // grow the table
-                    GrowTable();
-                }
+            if (tempNumOfAvailablePhysicalRows <= MIN_THRESHOLD_TO_RESIZE_ROWS)
+            {
+                // grow the table
+                GrowTable();
+            }
 
-                // Set the next auto incement ID
+            // Set the next auto incement ID
 
-                int tempNextPK;
-                lock (this._Lock)
-                {
-                    tempNextPK = this._NextPK;
-                }
+            int tempNextPK;
+            int tempNumOfUsedPhysicalRows;
+
+            lock (this._Lock)
+            {
+                tempNextPK = this._NextPK;
+                this._NextPK++;
+                tempNumOfUsedPhysicalRows = this._PhysicalRows;
+                this._PhysicalRows++;
+                this._PotentialRows--;
+
                 row.Fields[0].Value = row.Fields[0].NativeToBytes(tempNextPK);
-
-                int tempNumOfUsedPhysicalRows;
-                lock (this._Lock)
-                {
-                    tempNumOfUsedPhysicalRows = this._PhysicalRows;
-                }
                 row.RowNum = tempNumOfUsedPhysicalRows + 1;
 
                 // Once we write it to disk, its state will become CLEAN
                 row.State = RowStateFlag.CLEAN;
                 // row.WriteToDisk();
 
-                lock (this._Lock)
+                this._ActualRows++;
+                //this._NextPK++;
+
+                // Put the row that has just been inserted
+                this._Rows[this._PhysicalRows - 1].Target = row;
+            }
+
+            theTransaction.AddCommitAction(
+                () =>
                 {
-                    this._ActualRows++;
-                    this._PhysicalRows++;
-                    this._PotentialRows--;
-                    this._NextPK++;
-
-                    this.UpdateMetadata();
-
-                    // Put the row that has just been inserted
-                    this._Rows[this._PhysicalRows - 1].Target = row;
+                    row.WriteToDisk();
+                    lock (_Lock)
+                    {
+                        this.UpdateMetadata();
+                    }
                 }
+                );
+            theTransaction.AddRollbackAction(
+                () =>
+                {
+                    row.State = RowStateFlag.TRASH;
+                    row.WriteToDisk();
+                    lock (_Lock)
+                    {
+                        _ActualRows--;
+                        UpdateMetadata();
+                    }
+                }
+                );
 
 
-                // Thread.Sleep(3000);
+            // Thread.Sleep(3000);
             //}
 
-            theTransaction.EndRowInsertOnTable(this);
+            theTransaction.EndWriteTable(this);
 
             return row;
         }
@@ -614,8 +657,8 @@ namespace DLRDB.Core.DataStructure
             lock (this._Lock)
             {
                 // Persist the old number of physical rows
-                newPotentialRows = this._PhysicalRows; 
-                
+                newPotentialRows = this._PhysicalRows;
+
                 // Multiplying the size of the file by factor of two
                 newTotalRows = newPotentialRows + this._PhysicalRows;
 
@@ -633,16 +676,16 @@ namespace DLRDB.Core.DataStructure
                 // Persists the new amount of Potential 
                 // Rows to reflect File
                 this._PotentialRows = newPotentialRows;
-            
+
                 this.UpdateMetadata();
 
-            
+
                 // Create the new sized collection 
                 // and copy the old collection over
                 WeakReference[] tempRows = new WeakReference[newTotalRows];
 
                 this._Rows.CopyTo(tempRows, 0);
-           
+
 
                 for (int i = _Rows.Length; i < tempRows.Length; i++)
                 {
@@ -651,7 +694,7 @@ namespace DLRDB.Core.DataStructure
 
                 // Restore it back
                 this._Rows = tempRows;
-                
+
             }
 
         }
@@ -661,18 +704,18 @@ namespace DLRDB.Core.DataStructure
         /// </summary>
         /// <param name="count"></param>
         /// <returns></returns>
-        public static Byte[] ReadBytesFromDisk(FileStream myFileStream,int count)
+        public static Byte[] ReadBytesFromDisk(FileStream myFileStream, int count)
         {
-            Byte [] arrResult = new Byte[count];
+            Byte[] arrResult = new Byte[count];
             myFileStream.Read(arrResult, 0, count);
             return arrResult;
         }
 
         public static Byte ReadByteFromDisk(FileStream myFileStream)
-        { return Table.ReadBytesFromDisk(myFileStream,1)[0]; }
+        { return Table.ReadBytesFromDisk(myFileStream, 1)[0]; }
 
         public static void WriteBytesToDisk(FileStream myFileStream, Byte[] arrData, int count)
-        { myFileStream.Write(arrData,0,count); }
+        { myFileStream.Write(arrData, 0, count); }
 
         public static void WriteByteToDisk(FileStream myFileStream, Byte data)
         { myFileStream.WriteByte(data); }
@@ -693,7 +736,7 @@ namespace DLRDB.Core.DataStructure
 #region oldstuff
 /*
         /// <summary>
-        /// Select operation based on lowRange and highRange parameters.
+        /// FetchRows operation based on lowRange and highRange parameters.
         /// The database is structured that the first ID begins with a 1,
         /// and auto increments.
         /// </summary>
@@ -702,7 +745,7 @@ namespace DLRDB.Core.DataStructure
         /// <param name="highRange">The high Range to start the seek from.
         /// </param>
         /// <returns>Row Array of results.</returns>
-        public Row[] Select(int lowRange, int highRange)
+        public Row[] FetchRows(int lowRange, int highRange)
         {            
             // Conditional to establish if the range is valid.
             if (ValidateSelectRange(lowRange,highRange))
@@ -760,7 +803,7 @@ namespace DLRDB.Core.DataStructure
             else
             {
                 throw new SelectException(
-                    "Invalid range supplied for Select operation.");
+                    "Invalid range supplied for FetchRows operation.");
             }
 
         }
@@ -829,7 +872,7 @@ namespace DLRDB.Core.DataStructure
 /// <param name="selectedFields">List of Fields to indication which Columns we want returned. In SQL Syntax, this refers to input between SELECT and FROM keywords.</param>
 /// <param name="criteria">List of Fields to indicated what is/are the search criteria(s) by Column and Value pairs.</param>
 /// <returns></returns>
-//public List<Row> Select(List<String> selectedFields, List<Field> criteria)
+//public List<Row> FetchRows(List<String> selectedFields, List<Field> criteria)
 //{
 //    List<Row> listResult = new List<Row>();
 //    List<Row> listMatchedResult = getRowsByCriteria(criteria);
@@ -853,7 +896,7 @@ namespace DLRDB.Core.DataStructure
 
 //}
 
-//public List<Row> Select(int startIndex, int endIndex)
+//public List<Row> FetchRows(int startIndex, int endIndex)
 //{
 //    List<Row> listResult = new List<Row>();
 //    Row[] listMatchedResult = selectRange(startIndex,endIndex);
@@ -878,7 +921,7 @@ namespace DLRDB.Core.DataStructure
 //}
 
 
-//public Dictionary<Int32, Row> Select(List<Field> selectedFields)
+//public Dictionary<Int32, Row> FetchRows(List<Field> selectedFields)
 //{
 //    return this._Rows;
 //}

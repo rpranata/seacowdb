@@ -6,8 +6,16 @@ using DLRDB.Core.ConcurrencyUtils;
 
 namespace DLRDB.Core.DataStructure
 {
-    public class Transaction
+    public delegate void DataUpdater();
+
+    public abstract class Transaction
     {
+        private List<DataUpdater> _RunOnCommit = new List<DataUpdater>();
+        private List<DataUpdater> _RunOnRollback = new List<DataUpdater>();
+
+        public void AddCommitAction(DataUpdater updater) { _RunOnCommit.Add(updater); }
+        public void AddRollbackAction(DataUpdater updater) { _RunOnRollback.Add(updater); }
+
         // Because we will only have a single row being locked  for READ at a time
         private ILock _ILockForRead;
 
@@ -18,32 +26,32 @@ namespace DLRDB.Core.DataStructure
             this._ListILockForWrite = new List<ILock>();
         }
 
-        public void StartReadTable(Table theTable)
+        public virtual void StartReadTable(Table theTable)
         {
             // do nothing
         }
 
-        public void EndReadTable(Table theTable)
+        public virtual void EndReadTable(Table theTable)
         {
             // do nothing
         }
 
-        public void StartReadRow(Row theRow)
+        public virtual void StartReadRow(Row theRow)
         {
             this._ILockForRead = theRow.RowFileLock.AcquireReader();
         }
 
-        public void EndReadRow(Row theRow)
+        public virtual void EndReadRow(Row theRow)
         {
             this._ILockForRead.Dispose();
         }
 
-        public void StartWriteRow(Row theRow)
+        public virtual void StartWriteRow(Row theRow)
         {
             _ListILockForWrite.Add(theRow.RowFileLock.AcquireWriter());
         }
 
-        public void EndWriteRow(Row theRow)
+        public virtual void EndWriteRow(Row theRow)
         {
             // do nothing
         }
@@ -51,6 +59,8 @@ namespace DLRDB.Core.DataStructure
         public void Commit()
         {
             // Release all locks
+
+            foreach (DataUpdater u in _RunOnCommit) u();
 
             foreach (ILock theLock in this._ListILockForWrite)
             {
@@ -60,6 +70,7 @@ namespace DLRDB.Core.DataStructure
 
         public void Rollback()
         {
+            foreach (DataUpdater u in _RunOnRollback) u();
             // Release all locks
 
             foreach (ILock theLock in this._ListILockForWrite)
@@ -68,18 +79,31 @@ namespace DLRDB.Core.DataStructure
             }
         }
 
-        public void StartRowInsertOnTable(Table theTable)
+        public virtual void StartWriteTable(Table theTable)
+        {
+            _ListILockForWrite.Add(theTable._TableLock.AcquireWriter());
+        }
+
+        public virtual void EndWriteTable(Table theTable)
         {
             // do nothing
         }
+    }
 
-        public void EndRowInsertOnTable(Table theTable)
+    public class ReadCommittedTransaction : Transaction
+    {
+    }
+
+    public class ReadUncommittedTransaction : Transaction
+    {
+        public override void StartReadRow(Row theRow)
         {
-            // do nothing
+            //do nothing
         }
 
-
-
-
+        public override void EndReadRow(Row theRow)
+        {
+            //do nothing
+        }
     }
 }
