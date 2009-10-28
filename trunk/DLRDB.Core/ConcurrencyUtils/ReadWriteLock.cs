@@ -78,9 +78,6 @@ namespace DLRDB.Core.ConcurrencyUtils
 
         public ILock AcquireReader()
         {
-            this._Turnstile.Acquire();
-            this._Turnstile.Release();
-
             lock (_WaitingLock)
             {
                 // if this thread has already hold the read lock, we'd just return no nore lock
@@ -89,6 +86,13 @@ namespace DLRDB.Core.ConcurrencyUtils
                 {
                     return new RWLock(false, null);
                 }
+            }
+
+            this._Turnstile.Acquire();
+            this._Turnstile.Release();
+
+            lock (_WaitingLock)
+            {
                 _WaitingReaders++; 
             }
 
@@ -119,6 +123,8 @@ namespace DLRDB.Core.ConcurrencyUtils
             lock (_WaitingLock)
             {
                 localThread = this._CurrentWriterThread;
+                if (_CurrentReaderThread.Contains(Thread.CurrentThread))
+                    throw new Exception("Lock escalation not currently supported. This has occurred as you hold a read lock and are tryng to acquire a write lock for the same object.");
             }
 
             if ((localThread != null) && (localThread == System.Threading.Thread.CurrentThread))
