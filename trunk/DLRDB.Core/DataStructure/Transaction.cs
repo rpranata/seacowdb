@@ -7,7 +7,6 @@ using DLRDB.Core.ConcurrencyUtils;
 namespace DLRDB.Core.DataStructure
 {
     public delegate void DataUpdater();
-
     public abstract class Transaction
     {
         private List<DataUpdater> _RunOnCommit = new List<DataUpdater>();
@@ -92,6 +91,10 @@ namespace DLRDB.Core.DataStructure
 
     public class ReadCommittedTransaction : Transaction
     {
+        public override String ToString()
+        {
+            return "Read Committed";
+        }
     }
 
     public class ReadUncommittedTransaction : Transaction
@@ -100,10 +103,14 @@ namespace DLRDB.Core.DataStructure
         {
             //do nothing
         }
-
         public override void EndReadRow(Row theRow)
         {
             //do nothing
+        }
+
+        public override String ToString()
+        {
+            return "Read Uncommitted";
         }
     }
 }

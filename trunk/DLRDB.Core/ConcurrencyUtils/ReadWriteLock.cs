@@ -75,6 +75,7 @@ namespace DLRDB.Core.ConcurrencyUtils
         #endregion
 
         #region Functions
+
         public ILock AcquireReader()
         {
             this._Turnstile.Acquire();
@@ -123,7 +124,6 @@ namespace DLRDB.Core.ConcurrencyUtils
             if ((localThread != null) && (localThread == System.Threading.Thread.CurrentThread))
             {
                 // this Thread has acquired writer lock before
-
                 return new RWLock(true, null);
             }
             else
@@ -144,13 +144,11 @@ namespace DLRDB.Core.ConcurrencyUtils
 
                 return new RWLock(true, this);
             }
-
         }
 
         private void ReleaseWriter()
         {
             this._Mutex.Release();
-
             lock (_WaitingLock)
             {
                 if (_WaitingReaders > 0)
@@ -174,7 +172,6 @@ namespace DLRDB.Core.ConcurrencyUtils
             lock (_WaitingLock)
             {
                 _CurrentReaderThread.Remove(Thread.CurrentThread);
-
                 if (this._ReaderCount > 0)
                 { 
                     this._ReaderCount--; 

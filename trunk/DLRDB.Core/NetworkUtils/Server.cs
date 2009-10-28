@@ -38,7 +38,7 @@ namespace DLRDB.Core.NetworkUtils
             this._Listener.Start();
         }
 
-        public override void DoSomething()
+        public override void DoWork()
         {
             Socket socket = this._Listener.AcceptSocket();
             ActiveCommandListener client = new ActiveCommandListener(socket, this._Table);
@@ -60,9 +60,5 @@ namespace DLRDB.Core.NetworkUtils
             }
             return IP;
         }
-
-
-
-        
     }
 }
