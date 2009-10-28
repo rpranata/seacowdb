@@ -371,9 +371,7 @@ namespace DLRDB.Core.DataStructure
                 foreach (Row tempRow in arrSelectedRows.Where(tempRow => tempRow != null))
                 {
                     isChangesMade = false;
-
                     theTransaction.StartWriteRow(tempRow);
-
                     Row currentRow = tempRow;
 
                     //tempRow.RowMemoryLock.AcquireWriter();
@@ -388,9 +386,9 @@ namespace DLRDB.Core.DataStructure
                                 currentRow.Fields[i].Value = currentRow.Fields[i]
                                     .NativeToBytes(arrValueUpdates[i]);
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
-
+                                //what for?
                             }
                         }
                     }
@@ -514,20 +512,6 @@ namespace DLRDB.Core.DataStructure
             return numberOfAffectedRows;
         }
 
-        //public int RowCount()
-        //{
-        //    int tempResult;
-
-        //    //TODO: Need table read lock / or remove this (prefered)
-
-        //    lock (this._Lock)
-        //    {
-        //        tempResult = this._Rows.Length;
-        //    }
-
-        //    return tempResult; 
-        //}
-
         public int DeleteAll(Transaction theTransaction, TextWriter output)
         {
             //Note: _PhysicalRows read outside of lock.
@@ -566,7 +550,7 @@ namespace DLRDB.Core.DataStructure
         /// </summary>
         /// <param name="row">Row to be added to the Table.</param>
         /// <returns></returns>
-        public Row InsertRow(Row row, Transaction theTransaction)
+        public Row Insert(Row row, Transaction theTransaction)
         {
             theTransaction.StartWriteTable(this);
             //using (_TableLock.AcquireWriter())
@@ -580,14 +564,15 @@ namespace DLRDB.Core.DataStructure
 
             if (tempNumOfAvailablePhysicalRows <= MIN_THRESHOLD_TO_RESIZE_ROWS)
             {
-                // grow the table
                 GrowTable();
             }
 
             // Set the next auto incement ID
-
             int tempNextPK;
             int tempNumOfUsedPhysicalRows;
+            
+            //rendy put this
+            theTransaction.StartWriteRow(row);
 
             lock (this._Lock)
             {
@@ -611,6 +596,9 @@ namespace DLRDB.Core.DataStructure
                 this._Rows[this._PhysicalRows - 1].Target = row;
             }
 
+            //rendy put this
+            theTransaction.EndWriteRow(row);
+
             theTransaction.AddCommitAction(
                 () =>
                 {
@@ -621,6 +609,7 @@ namespace DLRDB.Core.DataStructure
                     }
                 }
                 );
+
             theTransaction.AddRollbackAction(
                 () =>
                 {
@@ -634,12 +623,10 @@ namespace DLRDB.Core.DataStructure
                 }
                 );
 
-
             // Thread.Sleep(3000);
             //}
 
             theTransaction.EndWriteTable(this);
-
             return row;
         }
 
@@ -735,6 +722,20 @@ namespace DLRDB.Core.DataStructure
 }
 #region oldstuff
 /*
+        //public int RowCount()
+        //{
+        //    int tempResult;
+
+        //    //TODO: Need table read lock / or remove this (prefered)
+
+        //    lock (this._Lock)
+        //    {
+        //        tempResult = this._Rows.Length;
+        //    }
+
+        //    return tempResult; 
+        //}
+ 
         /// <summary>
         /// FetchRows operation based on lowRange and highRange parameters.
         /// The database is structured that the first ID begins with a 1,

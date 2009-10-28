@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{10E4440B-8333-4C22-8D05-8DCE04FFF7CB}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -77,9 +77,17 @@
     <Compile Include="NetworkUtils\ActiveCommandListener.cs" />
     <Compile Include="NetworkUtils\Client.cs" />
     <Compile Include="NetworkUtils\Server.cs" />
+    <Compile Include="NewCommandPattern\BeginTransactionCommand.cs" />
     <Compile Include="NewCommandPattern\Command.cs" />
+    <Compile Include="NewCommandPattern\CommitCommand.cs" />
     <Compile Include="NewCommandPattern\DbEnvironment.cs" />
+    <Compile Include="NewCommandPattern\DeleteCommand.cs" />
+    <Compile Include="NewCommandPattern\InsertAllCommand.cs" />
+    <Compile Include="NewCommandPattern\InsertCommand.cs" />
+    <Compile Include="NewCommandPattern\RollbackCommand.cs" />
+    <Compile Include="NewCommandPattern\SelectCommand.cs" />
     <Compile Include="NewCommandPattern\SetIsolationLevelCommand.cs" />
+    <Compile Include="NewCommandPattern\UpdateCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -14,6 +14,17 @@ namespace DLRDB.Core.NewCommandPattern
     {
         public TransactionCreater CreateTransactionForIsolationLevel;
         public Transaction CurrentTransaction;
-        public StreamWriter Writer;
+        private readonly StreamWriter _Writer;
+
+        public DbEnvironment(StreamWriter writer)
+        {
+            this._Writer = writer;
+        }
+
+        public StreamWriter Writer
+        {
+            //TODO : need any lock?
+            get { return this._Writer; }
+        }
     }
 }

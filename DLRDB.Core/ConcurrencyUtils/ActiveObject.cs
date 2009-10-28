@@ -20,11 +20,11 @@ namespace DLRDB.Core.ConcurrencyUtils
         {
             while (true)
             {
-                this.DoSomething();
+                this.DoWork();
             }
         }
 
-        public abstract void DoSomething();
+        public abstract void DoWork();
 
         public void Stop()
         {

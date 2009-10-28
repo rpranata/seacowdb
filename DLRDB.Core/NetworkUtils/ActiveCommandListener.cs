@@ -24,6 +24,15 @@ namespace DLRDB.Core.NetworkUtils
             SetIsolationLevelCommand cmd = new SetIsolationLevelCommand();
             _Commands.Add(cmd);
             _DefaultIsolation = cmd.CreateReadCommitted;
+            //adding supported command
+            _Commands.Add(new BeginTransactionCommand());
+            _Commands.Add(new CommitCommand());
+            _Commands.Add(new RollbackCommand());
+            _Commands.Add(new SelectCommand());
+            _Commands.Add(new InsertAllCommand());
+            _Commands.Add(new InsertCommand());
+            _Commands.Add(new UpdateCommand());
+            _Commands.Add(new DeleteCommand());
         }
 
         private readonly Table _Table;
@@ -31,7 +40,7 @@ namespace DLRDB.Core.NetworkUtils
         private readonly StreamReader _Reader;
         private readonly StreamWriter _Writer;
         private readonly NetworkStream _NetworkStream;
-        private Transaction _TheTransaction;
+        //private Transaction _TheTransaction;
         private String _Command;
        
         public ActiveCommandListener(Socket newSocket, Table table)
@@ -50,47 +59,43 @@ namespace DLRDB.Core.NetworkUtils
             this._Writer.Flush();
 		}
 
-        public override void DoSomething()
+        public override void DoWork()
         {
-            DbEnvironment myEnv = new DbEnvironment();
+            DbEnvironment myEnv = new DbEnvironment(this._Writer);
             myEnv.CreateTransactionForIsolationLevel = _DefaultIsolation;
-            myEnv.Writer = _Writer;
+            bool commandKnown;
+   
             while (this._Socket.Connected)
             {
                 try
                 {
                     this._Command = this._Reader.ReadLine();
-                    //Proccess command
                     this._Command = this._Command.Trim();
-
-                    // Remove the semicolon
-
+                    commandKnown = false;
+                    //Proccess command
                     if (this._Command.EndsWith(";"))
                     {
-
+                        // Remove the semicolon and clean up the command string
                         this._Command = this._Command.Remove(this._Command.Length - 1);
-
-                        // Checking the existence of SELECT,INSERT,UPDATE,DELETE
-                        String commandType = "";
-                        String[] commands = this._Command.Split(' ');
-                        if (commands.Length >= 0)
-                            commandType = commands[0];
-
-                        String command = _Command.Trim().ToLower().Replace("  ", " ");
-
+                        this._Command = this._Command.Trim().ToLower().Replace("  ", " ");                     
+                       
+                        //QUESTION : ROllBACK?? i'm afraid the rollback will use the existing transaction..
+                        //Checking the existence of SELECT,INSERT,UPDATE,DELETE
                         foreach (Command cmd in _Commands)
                         {
-                            if (cmd.RunFor(command))
+                            if (cmd.RunFor(this._Command))
                             {
+                                commandKnown = true;
                                 bool createTransaction = myEnv.CurrentTransaction == null;
                                 if (createTransaction)
                                 {
                                     myEnv.CurrentTransaction = myEnv.CreateTransactionForIsolationLevel();
                                 }
 
-                                cmd.Run(command, _Table, myEnv);
+                                cmd.Run(this._Command, _Table, myEnv);
 
-                                if (createTransaction)
+                                if (((createTransaction) && (!this._Command.Equals("begin transaction"))) 
+                                    || this._Command.Equals("commit"))
                                 {
                                     myEnv.CurrentTransaction.Commit();
                                     myEnv.CurrentTransaction = null;
@@ -99,7 +104,22 @@ namespace DLRDB.Core.NetworkUtils
                             }
                         }
 
-                        switch (commandType.ToLower())
+                        if (!commandKnown)
+                        {
+                            this._Writer.WriteLine("SERVER>>> UNKNOWN COMMAND");
+                            this._Writer.Flush();
+                            Trace.WriteLine(this._Socket.RemoteEndPoint + " send this command " + this._Command);
+                        }
+
+                        #region old
+                        /*
+                        String commandType = "";
+                        String[] commands = this._Command.Split(' ');
+                        if (commands.Length >= 0)
+                            commandType = commands[0];
+                         */
+
+                        /*switch (commandType.ToLower())
                         {
                             case "begintransaction":
                                 {
@@ -122,7 +142,7 @@ namespace DLRDB.Core.NetworkUtils
                                 {
                                     String response = "";
                                     Row myNewRow = null;
-                                    int numOfRowsToInsert = 10000000;
+                                    int numOfRowsToInsert = 100;
 
                                     DateTime start = DateTime.Now;
 
@@ -257,9 +277,7 @@ namespace DLRDB.Core.NetworkUtils
                                 }
                             case "select":
                                 {
-
                                     // this._Writer.WriteLine("SELECT COMMAND");
-
                                     if (commands[1] == "*")
                                     {
                                         this._Table.SelectAll(this._Writer, this._TheTransaction);
@@ -308,14 +326,15 @@ namespace DLRDB.Core.NetworkUtils
                                     Trace.WriteLine(this._Socket.RemoteEndPoint + " Send this command " + this._Command);
                                     break;
                                 }
-                        }
+                        }*/
+                        #endregion
                     }
                     else
                     {
                         this._Writer.WriteLine("INVALID COMMAND - Please put the semicolon to run a command");
+                        this._Writer.WriteLine("");
                         this._Writer.Flush();
                     }
-
                     //----------------
                 }
                 catch (Exception e)
@@ -341,15 +360,5 @@ namespace DLRDB.Core.NetworkUtils
             //kill the thread
             base._Thread.Interrupt();
         }
-
-        private void parseSelect (String command)
-        {
-          
-
-
-            
-        }
-
-
     }
 }
