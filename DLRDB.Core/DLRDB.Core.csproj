@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{10E4440B-8333-4C22-8D05-8DCE04FFF7CB}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -72,6 +72,7 @@
     <Compile Include="DataStructure\Table.cs" />
     <Compile Include="DataStructure\Transaction.cs" />
     <Compile Include="Exceptions\DeleteException.cs" />
+    <Compile Include="Exceptions\DLRDBException.cs" />
     <Compile Include="Exceptions\SelectException.cs" />
     <Compile Include="Exceptions\UpdateException.cs" />
     <Compile Include="NetworkUtils\ActiveCommandListener.cs" />

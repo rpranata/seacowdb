@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DLRDB.Core.Exceptions
 {
-    public class UpdateException : Exception
+    public class UpdateException : DLRDBException
     {
         public UpdateException(String message)
             : base(message)

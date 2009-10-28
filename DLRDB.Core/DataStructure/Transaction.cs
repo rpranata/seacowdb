@@ -16,12 +16,13 @@ namespace DLRDB.Core.DataStructure
         public void AddRollbackAction(DataUpdater updater) { _RunOnRollback.Add(updater); }
 
         // Because we will only have a single row being locked  for READ at a time
-        private ILock _ILockForRead;
+        protected List<ILock> _ListILockForRead;
 
-        private List<ILock> _ListILockForWrite;
+        protected List<ILock> _ListILockForWrite;
 
         public Transaction()
         {
+            this._ListILockForRead = new List<ILock>();
             this._ListILockForWrite = new List<ILock>();
         }
 
@@ -37,12 +38,18 @@ namespace DLRDB.Core.DataStructure
 
         public virtual void StartReadRow(Row theRow)
         {
-            this._ILockForRead = theRow.RowFileLock.AcquireReader();
+            this._ListILockForRead.Add(theRow.RowFileLock.AcquireReader());
         }
 
+        /// <summary>
+        /// This will only be executed under read committed isolation level
+        /// thus, in theory, there will only be one read lock stored in the list
+        /// </summary>
+        /// <param name="theRow"></param>
         public virtual void EndReadRow(Row theRow)
         {
-            this._ILockForRead.Dispose();
+
+            this._ListILockForRead.Last().Dispose();
         }
 
         public virtual void StartWriteRow(Row theRow)
@@ -55,19 +62,18 @@ namespace DLRDB.Core.DataStructure
             // do nothing
         }
 
-        public void Commit()
+        public virtual void Commit()
         {
             // Release all locks
 
             foreach (DataUpdater u in _RunOnCommit) u();
-
             foreach (ILock theLock in this._ListILockForWrite)
             {
                 theLock.Dispose();
             }
         }
 
-        public void Rollback()
+        public virtual void Rollback()
         {
             foreach (DataUpdater u in _RunOnRollback) u();
             // Release all locks
@@ -111,6 +117,61 @@ namespace DLRDB.Core.DataStructure
         public override String ToString()
         {
             return "Read Uncommitted";
+        }
+    }
+
+
+    public class RepeatableReadTransaction : ReadCommittedTransaction
+    {
+     
+        public override void EndReadRow(Row theRow)
+        {
+            //do nothing
+        }
+
+        public override void Commit()
+        {
+            base.Commit();
+
+            
+            // Release all read locks, because repeatable read may have
+            // more than 1 read lock at a time
+            foreach (ILock theLock in base._ListILockForRead)
+            {
+                theLock.Dispose();
+            }
+        }
+
+        public override void Rollback()
+        {
+            base.Rollback();
+
+
+            // Release all read locks, because repeatable read may have
+            // more than 1 read lock at a time
+            foreach (ILock theLock in base._ListILockForRead)
+            {
+                theLock.Dispose();
+            }
+        }
+
+
+        public override String ToString()
+        {
+            return "Repeatable Read";
+        }
+    }
+
+    public class SerializableTransaction : RepeatableReadTransaction
+    {           
+        public override void StartReadTable(Table theTable)
+        {
+            base._ListILockForRead.Add(theTable._TableLock.AcquireReader());
+        }
+
+        public override String ToString()
+        {
+            return "Serializable";
         }
     }
 }

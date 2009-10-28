@@ -5,10 +5,11 @@ using System.Text;
 
 namespace DLRDB.Core.Exceptions
 {
-    public class SelectException : DLRDBException 
+    public class DLRDBException : Exception
     {
-        public SelectException(String message) : base (message)
-        {   
+        public DLRDBException(String message)
+            : base(message)
+        {
         }
     }
 }

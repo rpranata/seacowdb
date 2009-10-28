@@ -28,6 +28,16 @@ namespace DLRDB.Core.NewCommandPattern
                 dbEnvironment.CreateTransactionForIsolationLevel = CreateReadUncommited;
                 dbEnvironment.Writer.WriteLine("Using ReadUncommitted isolation for next transaction - read any data");
             }
+            else if (parts[ISOLATION_LEVEL_INDEX] == "repeatableread")
+            {
+                dbEnvironment.CreateTransactionForIsolationLevel = CreateRepeatableRead;
+                dbEnvironment.Writer.WriteLine("Using RepeatableRead isolation for next transaction - read any data");
+            }
+            else if (parts[ISOLATION_LEVEL_INDEX] == "serializable")
+            {
+                dbEnvironment.CreateTransactionForIsolationLevel = CreateSerializable;
+                dbEnvironment.Writer.WriteLine("Using Serializable isolation for next transaction - read any data");
+            }
             else
                 dbEnvironment.Writer.WriteLine("Error: Unknown transaction isolation level");
 
@@ -43,5 +53,16 @@ namespace DLRDB.Core.NewCommandPattern
         {
             return new ReadUncommittedTransaction();
         }
+
+        private Transaction CreateRepeatableRead()
+        {
+            return new RepeatableReadTransaction();
+        }
+
+        private Transaction CreateSerializable()
+        {
+            return new SerializableTransaction();
+        }
+
     }
 }

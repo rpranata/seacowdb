@@ -11,6 +11,7 @@ using DLRDB.Core.ConcurrencyUtils;
 using DLRDB.Core.DataStructure;
 using System.Text.RegularExpressions;
 using DLRDB.Core.NewCommandPattern;
+using DLRDB.Core.Exceptions;
 
 namespace DLRDB.Core.NetworkUtils
 {
@@ -92,15 +93,27 @@ namespace DLRDB.Core.NetworkUtils
                                     myEnv.CurrentTransaction = myEnv.CreateTransactionForIsolationLevel();
                                 }
 
-                                cmd.Run(this._Command, _Table, myEnv);
+                                try
+                                {
+                                    cmd.Run(this._Command, _Table, myEnv);
+                                }
+                                catch (DLRDBException ex)
+                                {
+                                    this._Writer.WriteLine(ex.Message);
+                                    this._Writer.Flush();
+                                }
 
-                                if (((createTransaction) && (!this._Command.Equals("begin transaction"))) 
-                                    || this._Command.Equals("commit"))
+                                if (((createTransaction) && (!this._Command.Equals("begin transaction")))
+                                || this._Command.Equals("commit"))
                                 {
                                     myEnv.CurrentTransaction.Commit();
                                     myEnv.CurrentTransaction = null;
                                 }
+                                
                                 break;
+
+
+                           
                             }
                         }
 
