@@ -48,7 +48,6 @@ namespace DLRDB.Core.DataStructure
         /// <param name="theRow"></param>
         public virtual void EndReadRow(Row theRow)
         {
-
             this._ListILockForRead.Last().Dispose();
         }
 
