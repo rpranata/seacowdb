@@ -11,7 +11,6 @@ namespace DLRDB.Core.NewCommandPattern
     class InsertCommand : Command
     {
         private static int INSERT_PARAM_INDEX = 1;
-        private StreamWriter _Writer;
 
         public override bool RunFor(string input)
         {
@@ -21,8 +20,7 @@ namespace DLRDB.Core.NewCommandPattern
         public override void Run(string command, Table table, DbEnvironment dbEnvironment)
         {
             String[] commands = command.Split(' ');
-            this._Writer = dbEnvironment.Writer;
-
+            
             Row newRow = null;
             DateTime start = DateTime.Now;
             String[] insertParams = Regex.Split(commands[INSERT_PARAM_INDEX], ",");
@@ -35,17 +33,17 @@ namespace DLRDB.Core.NewCommandPattern
 
                 DateTime end = DateTime.Now;
                 TimeSpan theSpan = end - start;
-                this._Writer.WriteLine(DateTime.Now + " >>> " + "insert takes " + theSpan.TotalMilliseconds + " ms");
-                this._Writer.WriteLine(DateTime.Now + " >>> " + "1 row inserted");
-                this._Writer.WriteLine(" ");
+                dbEnvironment.Writer.WriteLine(DateTime.Now + " >>> " + "insert takes " + theSpan.TotalMilliseconds + " ms");
+                dbEnvironment.Writer.WriteLine(DateTime.Now + " >>> " + "1 row inserted");
+                dbEnvironment.Writer.WriteLine(" ");
             }
             else
             {
-                this._Writer.WriteLine(DateTime.Now + " >>> Parameter provided is insufficient");
-                this._Writer.WriteLine(" ");
+                dbEnvironment.Writer.WriteLine(DateTime.Now + " >>> Parameter provided is insufficient");
+                dbEnvironment.Writer.WriteLine(" ");
             }
 
-            this._Writer.Flush();
+            dbEnvironment.Writer.Flush();
         }
     }
 }

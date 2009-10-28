@@ -11,8 +11,7 @@ namespace DLRDB.Core.NewCommandPattern
     class UpdateCommand : Command
     {
         private static int UPDATE_PARAM_INDEX = 1;
-        private StreamWriter _Writer;
-
+        
         public override bool RunFor(string input)
         {
             return input.Split(' ')[0] == ("update");
@@ -21,8 +20,7 @@ namespace DLRDB.Core.NewCommandPattern
         public override void Run(string command, Table table, DbEnvironment dbEnvironment)
         {
             String[] commands = command.Split(' ');
-            this._Writer = dbEnvironment.Writer;
-
+           
             //Supported format : 
             //-> UPDATE 1-2,dany,22
             //-> UPDATE *,hoon,22
@@ -57,8 +55,8 @@ namespace DLRDB.Core.NewCommandPattern
 
             }
 
-            this._Writer.WriteLine(DateTime.Now + " >>> " + "Finish updating " + updatedRows + " row(s)");
-            this._Writer.Flush();
+            dbEnvironment.Writer.WriteLine(DateTime.Now + " >>> " + "Finish updating " + updatedRows + " row(s)");
+            dbEnvironment.Writer.Flush();
         }
     }
 }
