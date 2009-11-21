@@ -1,0 +1,331 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="DLRDB.Core.CommandPattern.BeginTransactionCommand">
+    <Position X="12.25" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAI=</HashCode>
+      <FileName>CommandPattern\BeginTransactionCommand.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.CommandPattern.Command" Collapsed="true">
+    <Position X="21.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAI=</HashCode>
+      <FileName>CommandPattern\Command.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.CommandPattern.CommitCommand">
+    <Position X="21.25" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAI=</HashCode>
+      <FileName>CommandPattern\CommitCommand.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.CommandPattern.DbEnvironment">
+    <Position X="9.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQCAAACAAAAAAAAAAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>CommandPattern\DbEnvironment.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="CurrentTransaction" />
+      <Field Name="CreateTransactionForIsolationLevel" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="DLRDB.Core.CommandPattern.DeleteCommand">
+    <Position X="16.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAQAAI=</HashCode>
+      <FileName>CommandPattern\DeleteCommand.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.CommandPattern.InsertAllCommand">
+    <Position X="23.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAI=</HashCode>
+      <FileName>CommandPattern\InsertAllCommand.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.CommandPattern.InsertCommand">
+    <Position X="28" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQCAI=</HashCode>
+      <FileName>CommandPattern\InsertCommand.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.CommandPattern.RollbackCommand">
+    <Position X="14.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAI=</HashCode>
+      <FileName>CommandPattern\RollbackCommand.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.CommandPattern.SelectCommand">
+    <Position X="19" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAI=</HashCode>
+      <FileName>CommandPattern\SelectCommand.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.CommandPattern.SetIsolationLevelCommand">
+    <Position X="25.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAEAAAAAAAAAAAAAAAgRAAAAAAAAAQIAI=</HashCode>
+      <FileName>CommandPattern\SetIsolationLevelCommand.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.CommandPattern.UpdateCommand">
+    <Position X="30.25" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAQAAI=</HashCode>
+      <FileName>CommandPattern\UpdateCommand.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.ConcurrencyUtils.ActiveObject">
+    <Position X="22.75" Y="10.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAACQAAAgAAAAAAAAAAAAAAAAAIAAAAAACAAI=</HashCode>
+      <FileName>ConcurrencyUtils\ActiveObject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.ConcurrencyUtils.FIFOSemaphore">
+    <Position X="21.5" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAABAAAAA=</HashCode>
+      <FileName>ConcurrencyUtils\FIFOSemaphore.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.ConcurrencyUtils.ReadWriteLock">
+    <Position X="25.5" Y="9.25" Width="1.5" />
+    <NestedTypes>
+      <Class Name="DLRDB.Core.ConcurrencyUtils.ReadWriteLock.RWLock" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ConcurrencyUtils\ReadWriteLock.cs</NewMemberFileName>
+        </TypeIdentifier>
+        <Lollipop Position="0.2" />
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AACEAKAAgAAAGAAAAAAAAAAAAAAAACAQEAEAAgCEAAA=</HashCode>
+      <FileName>ConcurrencyUtils\ReadWriteLock.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_Mutex" />
+      <Field Name="_Turnstile" />
+      <Field Name="_WriterTurnstile" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="DLRDB.Core.ConcurrencyUtils.Semaphore">
+    <Position X="21.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAgAAAAgAAAAAAAAAAAAAAABAAABAIACA=</HashCode>
+      <FileName>ConcurrencyUtils\Semaphore.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.Column">
+    <Position X="26.25" Y="14" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAQAAAAAAAAAAAAAIARAAAAAAAAEAAAAAAAEAAA=</HashCode>
+      <FileName>DataStructure\Column.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.Database">
+    <Position X="31.5" Y="13" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAABAAAAAAAAAAAAAMAQAAAAAACAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataStructure\Database.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Field Name="_Tables" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.Field">
+    <Position X="17.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAQAhAEAAAAQAAAgAgAACAAAAAgAAAAACQ=</HashCode>
+      <FileName>DataStructure\Field.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_Column" />
+      <Field Name="_ParentRow" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.Int32Field">
+    <Position X="18.75" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAQAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataStructure\Int32Field.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.Row">
+    <Position X="18.25" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAKABACAAEgCEAAAICAAABABAAAACAJCAAgCA=</HashCode>
+      <FileName>DataStructure\Row.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_ParentTable" />
+      <Field Name="_State" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Field Name="_Fields" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.StringField">
+    <Position X="16.5" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAQAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataStructure\StringField.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.Table">
+    <Position X="28.5" Y="9.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ggRECEAQFCAiAEIggACBIA4AEAEQgOURAAwQUAgAACA=</HashCode>
+      <FileName>DataStructure\Table.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_Rows" />
+      <Field Name="_TableLock" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Field Name="_Columns" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.Transaction">
+    <Position X="12.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAABAEAIAACAAAACAAAAgIAECAEAAABECAAAAAgAAAA=</HashCode>
+      <FileName>DataStructure\Transaction.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Field Name="_ListILockForWrite" />
+      <Field Name="_ListILockForRead" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.ReadCommittedTransaction">
+    <Position X="11.5" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataStructure\Transaction.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.ReadUncommittedTransaction">
+    <Position X="13.75" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAECAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataStructure\Transaction.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.RepeatableReadTransaction">
+    <Position X="11.5" Y="11.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAAAGAAAAAAAACAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataStructure\Transaction.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.SerializableTransaction">
+    <Position X="11.5" Y="14" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAIAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataStructure\Transaction.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.Exceptions.DeleteException" Collapsed="true">
+    <Position X="24.75" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Exceptions\DeleteException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.Exceptions.DLRDBException" Collapsed="true">
+    <Position X="27" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Exceptions\DLRDBException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.Exceptions.SelectException" Collapsed="true">
+    <Position X="27" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Exceptions\SelectException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.Exceptions.UpdateException" Collapsed="true">
+    <Position X="29.25" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Exceptions\UpdateException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.NetworkUtils.ActiveCommandListener">
+    <Position X="21.5" Y="14.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAABEQAAACAAAAAABAAAAEAAgAAAAAAAACAAAA=</HashCode>
+      <FileName>NetworkUtils\ActiveCommandListener.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_Table" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Field Name="_Commands" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="DLRDB.Core.NetworkUtils.Client" Collapsed="true">
+    <Position X="34" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAAAAAAAAACAAAAAAAAAABEAEAAIABQAAAEAAAA=</HashCode>
+      <FileName>NetworkUtils\Client.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.NetworkUtils.Server">
+    <Position X="23.75" Y="14.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAQAAACAAAAAAAAAAgAAAkAAAAAAAAAACAA=</HashCode>
+      <FileName>NetworkUtils\Server.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="System.WeakReference" Collapsed="true">
+    <Position X="31.5" Y="11" Width="1.5" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Interface Name="DLRDB.Core.ConcurrencyUtils.ISync" Collapsed="true">
+    <Position X="34" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAABAAAAA=</HashCode>
+      <FileName>ConcurrencyUtils\ISync.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="DLRDB.Core.ConcurrencyUtils.ILock">
+    <Position X="9.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAA=</HashCode>
+      <FileName>ConcurrencyUtils\ReadWriteLock.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="DLRDB.Core.DataStructure.RowStateFlag">
+    <Position X="15.25" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAAAAEAAAAAAACAAAAAAAABAAAAAAEAAA=</HashCode>
+      <FileName>DataStructure\Row.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Delegate Name="DLRDB.Core.CommandPattern.TransactionCreater">
+    <Position X="6.75" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>CommandPattern\DbEnvironment.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Delegate Name="DLRDB.Core.DataStructure.DataUpdater" Collapsed="true">
+    <Position X="34" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataStructure\Transaction.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
