@@ -1,0 +1,5 @@
+C:\Seacow Repository\SeacowTestHarness\SeacowTestHarness\obj\Debug\ResolveAssemblyReference.cache
+C:\Seacow Repository\SeacowTestHarness\SeacowTestHarness\bin\Debug\SeacowTestHarness.exe
+C:\Seacow Repository\SeacowTestHarness\SeacowTestHarness\bin\Debug\SeacowTestHarness.pdb
+C:\Seacow Repository\SeacowTestHarness\SeacowTestHarness\obj\Debug\SeacowTestHarness.exe
+C:\Seacow Repository\SeacowTestHarness\SeacowTestHarness\obj\Debug\SeacowTestHarness.pdb
