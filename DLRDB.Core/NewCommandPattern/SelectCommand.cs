@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using DLRDB.Core.DataStructure;
 
-namespace DLRDB.Core.NewCommandPattern
+namespace DLRDB.Core.CommandPattern
 {
     public class SelectCommand : Command
     {

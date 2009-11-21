@@ -10,7 +10,7 @@ using System.Diagnostics;
 using DLRDB.Core.ConcurrencyUtils;
 using DLRDB.Core.DataStructure;
 using System.Text.RegularExpressions;
-using DLRDB.Core.NewCommandPattern;
+using DLRDB.Core.CommandPattern;
 using DLRDB.Core.Exceptions;
 
 namespace DLRDB.Core.NetworkUtils
