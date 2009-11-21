@@ -3,3 +3,8 @@ C:\Seacow Repository\SeacowTestHarness\SeacowTestHarness\bin\Debug\SeacowTestHar
 C:\Seacow Repository\SeacowTestHarness\SeacowTestHarness\bin\Debug\SeacowTestHarness.pdb
 C:\Seacow Repository\SeacowTestHarness\SeacowTestHarness\obj\Debug\SeacowTestHarness.exe
 C:\Seacow Repository\SeacowTestHarness\SeacowTestHarness\obj\Debug\SeacowTestHarness.pdb
+D:\Campus_Swinburne\MIT\Semester2\Advanced .NET\Repository\SeacowTestHarness\SeacowTestHarness\bin\Debug\SeacowTestHarness.exe
+D:\Campus_Swinburne\MIT\Semester2\Advanced .NET\Repository\SeacowTestHarness\SeacowTestHarness\bin\Debug\SeacowTestHarness.pdb
+D:\Campus_Swinburne\MIT\Semester2\Advanced .NET\Repository\SeacowTestHarness\SeacowTestHarness\obj\Debug\ResolveAssemblyReference.cache
+D:\Campus_Swinburne\MIT\Semester2\Advanced .NET\Repository\SeacowTestHarness\SeacowTestHarness\obj\Debug\SeacowTestHarness.exe
+D:\Campus_Swinburne\MIT\Semester2\Advanced .NET\Repository\SeacowTestHarness\SeacowTestHarness\obj\Debug\SeacowTestHarness.pdb
