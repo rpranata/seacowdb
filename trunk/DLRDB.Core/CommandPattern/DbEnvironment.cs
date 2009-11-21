@@ -6,7 +6,7 @@ using DLRDB.Core.DataStructure;
 using System.IO;
 
 
-namespace DLRDB.Core.NewCommandPattern
+namespace DLRDB.Core.CommandPattern
 {
     public delegate Transaction TransactionCreater();
 

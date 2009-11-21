@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using DLRDB.Core.DataStructure;
 
-namespace DLRDB.Core.NewCommandPattern
+namespace DLRDB.Core.CommandPattern
 {
     public class SetIsolationLevelCommand : Command
     {

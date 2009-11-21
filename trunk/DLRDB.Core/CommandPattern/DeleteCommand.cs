@@ -6,7 +6,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using DLRDB.Core.DataStructure;
 
-namespace DLRDB.Core.NewCommandPattern
+namespace DLRDB.Core.CommandPattern
 {
     class DeleteCommand : Command
     {
