@@ -46,9 +46,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConcurrencyUtils\ActiveObject.cs" />
-    <Compile Include="ConcurrencyUtils\Channels\BoundedChannel.cs" />
-    <Compile Include="ConcurrencyUtils\Channels\Channel.cs" />
-    <Compile Include="ConcurrencyUtils\Channels\IBuffer.cs" />
     <Compile Include="ConcurrencyUtils\FIFOSemaphore.cs" />
     <Compile Include="ConcurrencyUtils\ISync.cs" />
     <Compile Include="ConcurrencyUtils\ReadWriteLock.cs" />
@@ -82,7 +79,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="CommandPattern\CommandPattern.cd" />
+    <None Include="ConcurrencyUtils\ConcurrencyUtils.cd" />
     <None Include="DataStructure\DataStructure.cd" />
+    <None Include="Exceptions\Exceptions.cd" />
+    <None Include="NetworkUtils\NetworkUtils.cd" />
     <None Include="Seacow Architecture.cd" />
     <None Include="Seacow Basic.cd" />
   </ItemGroup>
