@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientHarness", "ClientHarn
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerHarness", "ServerHarness\ServerHarness.csproj", "{389B0EAF-6835-48B9-B674-E7A4790B5762}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeacowTestHarness", "SeacowTestHarness\SeacowTestHarness\SeacowTestHarness.csproj", "{1D6E3750-74F4-47BB-9770-1D59E6C81E8C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,10 @@ Global
 		{389B0EAF-6835-48B9-B674-E7A4790B5762}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{389B0EAF-6835-48B9-B674-E7A4790B5762}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{389B0EAF-6835-48B9-B674-E7A4790B5762}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D6E3750-74F4-47BB-9770-1D59E6C81E8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D6E3750-74F4-47BB-9770-1D59E6C81E8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D6E3750-74F4-47BB-9770-1D59E6C81E8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D6E3750-74F4-47BB-9770-1D59E6C81E8C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
