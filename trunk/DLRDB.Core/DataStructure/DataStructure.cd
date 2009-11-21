@@ -1,49 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="DLRDB.Core.DataStructure.Column">
-    <Position X="8.25" Y="0.5" Width="1.5" />
+    <Position X="16.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAQAAAAAAAAAAAAAIARAAAAAAAAEAAAAAAAEAAA=</HashCode>
       <FileName>DataStructure\Column.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="DLRDB.Core.DataStructure.Transaction">
-    <Position X="10.75" Y="2.25" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>gAABAEAIAACAAAACAAAAgIAECAEAAABECAAAAAgAAAA=</HashCode>
-      <FileName>DataStructure\Transaction.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="DLRDB.Core.DataStructure.ReadCommittedTransaction">
-    <Position X="10.75" Y="7.25" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>DataStructure\Transaction.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="DLRDB.Core.DataStructure.ReadUncommittedTransaction">
-    <Position X="12.75" Y="7.25" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAECAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>DataStructure\Transaction.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="DLRDB.Core.DataStructure.RepeatableReadTransaction">
-    <Position X="10.75" Y="9.25" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAEAAAAAAAAAGAAAAAAAACAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>DataStructure\Transaction.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="DLRDB.Core.DataStructure.SerializableTransaction">
-    <Position X="12.75" Y="9.25" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAEAAAAAIAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>DataStructure\Transaction.cs</FileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="DLRDB.Core.DataStructure.Database">
-    <Position X="0.5" Y="0.5" Width="1.5" />
+    <Position X="8.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAABAAAAAAAAAAAAAMAQAAAAAACAAAAAAAAAAAAA=</HashCode>
       <FileName>DataStructure\Database.cs</FileName>
@@ -53,7 +18,7 @@
     </ShowAsCollectionAssociation>
   </Class>
   <Class Name="DLRDB.Core.DataStructure.Field">
-    <Position X="8.25" Y="4.5" Width="1.5" />
+    <Position X="16.5" Y="4.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAgAAAAAAQAhAEAAAAQAAAgAgAACAAAAAgAAAAACQ=</HashCode>
       <FileName>DataStructure\Field.cs</FileName>
@@ -63,14 +28,14 @@
     </ShowAsAssociation>
   </Class>
   <Class Name="DLRDB.Core.DataStructure.Int32Field">
-    <Position X="8.25" Y="9.25" Width="1.5" />
+    <Position X="16.5" Y="9.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAQAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>DataStructure\Int32Field.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="DLRDB.Core.DataStructure.Row">
-    <Position X="5.75" Y="0.5" Width="1.5" />
+    <Position X="14" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAKABACAAEgCEAAAICAAABABAAAACAJCAAgCA=</HashCode>
       <FileName>DataStructure\Row.cs</FileName>
@@ -83,33 +48,68 @@
     </ShowAsCollectionAssociation>
   </Class>
   <Class Name="DLRDB.Core.DataStructure.StringField">
-    <Position X="5.75" Y="6" Width="1.5" />
+    <Position X="14" Y="6" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAQAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>DataStructure\StringField.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="DLRDB.Core.DataStructure.Table">
-    <Position X="3" Y="0.5" Width="1.5" />
+    <Position X="11.25" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>ggRECEAQFCAiAEIggACBIA4AEAEQgOURAAwQUAgAACA=</HashCode>
       <FileName>DataStructure\Table.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="System.WeakReference" Collapsed="true">
-    <Position X="0.5" Y="3.5" Width="1.5" />
+    <Position X="8.75" Y="3.5" Width="1.5" />
     <TypeIdentifier />
     <Lollipop Position="0.2" />
   </Class>
+  <Class Name="DLRDB.Core.DataStructure.Transaction">
+    <Position X="6.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAABAEAIAACAAAACAAAAgIAECAEAAABECAAAAAgAAAA=</HashCode>
+      <FileName>DataStructure\Transaction.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.ReadCommittedTransaction">
+    <Position X="6.25" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataStructure\Transaction.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.ReadUncommittedTransaction">
+    <Position X="8.75" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAECAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataStructure\Transaction.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.RepeatableReadTransaction">
+    <Position X="6.25" Y="9.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAAAGAAAAAAAACAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataStructure\Transaction.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DLRDB.Core.DataStructure.SerializableTransaction">
+    <Position X="8.75" Y="9.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAIAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataStructure\Transaction.cs</FileName>
+    </TypeIdentifier>
+  </Class>
   <Enum Name="DLRDB.Core.DataStructure.RowStateFlag">
-    <Position X="10.75" Y="0.5" Width="1.5" />
+    <Position X="6.25" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>CAAAAAAAAAAAAAAEAAAAAAACAAAAAAAABAAAAAAEAAA=</HashCode>
       <FileName>DataStructure\Row.cs</FileName>
     </TypeIdentifier>
   </Enum>
   <Delegate Name="DLRDB.Core.DataStructure.DataUpdater">
-    <Position X="12.75" Y="2.25" Width="1.5" />
+    <Position X="8.75" Y="4.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>DataStructure\Transaction.cs</FileName>
