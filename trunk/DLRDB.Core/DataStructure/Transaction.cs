@@ -12,10 +12,13 @@ namespace DLRDB.Core.DataStructure
         private List<DataUpdater> _RunOnCommit = new List<DataUpdater>();
         private List<DataUpdater> _RunOnRollback = new List<DataUpdater>();
 
-        public void AddCommitAction(DataUpdater updater) { _RunOnCommit.Add(updater); }
-        public void AddRollbackAction(DataUpdater updater) { _RunOnRollback.Add(updater); }
+        public void AddCommitAction(DataUpdater updater) 
+            { _RunOnCommit.Add(updater); }
+        public void AddRollbackAction(DataUpdater updater) 
+            { _RunOnRollback.Add(updater); }
 
-        // Because we will only have a single row being locked  for READ at a time
+        // Because we will only have a single row being locked  
+        // for READ at a time
         protected List<ILock> _ListILockForRead;
 
         protected List<ILock> _ListILockForWrite;
@@ -43,7 +46,8 @@ namespace DLRDB.Core.DataStructure
 
         /// <summary>
         /// This will only be executed under read committed isolation level
-        /// thus, in theory, there will only be one read lock stored in the list
+        /// thus, in theory, there will only be one read lock 
+        /// stored in the list
         /// </summary>
         /// <param name="theRow"></param>
         public virtual void EndReadRow(Row theRow)
@@ -119,7 +123,6 @@ namespace DLRDB.Core.DataStructure
         }
     }
 
-
     public class RepeatableReadTransaction : ReadCommittedTransaction
     {
      
@@ -153,7 +156,6 @@ namespace DLRDB.Core.DataStructure
                 theLock.Dispose();
             }
         }
-
 
         public override String ToString()
         {

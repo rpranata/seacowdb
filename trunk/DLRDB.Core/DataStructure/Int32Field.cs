@@ -34,7 +34,5 @@ namespace DLRDB.Core.DataStructure
                 return BitConverter.GetBytes(Convert.ToInt32(value));
             }
         }
-
-      
     }
 }

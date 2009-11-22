@@ -58,10 +58,7 @@
     <Compile Include="DataStructure\StringField.cs" />
     <Compile Include="DataStructure\Table.cs" />
     <Compile Include="DataStructure\Transaction.cs" />
-    <Compile Include="Exceptions\DeleteException.cs" />
     <Compile Include="Exceptions\DLRDBException.cs" />
-    <Compile Include="Exceptions\SelectException.cs" />
-    <Compile Include="Exceptions\UpdateException.cs" />
     <Compile Include="NetworkUtils\ActiveCommandListener.cs" />
     <Compile Include="NetworkUtils\Client.cs" />
     <Compile Include="NetworkUtils\Server.cs" />

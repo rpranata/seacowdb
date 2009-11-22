@@ -20,7 +20,7 @@ namespace DLRDB.Core.DataStructure
         /// </summary>
         /// <param name="name">Name of the Field</param>
         /// <param name="theColumn">The Column reference for this field</param>
-        public Field(Column theColumn,Object value)
+        public Field(Column theColumn, Object value)
         {
             this._Column = theColumn;
             this._OriginalValue = NativeToBytes(value);
@@ -42,7 +42,6 @@ namespace DLRDB.Core.DataStructure
                 return this._Column;
             }
         }
-       
         
         /// <summary>
         /// Gets/Sets the parent Row of the Field. Used for backward referencing.
@@ -74,17 +73,11 @@ namespace DLRDB.Core.DataStructure
         {
             get
             {
-                lock (this._Lock)
-                {
-                    return this._OriginalValue;
-                }
+                lock (this._Lock) { return this._OriginalValue; }
             }
             set
             {
-                lock (this._Lock)
-                {
-                    this._OriginalValue = value;
-                }
+                lock (this._Lock){ this._OriginalValue = value; }
             }
         }
 
@@ -99,6 +92,5 @@ namespace DLRDB.Core.DataStructure
 
         public abstract Object BytesToNative(Byte[] value);
         public abstract Byte[] NativeToBytes(Object value);
-        
     }
 }

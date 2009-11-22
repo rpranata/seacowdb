@@ -27,7 +27,7 @@ namespace DLRDB.Core.DataStructure
         /// Gets the name of the Field. String value.
         /// </summary>
         public String Name
-        { get {  return this._Name; } }
+        { get { return this._Name; } }
     
         /// <summary>
         /// Gets FieldType(Int32, String) for validation.
@@ -35,6 +35,9 @@ namespace DLRDB.Core.DataStructure
         public System.Type NativeType
         { get { return this._NativeType; } }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public Int32 Length
         { get { return this._Length; } }
     }

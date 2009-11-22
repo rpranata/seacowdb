@@ -8,3 +8,8 @@ D:\Campus_Swinburne\MIT\Semester2\Advanced .NET\Repository\SeacowTestHarness\Sea
 D:\Campus_Swinburne\MIT\Semester2\Advanced .NET\Repository\SeacowTestHarness\SeacowTestHarness\obj\Debug\ResolveAssemblyReference.cache
 D:\Campus_Swinburne\MIT\Semester2\Advanced .NET\Repository\SeacowTestHarness\SeacowTestHarness\obj\Debug\SeacowTestHarness.exe
 D:\Campus_Swinburne\MIT\Semester2\Advanced .NET\Repository\SeacowTestHarness\SeacowTestHarness\obj\Debug\SeacowTestHarness.pdb
+D:\Uni's Doc\A.NET\DLR_DB\seacow_v1\SeacowTestHarness\SeacowTestHarness\bin\Debug\SeacowTestHarness.exe
+D:\Uni's Doc\A.NET\DLR_DB\seacow_v1\SeacowTestHarness\SeacowTestHarness\bin\Debug\SeacowTestHarness.pdb
+D:\Uni's Doc\A.NET\DLR_DB\seacow_v1\SeacowTestHarness\SeacowTestHarness\obj\Debug\ResolveAssemblyReference.cache
+D:\Uni's Doc\A.NET\DLR_DB\seacow_v1\SeacowTestHarness\SeacowTestHarness\obj\Debug\SeacowTestHarness.exe
+D:\Uni's Doc\A.NET\DLR_DB\seacow_v1\SeacowTestHarness\SeacowTestHarness\obj\Debug\SeacowTestHarness.pdb
