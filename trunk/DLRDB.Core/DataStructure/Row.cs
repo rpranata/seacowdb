@@ -38,11 +38,10 @@ namespace DLRDB.Core.DataStructure
         private readonly Table _ParentTable;
         private readonly Field[] _Fields;
         private readonly FileStream _MyFileStream;
-        public const int ROWSTATE_LENGTH = 1;  
-        private readonly ReadWriteLock _RowFileLock;
-       
         private readonly Object _Lock = new Object();
-
+        private readonly ReadWriteLock _RowFileLock;
+        public const int ROWSTATE_LENGTH = 1;  
+       
         /// <summary>
         /// Used for constructing the table to read data from the disk
         /// </summary>
@@ -77,6 +76,9 @@ namespace DLRDB.Core.DataStructure
             //TODO: Create empty row and return            
         }
 
+        public ReadWriteLock RowFileLock { get { return this._RowFileLock; } }
+        public Field[] Fields { get { return this._Fields; } }
+
         /// <summary>
         /// Gets/Sets the State of the Row. 
         /// DEFAULT(0) indicates CRUD can be performed. 
@@ -85,21 +87,11 @@ namespace DLRDB.Core.DataStructure
         /// </summary>
         public RowStateFlag State
         {
-            get 
-            {
-                //RowStateFlag tempResult;
-                //lock (this._Lock)
-                //{
-                //    tempResult = this._State;
-                //}
-                return this._State;
-            }
+            get
+            { return this._State; }
             set 
             {
-                lock (this._Lock)
-                {
-                    this._State = value;
-                }
+                lock (this._Lock){this._State = value;}
             }
         }
 
@@ -111,9 +103,6 @@ namespace DLRDB.Core.DataStructure
                 lock (this._Lock)
                 {
                     this._RowNum = value;
-                    
-                    // CalculateRowBytesStart
-                    // ========================
 
                     _RowBytesLength = 0;
                     _RowBytesLength += ROWSTATE_LENGTH;
@@ -123,6 +112,8 @@ namespace DLRDB.Core.DataStructure
                         _RowBytesLength += tempColumn.Length;
                     }
 
+                    // CalculateRowBytesStart
+                    // ========================
                     this._RowBytesStart += Table.METADATA_TOTAL_LENGTH;
                     this._RowBytesStart += (this.RowNum - 1) * this._RowBytesLength;
                 }
@@ -167,7 +158,6 @@ namespace DLRDB.Core.DataStructure
                     index++;
                 }
             }        
-            
         }
 
         public void WriteToDisk()
@@ -198,15 +188,6 @@ namespace DLRDB.Core.DataStructure
                         State = RowStateFlag.CLEAN;
                     }
                 }
-            } //release lock
-        }
-
-        public ReadWriteLock RowFileLock { get { return this._RowFileLock; } }
-        public Field[] Fields
-        {
-            get
-            {
-                return this._Fields;
             }
         }
 
