@@ -25,7 +25,6 @@ namespace DLRDB.Core.DataStructure
         TRASH = 3,
         ADDED = 4
     }
-
     
     public class Row
     {
@@ -77,25 +76,12 @@ namespace DLRDB.Core.DataStructure
             this._RowFileLock = new ReadWriteLock();
             //TODO: Create empty row and return            
         }
-    
-        /// <summary>
-        /// Gets Field based on Field Name, returns relevant Field Object.
-        /// </summary>
-        /// <param name="fieldName">Field Name to seek by.</param>
-        /// <returns>Relevant Field based on search criteria.</returns>
-        /*public Field GetField(String fieldName)
-        {
-            Field tempField = null;
-            this._DictFields.TryGetValue(fieldName, out tempField);
-            return tempField;
-        }*/
-        //public Field GetField(int fieldIndex)
-        //{
-        //    return this._ListFields[fieldIndex];
-        //}
 
         /// <summary>
-        /// Gets/Sets the State of the Row. DEFAULT(0) indicates CRUD can be performed. DELETED indicates Row is flagged for deletion, therefore becomes unaccessible.
+        /// Gets/Sets the State of the Row. 
+        /// DEFAULT(0) indicates CRUD can be performed. 
+        /// DELETED indicates Row is flagged for deletion, 
+        /// therefore becomes unaccessible.
         /// </summary>
         public RowStateFlag State
         {
@@ -119,15 +105,7 @@ namespace DLRDB.Core.DataStructure
 
         public int RowNum
         {
-            get {
-
-                //int tempResult;
-                //lock (this._Lock)
-                //{
-                //    tempResult = this._RowNum; 
-                //}
-                return this._RowNum;
-            }
+            get {return this._RowNum;}
             set 
             {
                 lock (this._Lock)
@@ -223,6 +201,7 @@ namespace DLRDB.Core.DataStructure
             } //release lock
         }
 
+        public ReadWriteLock RowFileLock { get { return this._RowFileLock; } }
         public Field[] Fields
         {
             get
@@ -234,15 +213,8 @@ namespace DLRDB.Core.DataStructure
         public void OutputTo(TextWriter output)
         {
             //TODO: read locks etc.
-
             output.WriteLine(DateTime.Now + " > " + this);
             output.Flush();
-            
-        }
-
-        public ReadWriteLock RowFileLock
-        {
-            get { return this._RowFileLock; }
         }
     }
 }

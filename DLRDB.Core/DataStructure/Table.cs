@@ -132,7 +132,6 @@ namespace DLRDB.Core.DataStructure
             #endregion
 
             // ===========
-
         }
 
         /// <summary>
@@ -190,7 +189,8 @@ namespace DLRDB.Core.DataStructure
         /// <param name="highRange">The high Range to start the seek from.
         /// </param>
         /// <returns>Row Array of results.</returns>
-        public void Select(int lowRange, int highRange, Transaction theTransaction, TextWriter output)
+        public void Select(int lowRange, int highRange, 
+            Transaction theTransaction, TextWriter output)
         {
             // Conditional to establish if the range is valid.
             if (ValidateSelectRange(lowRange, highRange))
@@ -354,7 +354,8 @@ namespace DLRDB.Core.DataStructure
         /// <param name="arrValueUpdates">The values to update to.
         /// </param>
         /// <returns>The number of affected rows.</returns>
-        public int Update(int lowRange, int highRange, Transaction theTransaction, params Object[] arrValueUpdates)
+        public int Update(int lowRange, int highRange, 
+            Transaction theTransaction, params Object[] arrValueUpdates)
         {
             int numberOfAffectedRows = 0;
 
@@ -368,7 +369,8 @@ namespace DLRDB.Core.DataStructure
 
                 int lastRowNumber = -1;
 
-                foreach (Row tempRow in arrSelectedRows.Where(tempRow => tempRow != null))
+                foreach (Row tempRow in 
+                    arrSelectedRows.Where(tempRow => tempRow != null))
                 {
                     isChangesMade = false;
                     theTransaction.StartWriteRow(tempRow);
@@ -395,7 +397,6 @@ namespace DLRDB.Core.DataStructure
 
                     if (isChangesMade)
                     {
-
                         numberOfAffectedRows++;
                         theTransaction.AddCommitAction(
                             () =>
@@ -701,7 +702,8 @@ namespace DLRDB.Core.DataStructure
         public static Byte ReadByteFromDisk(FileStream myFileStream)
         { return Table.ReadBytesFromDisk(myFileStream, 1)[0]; }
 
-        public static void WriteBytesToDisk(FileStream myFileStream, Byte[] arrData, int count)
+        public static void WriteBytesToDisk(FileStream myFileStream, 
+            Byte[] arrData, int count)
         { myFileStream.Write(arrData, 0, count); }
 
         public static void WriteByteToDisk(FileStream myFileStream, Byte data)

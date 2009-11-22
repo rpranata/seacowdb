@@ -18,16 +18,8 @@ namespace DLRDB.Core.NetworkUtils
         private String _IPAddress;
 
         private const int PORT = 6806;
-
-        public BinaryReader Reader
-        {
-            get { return this._Reader; }
-        }
-
-        public BinaryWriter Writer
-        {
-            get { return this._Writer; }
-        }
+        public BinaryReader Reader{get { return this._Reader; }}
+        public BinaryWriter Writer{get { return this._Writer; }}
 
         public Client(String serverIP)
         {
@@ -37,7 +29,6 @@ namespace DLRDB.Core.NetworkUtils
             //Connect to the server
             this._TCPClient.Connect(this._IPAddress, Client.PORT);
             this._Stream = this._TCPClient.GetStream();
-            
 
             //Initialize the reader and writer
             _Writer = new BinaryWriter(this._Stream);

@@ -30,22 +30,6 @@ namespace DLRDB.Core.DataStructure
             }
         }
 
-        /// <summary>
-        /// Checks the Collection of Tables associated to this Database and returns the relevant Table based on the parameter.
-        /// </summary>
-        /// <param name="tableName">String Table Name to seek by.</param>
-        /// <returns>Table object that matches the parameter. Returns null if no such Table exists.</returns>
-        /*public Table getTableByName(String tableName)
-        {
-            Table resultTable = null;
-            if (this._DictTable.TryGetValue(tableName, out resultTable) == false)
-            {
-                resultTable = null;
-            }
-
-            return resultTable;
-        }*/
-
         public Table getTable(int index)
         {
             return this._Tables[index];

@@ -18,7 +18,6 @@ namespace DLRDB.Core.NetworkUtils
     {
         private readonly TcpListener _Listener;
         private readonly List<ActiveCommandListener> _Client;
-        //private readonly Channel<ActiveCommandListener> _Clients;
         private readonly int _Port;
         private Table _Table;
        

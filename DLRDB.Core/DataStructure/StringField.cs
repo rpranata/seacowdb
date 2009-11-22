@@ -19,7 +19,6 @@ namespace DLRDB.Core.DataStructure
         {
         }
 
-
         /// <summary>
         /// Notes :we do the Right-Padding to the string to fit the specified length
         /// </summary>
@@ -45,7 +44,5 @@ namespace DLRDB.Core.DataStructure
                 return ASCIIEncoding.Default.GetBytes(value.ToString().PadRight(this.FieldColumn.Length, ' '));
             }
         }
-
-
     }
 }

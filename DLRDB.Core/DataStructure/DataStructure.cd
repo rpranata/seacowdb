@@ -56,10 +56,24 @@
   </Class>
   <Class Name="DLRDB.Core.DataStructure.Table">
     <Position X="11.25" Y="0.5" Width="1.5" />
+    <AssociationLine Name="_Columns" Type="DLRDB.Core.DataStructure.Column" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="11.875" Y="0.5" />
+        <Point X="11.875" Y="0.266" />
+        <Point X="17.312" Y="0.266" />
+        <Point X="17.312" Y="0.5" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="0.87" Y="-0.044" />
+      </MemberNameLabel>
+    </AssociationLine>
     <TypeIdentifier>
       <HashCode>ggRECEAQFCAiAEIggACBIA4AEAEQgOURAAwQUAgAACA=</HashCode>
       <FileName>DataStructure\Table.cs</FileName>
     </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_Columns" />
+    </ShowAsAssociation>
   </Class>
   <Class Name="System.WeakReference" Collapsed="true">
     <Position X="8.75" Y="3.5" Width="1.5" />
