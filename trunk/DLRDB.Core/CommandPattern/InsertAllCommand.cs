@@ -12,7 +12,7 @@ namespace DLRDB.Core.CommandPattern
     {
      
         public override bool RunFor(string input)
-        { return input.Split(' ')[0] == "insertall"; }
+            { return input.Split(' ')[0] == "insertall"; }
 
         public override void Run(string command, Table table,
             DbEnvironment dbEnvironment)

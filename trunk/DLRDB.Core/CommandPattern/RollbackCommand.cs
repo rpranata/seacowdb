@@ -9,7 +9,7 @@ namespace DLRDB.Core.CommandPattern
     class RollbackCommand : Command
     {
         public override bool RunFor(string input)
-        { return input.Equals("rollback"); }
+            { return input.Equals("rollback"); }
 
         public override void Run(string command, Table table,
             DbEnvironment dbEnvironment)

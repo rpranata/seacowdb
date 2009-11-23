@@ -6,9 +6,10 @@ namespace DLRDB.Core.CommandPattern
     public class CommitCommand : Command
     {
         public override bool RunFor(string input)
-        { return input.Equals("commit"); }
+            { return input.Equals("commit"); }
 
-        public override void Run(string command, Table table, DbEnvironment dbEnvironment)
+        public override void Run(string command, Table table, 
+            DbEnvironment dbEnvironment)
         {
             // Not needed anymmore, since the transaction has been made
             // in the active command listener if the trasaction is null

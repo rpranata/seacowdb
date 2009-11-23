@@ -13,7 +13,7 @@ namespace DLRDB.Core.CommandPattern
         private static int DELETE_PARAM_INDEX = 1;
 
         public override bool RunFor(string input)
-        { return input.Split(' ')[0] == ("delete"); }
+            { return input.Split(' ')[0] == ("delete"); }
 
         public override void Run(string command, Table table,
             DbEnvironment dbEnvironment)

@@ -51,9 +51,7 @@ namespace DLRDB.Core.DataStructure
         private int _PotentialRows; // Potential unoccupied Rows on file
 
         private readonly FileStream _MyFileStream;
-
         public readonly ReadWriteLock _TableLock;
-
         private readonly Object _Lock = new Object();
 
         #endregion
@@ -168,15 +166,13 @@ namespace DLRDB.Core.DataStructure
         /// <summary>
         /// Accessor: returns the Table Name. Non mutable.
         /// </summary>
-        public String Name
-        { get { return this._Name; } }
+        public String Name { get { return this._Name; } }
 
         /// <summary>
         /// Accessor: returns the array of Columns 
         /// associated with this Table. Non mutable.
         /// </summary>
-        public Column[] Columns
-        { get { return this._Columns; } }
+        public Column[] Columns { get { return this._Columns; } }
 
         /// <summary>
         /// Select operation based on lowRange and highRange parameters.
@@ -222,7 +218,6 @@ namespace DLRDB.Core.DataStructure
                 throw new SelectException
                     ("Invalid range supplied for Select operation.");
             }
-
         }
 
         /// <summary>
@@ -279,6 +274,8 @@ namespace DLRDB.Core.DataStructure
             return result;
         }
 
+
+
         /// <summary>
         /// Internal function to validate the supplied ranges.
         /// It checks if the end index is lesser that the start index,
@@ -324,7 +321,7 @@ namespace DLRDB.Core.DataStructure
         /// </summary>
         /// <returns>Row Array of results.</returns>
         public void SelectAll(TextWriter output, Transaction theTransaction)
-        { Select(1, this._PhysicalRows, theTransaction, output); }
+            { Select(1, this._PhysicalRows, theTransaction, output); }
 
         /// <summary>
         /// Update operation based on range of affected or affectable
@@ -369,6 +366,8 @@ namespace DLRDB.Core.DataStructure
                         theTransaction.AddCommitAction(
                             () => { currentRow.WriteToDisk(); } );
 
+                        
+                        
                         theTransaction.AddRollbackAction(
                             () => { currentRow.ReadFromDisk(); } );
                     }
@@ -412,7 +411,8 @@ namespace DLRDB.Core.DataStructure
         /// <param name="highRange">The end range to seek and delete by.
         /// </param>
         /// <returns>The number of affected Rows.</returns>
-        public int Delete(int lowRange, int highRange, Transaction theTransaction, TextWriter output)
+        public int Delete(int lowRange, int highRange, 
+            Transaction theTransaction, TextWriter output)
         {
             int numberOfAffectedRows = 0;
 
@@ -423,13 +423,13 @@ namespace DLRDB.Core.DataStructure
                 // To indicate whether in a row, we have some changes
                 theTransaction.StartWriteTable(this);
 
-                foreach (Row tempRow in arrSelectedRows.Where(tempRow => tempRow != null))
+                foreach (Row tempRow in arrSelectedRows
+                    .Where(tempRow => tempRow != null))
                 {
                     Row currentRow = tempRow;
                     numberOfAffectedRows++;
 
                     theTransaction.StartWriteRow(currentRow);
-
                     currentRow.State = RowStateFlag.TRASH;
 
                     lock (_Lock)
@@ -478,7 +478,7 @@ namespace DLRDB.Core.DataStructure
         /// Console.</param>
         /// <returns>The number of affected Rows.</returns>
         public int DeleteAll(Transaction theTransaction, TextWriter output)
-        { return Delete(1, this._PhysicalRows, theTransaction, output); }
+            { return Delete(1, this._PhysicalRows, theTransaction, output); }
 
         /// <summary>
         /// Function for the Table to create and return a new Row object.
@@ -505,6 +505,7 @@ namespace DLRDB.Core.DataStructure
             return tempNewRow;
         }
 
+        
         /// <summary>
         /// Insert operation based on the Row object parameter. Appends
         /// the new Row to the end of the Table.
@@ -517,18 +518,16 @@ namespace DLRDB.Core.DataStructure
             int tempNumOfAvailablePhysicalRows;
 
             lock (this._Lock)
-            { tempNumOfAvailablePhysicalRows = this._PotentialRows; }
+                { tempNumOfAvailablePhysicalRows = this._PotentialRows; }
 
             if (tempNumOfAvailablePhysicalRows <= MIN_THRESHOLD_TO_RESIZE_ROWS)
-            { GrowTable(); }
+                { GrowTable(); }
 
             // Set the next auto incement ID
             int tempNextPK;
             int tempNumOfUsedPhysicalRows;
-            
-            // rendy put this
-            theTransaction.StartWriteRow(row);
 
+            theTransaction.StartWriteRow(row);
             lock (this._Lock)
             {
                 tempNextPK = this._NextPK;
@@ -548,9 +547,6 @@ namespace DLRDB.Core.DataStructure
                 // Append the row that has just been inserted to the collection
                 this._Rows[this._PhysicalRows - 1].Target = row;
             }
-
-            //rendy put this
-            theTransaction.EndWriteRow(row);
 
             theTransaction.AddCommitAction(
                 () =>
@@ -574,6 +570,8 @@ namespace DLRDB.Core.DataStructure
                 }
                 );
 
+            //Releasing writer lock
+            theTransaction.EndWriteRow(row);
             theTransaction.EndWriteTable(this);
             return row;
         }
@@ -589,6 +587,9 @@ namespace DLRDB.Core.DataStructure
             int newPotentialRows;
             int newTotalRows;
 
+            
+            
+            
             lock (this._Lock)
             {
                 // Persist the old number of physical rows
@@ -612,7 +613,6 @@ namespace DLRDB.Core.DataStructure
                 // Rows to reflect File
                 this._PotentialRows = newPotentialRows;
                 this.UpdateMetadata();
-
 
                 // Create the new sized collection 
                 // and copy the old collection over
@@ -650,7 +650,7 @@ namespace DLRDB.Core.DataStructure
         /// <param name="myFileStream">FileStream for File I/O.</param>
         /// <returns>Byte that has been read.</returns>
         public static Byte ReadByteFromDisk(FileStream myFileStream)
-        { return Table.ReadBytesFromDisk(myFileStream, 1)[0]; }
+            { return Table.ReadBytesFromDisk(myFileStream, 1)[0]; }
 
         /// <summary>
         /// Function to write Byte[] to file on disk. Note: Assumption is made
@@ -661,8 +661,9 @@ namespace DLRDB.Core.DataStructure
         /// <param name="count">int length of data to be written.</param>
         public static void WriteBytesToDisk(FileStream myFileStream, 
             Byte[] arrData, int count)
-        { myFileStream.Write(arrData, 0, count); }
+            { myFileStream.Write(arrData, 0, count); }
 
+        
         /// <summary>
         /// Function to write a single Byte to file on disk. Note: Assumption
         /// is made that pointer has already been moved to the "appropriate"
@@ -671,7 +672,7 @@ namespace DLRDB.Core.DataStructure
         /// <param name="myFileStream">FileStream for File I/O.</param>
         /// <param name="data">Byte value to be written.</param>
         public static void WriteByteToDisk(FileStream myFileStream, Byte data)
-        { myFileStream.WriteByte(data); }
+            { myFileStream.WriteByte(data); }
 
         /// <summary>
         /// Function to calculate the length of Bytes per Row.

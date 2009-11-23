@@ -3,12 +3,12 @@
   <Class Name="DLRDB.Core.NetworkUtils.ActiveCommandListener">
     <Position X="0.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAABEQAAACAAAAAABAAAAEAAgAAAAAAAACAAAA=</HashCode>
+      <HashCode>AAAAAAAABEQAAACAAAAAABAAAAEAAgAAAAAAAACAAAI=</HashCode>
       <FileName>NetworkUtils\ActiveCommandListener.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="DLRDB.Core.NetworkUtils.Server">
-    <Position X="3" Y="1.5" Width="1.5" />
+    <Position X="3" Y="1.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAQAAACAAAAAAAAAAgAAAkAAAAAAAAAACAA=</HashCode>
       <FileName>NetworkUtils\Server.cs</FileName>

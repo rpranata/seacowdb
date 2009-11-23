@@ -38,14 +38,17 @@ namespace ServerHarness
         private const int METADATA_NEXT_PK_LENGTH = 4;
 
         public const int METADATA_TOTAL_LENGTH =
-            METADATA_TRADEMARK_LENGTH + METADATA_MAJOR_VERSION_LENGTH + METADATA_MINOR_VERSION_LENGTH +
-            METADATA_DETAIL_VERSION_LENGTH + METADATA_NUM_ROWS_LENGTH + METADATA_NEXT_PK_LENGTH +
-            METADATA_NUM_USED_PHYSICAL_ROWS_LENGTH + METADATA_NUM_AVAILABLE_PHYSICAL_ROWS_LENGTH;
+            METADATA_TRADEMARK_LENGTH + METADATA_MAJOR_VERSION_LENGTH 
+            + METADATA_MINOR_VERSION_LENGTH + METADATA_DETAIL_VERSION_LENGTH 
+            + METADATA_NUM_ROWS_LENGTH + METADATA_NEXT_PK_LENGTH 
+            + METADATA_NUM_USED_PHYSICAL_ROWS_LENGTH 
+            + METADATA_NUM_AVAILABLE_PHYSICAL_ROWS_LENGTH;
 
         static void generateSampleDatabase()
         {
             System.IO.Directory.CreateDirectory("TestDB");
-            FileStream BinaryFile = new FileStream("TestDB/test.dlr", FileMode.Create, FileAccess.ReadWrite);
+            FileStream BinaryFile = new FileStream("TestDB/test.dlr", 
+                FileMode.Create, FileAccess.ReadWrite);
             BinaryReader Reader = new BinaryReader(BinaryFile);
             BinaryWriter Writer = new BinaryWriter(BinaryFile);
 
@@ -54,17 +57,15 @@ namespace ServerHarness
             // ================
             // [Flag  ][ID    ][Name   ][Age   ] 
             // [1 byte][4 byte][20 byte][4 byte] => 29 byte
-
             int ByteCount_FLAG = 1; // 1:active 0:deleted
             int ByteCount_ID = 4;
             int ByteCount_NAME = 20;
             int ByteCount_AGE = 4;
 
-            int ByteCount_TOTAL = ByteCount_FLAG + ByteCount_ID + ByteCount_NAME + ByteCount_AGE;
+            int ByteCount_TOTAL = ByteCount_FLAG + ByteCount_ID 
+                + ByteCount_NAME + ByteCount_AGE;
 
             int numDataRow = 0;
-
-
             Random myRandomGenerator = new Random();
 
             // Write metadata
@@ -81,7 +82,9 @@ namespace ServerHarness
 
             // Prepare the data to be written to the file
             // ===========================================
-            BinaryFile.SetLength(METADATA_TOTAL_LENGTH + (numOfUsedPhysicalRows + numOfAvailablePhysicalRows) * ByteCount_TOTAL);
+            BinaryFile.SetLength(METADATA_TOTAL_LENGTH 
+                + (numOfUsedPhysicalRows + numOfAvailablePhysicalRows) 
+                * ByteCount_TOTAL);
 
             Writer.Write(ASCIIEncoding.Default.GetBytes(trademark));
             Writer.Write(majorVersion);
@@ -90,14 +93,14 @@ namespace ServerHarness
 
             Writer.Write(System.BitConverter.GetBytes(numOfRows));
             Writer.Write(System.BitConverter.GetBytes(nextPK));
-            Writer.Write(System.BitConverter.GetBytes(numOfUsedPhysicalRows));
-            Writer.Write(System.BitConverter.GetBytes(numOfAvailablePhysicalRows));
+            Writer.Write(System.BitConverter
+                .GetBytes(numOfUsedPhysicalRows));
+            Writer.Write(System.BitConverter
+                .GetBytes(numOfAvailablePhysicalRows));
 
             // Write 5 lines of data
             // ==============
-
             Int32 tempAge = 20;
-
             for (Int32 i = 0; i < numDataRow; i++)
             {
                 // Write the Flag
@@ -109,22 +112,18 @@ namespace ServerHarness
                 Writer.Write(System.BitConverter.GetBytes(tempID));
 
                 // Write the Name
-                String tempName = ("Name" + (i + 1).ToString()).PadRight(20, ' ').Substring(0, 20);
+                String tempName = ("Name" + (i + 1).ToString())
+                    .PadRight(20, ' ').Substring(0, 20);
                 Writer.Write(ASCIIEncoding.Default.GetBytes(tempName));
 
                 // Write the Age
                 tempAge++;
                 if (tempAge > 60)
-                { tempAge = 18; }
+                    { tempAge = 18; }
                 
                 Writer.Write(System.BitConverter.GetBytes(tempAge));
-
             }
-
-
             BinaryFile.Close();
-
-
         }
 
         #endregion

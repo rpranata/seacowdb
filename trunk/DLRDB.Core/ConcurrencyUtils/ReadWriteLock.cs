@@ -6,7 +6,7 @@ using System.Threading;
 namespace DLRDB.Core.ConcurrencyUtils
 {
     public interface ILock : IDisposable
-    { void Release(); }
+        { void Release(); }
 
     /// <summary>
     /// ReadWriteLock utility that utilises the FIFOSemaphore to prevent
@@ -35,18 +35,18 @@ namespace DLRDB.Core.ConcurrencyUtils
                 {
                     released = true;
                     if (parent == null)
-                    { return; }
+                        { return; }
                     if (isWriter)
-                    { parent.ReleaseWriter(); }
+                        { parent.ReleaseWriter(); }
                     else
-                    { parent.ReleaseReader(); }
+                        { parent.ReleaseReader(); }
                 }
             }
 
             #region IDisposable Members
 
-            public void Dispose()
-            { Release(); }
+            public void Dispose() 
+                { Release(); }
 
             #endregion
         }
@@ -82,14 +82,14 @@ namespace DLRDB.Core.ConcurrencyUtils
                 // we'd just return a phantom lock
                 if (_CurrentReaderThread.Contains(Thread.CurrentThread)
                     || Thread.CurrentThread == _CurrentWriterThread)
-                { return new RWLock(false, null); }
+                    { return new RWLock(false, null); }
             }
 
             this._Turnstile.Acquire();
             this._Turnstile.Release();
 
             lock (_WaitingLock)
-            {  _WaitingReaders++; }
+                {  _WaitingReaders++; }
 
             lock (this)
             {
@@ -97,6 +97,7 @@ namespace DLRDB.Core.ConcurrencyUtils
                 { this._Mutex.Acquire(); }
                 this._ReaderCount++;
             }
+
             lock (_WaitingLock)
             {
                 _WaitingReaders--;
@@ -108,6 +109,7 @@ namespace DLRDB.Core.ConcurrencyUtils
                     hasBlockedTurnstile = false;
                 }
             }
+
             return new RWLock(false, this);
         }
 
@@ -135,13 +137,13 @@ namespace DLRDB.Core.ConcurrencyUtils
             else
             {
                 lock (_WaitingLock)
-                { _WaitingWriters++; }
+                    { _WaitingWriters++; }
 
                 this._WriterTurnstile.Acquire();
                 _Turnstile.Acquire();
 
                 lock (_WaitingLock)
-                { _WaitingWriters--; }
+                    { _WaitingWriters--; }
 
                 _CurrentWriterThread = System.Threading.Thread.CurrentThread;
 
@@ -179,9 +181,9 @@ namespace DLRDB.Core.ConcurrencyUtils
             {
                 _CurrentReaderThread.Remove(Thread.CurrentThread);
                 if (this._ReaderCount > 0)
-                { this._ReaderCount--; }
+                    { this._ReaderCount--; }
                 if (this._ReaderCount == 0)
-                { this._Mutex.Release(); }
+                    { this._Mutex.Release(); }
             }
         }
 

@@ -8,7 +8,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="DLRDB.Core.CommandPattern.Command" Collapsed="true">
-    <Position X="13.25" Y="11.5" Width="1.5" />
+    <Position X="14" Y="11.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAI=</HashCode>
       <FileName>CommandPattern\Command.cs</FileName>
@@ -23,6 +23,11 @@
   </Class>
   <Class Name="DLRDB.Core.CommandPattern.DbEnvironment">
     <Position X="0.5" Y="3.75" Width="1.5" />
+    <AssociationLine Name="CreateTransactionForIsolationLevel" Type="DLRDB.Core.CommandPattern.TransactionCreater">
+      <MemberNameLabel ManuallyPlaced="true" ManuallySized="true">
+        <Position X="-2.397" Y="0.432" Height="0.182" Width="2.299" />
+      </MemberNameLabel>
+    </AssociationLine>
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAQCAAACAAAAAAAAAAAAAAAAAAAEAAAA=</HashCode>
       <FileName>CommandPattern\DbEnvironment.cs</FileName>
@@ -68,7 +73,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="DLRDB.Core.CommandPattern.SetIsolationLevelCommand">
-    <Position X="15" Y="14.25" Width="1.5" />
+    <Position X="15" Y="14.25" Width="2.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAEAAAAAAAAAAAAAAAgRAAAAAAAAAQIAI=</HashCode>
       <FileName>CommandPattern\SetIsolationLevelCommand.cs</FileName>
@@ -82,21 +87,21 @@
     </TypeIdentifier>
   </Class>
   <Class Name="DLRDB.Core.ConcurrencyUtils.ActiveObject">
-    <Position X="16.5" Y="9.75" Width="1.5" />
+    <Position X="18.75" Y="11.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAABAAAAACQAAAgAAAAAAAAAAAAAAAAAIAAAAAACAAI=</HashCode>
       <FileName>ConcurrencyUtils\ActiveObject.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="DLRDB.Core.ConcurrencyUtils.FIFOSemaphore">
-    <Position X="16.5" Y="0.5" Width="1.5" />
+    <Position X="18.75" Y="1" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AEAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAABAAAAA=</HashCode>
       <FileName>ConcurrencyUtils\FIFOSemaphore.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="DLRDB.Core.ConcurrencyUtils.ReadWriteLock">
-    <Position X="13.5" Y="0.5" Width="1.5" />
+    <Position X="15.5" Y="0.5" Width="1.5" />
     <NestedTypes>
       <Class Name="DLRDB.Core.ConcurrencyUtils.ReadWriteLock.RWLock" Collapsed="true">
         <TypeIdentifier>
@@ -105,6 +110,35 @@
         <Lollipop Position="0.2" />
       </Class>
     </NestedTypes>
+    <AssociationLine Name="_WriterTurnstile" Type="DLRDB.Core.ConcurrencyUtils.FIFOSemaphore" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="17" Y="0.75" />
+        <Point X="19.625" Y="0.75" />
+        <Point X="19.625" Y="1" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="1.121" Y="0.435" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <AssociationLine Name="_Turnstile" Type="DLRDB.Core.ConcurrencyUtils.FIFOSemaphore" FixedToPoint="true">
+      <Path>
+        <Point X="17" Y="1.937" />
+        <Point X="18.75" Y="1.937" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="0.387" Y="0.108" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <AssociationLine Name="_Mutex" Type="DLRDB.Core.ConcurrencyUtils.FIFOSemaphore" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="17" Y="3.25" />
+        <Point X="19" Y="3.25" />
+        <Point X="19" Y="3.069" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="1.002" Y="0.375" />
+      </MemberNameLabel>
+    </AssociationLine>
     <TypeIdentifier>
       <HashCode>AACEAKAAgAAAGAAAAAAAAAAAAAAAACAQEAEAAgCEAAA=</HashCode>
       <FileName>ConcurrencyUtils\ReadWriteLock.cs</FileName>
@@ -116,7 +150,7 @@
     </ShowAsAssociation>
   </Class>
   <Class Name="DLRDB.Core.ConcurrencyUtils.Semaphore">
-    <Position X="16.5" Y="3.5" Width="1.5" />
+    <Position X="18.75" Y="4" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAgAAAAgAAAAAAAAAAAAAAABAAABAIACA=</HashCode>
       <FileName>ConcurrencyUtils\Semaphore.cs</FileName>
@@ -124,7 +158,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="DLRDB.Core.DataStructure.Column">
-    <Position X="9" Y="7.25" Width="1.5" />
+    <Position X="9.25" Y="7.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAQAAAAAAAAAAAAAIARAAAAAAAAEAAAAAAAEAAA=</HashCode>
       <FileName>DataStructure\Column.cs</FileName>
@@ -132,8 +166,19 @@
   </Class>
   <Class Name="DLRDB.Core.DataStructure.Database">
     <Position X="9" Y="1" Width="1.5" />
+    <AssociationLine Name="_Tables" Type="DLRDB.Core.DataStructure.Table" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="9.5" Y="1" />
+        <Point X="9.5" Y="0.625" />
+        <Point X="13.125" Y="0.625" />
+        <Point X="13.125" Y="1" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="1.355" Y="0.069" />
+      </MemberNameLabel>
+    </AssociationLine>
     <TypeIdentifier>
-      <HashCode>AAAAAABAAAAAAAAAAAAAMAQAAAAAACAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AEAAAAAAAAAAAAAAAAAAMAQAAAAAACAAAAAAAAAAAAA=</HashCode>
       <FileName>DataStructure\Database.cs</FileName>
     </TypeIdentifier>
     <ShowAsCollectionAssociation>
@@ -143,12 +188,11 @@
   <Class Name="DLRDB.Core.DataStructure.Field">
     <Position X="6.75" Y="6.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAgAAAAAAQAhAEAAAAQAAAgAgAACAAAAAgAAAAACQ=</HashCode>
+      <HashCode>AAAAgAAAAAAQAhAEAAAAQAAAgAAAAAAAAAAgAAAAACQ=</HashCode>
       <FileName>DataStructure\Field.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
       <Field Name="_Column" />
-      <Field Name="_ParentRow" />
     </ShowAsAssociation>
   </Class>
   <Class Name="DLRDB.Core.DataStructure.Int32Field">
@@ -160,14 +204,18 @@
   </Class>
   <Class Name="DLRDB.Core.DataStructure.Row">
     <Position X="6.75" Y="0.5" Width="1.5" />
+    <AssociationLine Name="_Fields" Type="DLRDB.Core.DataStructure.Field">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="0.276" Y="0.226" />
+      </MemberNameLabel>
+    </AssociationLine>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAKABACAAEgCEAAAICAAABABAAAACAJCAAgCA=</HashCode>
+      <HashCode>AAAAAAAACABACABEgCEAAAACgAABABAAAACAJCAAgCA=</HashCode>
       <FileName>DataStructure\Row.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
       <Field Name="_State" />
       <Field Name="_ParentTable" />
-      <Field Name="_RowFileLock" />
     </ShowAsAssociation>
     <ShowAsCollectionAssociation>
       <Field Name="_Fields" />
@@ -181,7 +229,32 @@
     </TypeIdentifier>
   </Class>
   <Class Name="DLRDB.Core.DataStructure.Table">
-    <Position X="11.25" Y="1" Width="1.5" />
+    <Position X="11.25" Y="1" Width="3.75" />
+    <AssociationLine Name="_Rows" Type="System.WeakReference">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-0.841" Y="0.446" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <AssociationLine Name="_Columns" Type="DLRDB.Core.DataStructure.Column" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="11.25" Y="6.813" />
+        <Point X="9.812" Y="6.813" />
+        <Point X="9.812" Y="7.25" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-1.042" Y="0.124" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <AssociationLine Name="_TableLock" Type="DLRDB.Core.ConcurrencyUtils.ReadWriteLock" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="15" Y="4.438" />
+        <Point X="16.25" Y="4.438" />
+        <Point X="16.25" Y="4.045" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true" ManuallySized="true">
+        <Position X="-1.073" Y="0.241" Height="0.182" Width="0.971" />
+      </MemberNameLabel>
+    </AssociationLine>
     <TypeIdentifier>
       <HashCode>ggRECEAQFCAiAEIggACBIA4AEAEQgGURAAwQUAgAACA=</HashCode>
       <FileName>DataStructure\Table.cs</FileName>
@@ -196,19 +269,32 @@
   </Class>
   <Class Name="DLRDB.Core.DataStructure.Transaction">
     <Position X="4.5" Y="1.75" Width="1.5" />
+    <AssociationLine Name="_RunOnRollback" Type="DLRDB.Core.DataStructure.DataUpdater">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="0.179" Y="-0.243" />
+      </MemberNameLabel>
+    </AssociationLine>
     <TypeIdentifier>
       <HashCode>gAABAEAIAACAAAACAAAAgIAECAEAAABECAAAAAgAAAA=</HashCode>
       <FileName>DataStructure\Transaction.cs</FileName>
     </TypeIdentifier>
     <ShowAsCollectionAssociation>
-      <Field Name="_ListILockForRead" />
-      <Field Name="_ListILockForWrite" />
       <Field Name="_RunOnCommit" />
       <Field Name="_RunOnRollback" />
+      <Field Name="_ListILockForRead" />
+      <Field Name="_ListILockForWrite" />
     </ShowAsCollectionAssociation>
   </Class>
   <Class Name="DLRDB.Core.DataStructure.ReadCommittedTransaction">
     <Position X="2.5" Y="6.5" Width="1.5" />
+    <InheritanceLine Type="DLRDB.Core.DataStructure.Transaction" ManuallyRouted="true">
+      <Path>
+        <Point X="5.25" Y="5.161" />
+        <Point X="5.25" Y="6.3" />
+        <Point X="3.25" Y="6.3" />
+        <Point X="3.25" Y="6.5" />
+      </Path>
+    </InheritanceLine>
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>DataStructure\Transaction.cs</FileName>
@@ -264,9 +350,37 @@
     </TypeIdentifier>
   </Class>
   <Class Name="DLRDB.Core.NetworkUtils.ActiveCommandListener">
-    <Position X="13.5" Y="4.75" Width="1.5" />
+    <Position X="15.75" Y="4.75" Width="1.5" />
+    <InheritanceLine Type="DLRDB.Core.ConcurrencyUtils.ActiveObject" FixedToPoint="true">
+      <Path>
+        <Point X="19.5" Y="11.75" />
+        <Point X="19.5" Y="11.375" />
+        <Point X="17" Y="11.375" />
+        <Point X="17" Y="7.781" />
+      </Path>
+    </InheritanceLine>
+    <AssociationLine Name="_Commands" Type="DLRDB.Core.CommandPattern.Command" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="16.625" Y="7.781" />
+        <Point X="16.625" Y="11.781" />
+        <Point X="15.5" Y="11.781" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-0.605" Y="0.581" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <AssociationLine Name="_Table" Type="DLRDB.Core.DataStructure.Table" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="16.188" Y="7.781" />
+        <Point X="16.188" Y="9.24" />
+        <Point X="15" Y="9.24" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="0.249" Y="0.254" />
+      </MemberNameLabel>
+    </AssociationLine>
     <TypeIdentifier>
-      <HashCode>AAAAAAAABEQAAACAAAAAABAAAAEAAgAAAAAAAACAAAA=</HashCode>
+      <HashCode>AAAAAAAABEQAAACAAAAAABAAAAEAAgAAAAAAAACAAAI=</HashCode>
       <FileName>NetworkUtils\ActiveCommandListener.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
@@ -284,7 +398,17 @@
     </TypeIdentifier>
   </Class>
   <Class Name="DLRDB.Core.NetworkUtils.Server">
-    <Position X="16.5" Y="6.5" Width="1.5" />
+    <Position X="18.75" Y="8.5" Width="1.5" />
+    <AssociationLine Name="_Client" Type="DLRDB.Core.NetworkUtils.ActiveCommandListener" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="19.375" Y="8.5" />
+        <Point X="19.375" Y="7.25" />
+        <Point X="17.25" Y="7.25" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="0.72" Y="0.226" />
+      </MemberNameLabel>
+    </AssociationLine>
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAQAAACAAAAAAAAAAgAAAkAAAAAAAAAACAA=</HashCode>
       <FileName>NetworkUtils\Server.cs</FileName>
@@ -326,7 +450,7 @@
       <FileName>CommandPattern\DbEnvironment.cs</FileName>
     </TypeIdentifier>
   </Delegate>
-  <Delegate Name="DLRDB.Core.DataStructure.DataUpdater" Collapsed="true">
+  <Delegate Name="DLRDB.Core.DataStructure.DataUpdater">
     <Position X="0.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>

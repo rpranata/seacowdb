@@ -22,8 +22,7 @@ namespace DLRDB.Core.DataStructure
         /// <summary>
         /// Accessor: returns the Name of this Database Object. Non mutable.
         /// </summary>
-        public String Name
-        { get {  return this._Name; } }
+        public String Name { get {  return this._Name; } }
 
         /// <summary>
         /// Accessor: returns Table by matching the Table.Name to
@@ -32,8 +31,7 @@ namespace DLRDB.Core.DataStructure
         /// <param name="index">String name parameter to 
         /// match the Table name to seek by.</param>
         /// <returns></returns>
-        public Table GetTable(int index)
-        { return this._Tables[index]; }
+        public Table GetTable(int index) { return this._Tables[index]; }
 
         /// <summary>
         /// Accessor: returns Table by matching the collection of 
@@ -47,7 +45,7 @@ namespace DLRDB.Core.DataStructure
             for (int i = 0; i < _Tables.Length; i++)
             {
                 if (this._Tables[i].Name == name)
-                { return this._Tables[i]; }
+                    { return this._Tables[i]; }
             }
             return null;
         }
@@ -70,7 +68,6 @@ namespace DLRDB.Core.DataStructure
                 isSuccess = true;
             }
             catch (Exception) { }
-            
             return isSuccess;
         }        
     }

@@ -6,7 +6,7 @@ namespace DLRDB.Core.CommandPattern
     public class BeginTransactionCommand : Command
     {
         public override bool RunFor(string input)
-        { return input.Equals("begin transaction"); }
+            { return input.Equals("begin transaction"); }
 
         public override void Run(string command, Table table,
             DbEnvironment dbEnvironment)

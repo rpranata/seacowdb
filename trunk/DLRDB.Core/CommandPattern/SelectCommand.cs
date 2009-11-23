@@ -13,7 +13,7 @@ namespace DLRDB.Core.CommandPattern
         private static int SELECT_PARAM_INDEX = 1;
         
         public override bool RunFor(string input)
-        { return input.Split(' ')[0] == "select"; }
+            { return input.Split(' ')[0] == "select"; }
 
         public override void Run(string command, Table table,
             DbEnvironment dbEnvironment)

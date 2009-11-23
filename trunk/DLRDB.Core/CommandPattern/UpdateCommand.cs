@@ -13,7 +13,7 @@ namespace DLRDB.Core.CommandPattern
         private static int UPDATE_PARAM_INDEX = 1;
         
         public override bool RunFor(string input)
-        { return input.Split(' ')[0] == ("update"); }
+            { return input.Split(' ')[0] == ("update"); }
 
         public override void Run(string command, Table table,
             DbEnvironment dbEnvironment)
@@ -37,7 +37,7 @@ namespace DLRDB.Core.CommandPattern
             Object[] arrUpdatedValue = new Object
                 [(updateParams.Length - 1) + 1];
             for (int i = 1; i < updateParams.Length; i++)
-            { arrUpdatedValue[i] = updateParams[i]; }
+                { arrUpdatedValue[i] = updateParams[i]; }
 
             if (updateParams[UPDATE_PARAM_INDEX] == "*")
             {
@@ -54,7 +54,8 @@ namespace DLRDB.Core.CommandPattern
                     dbEnvironment.CurrentTransaction, arrUpdatedValue);
             }
 
-            dbEnvironment.Writer.WriteLine(DateTime.Now + " >> " + "Updated: " + updatedRows + " row(s)");
+            dbEnvironment.Writer.WriteLine(DateTime.Now + " >> " 
+                + "Updated: " + updatedRows + " row(s)");
             dbEnvironment.Writer.Flush();
         }
     }
