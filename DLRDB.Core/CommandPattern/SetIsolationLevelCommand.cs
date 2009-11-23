@@ -11,58 +11,59 @@ namespace DLRDB.Core.CommandPattern
         private static int ISOLATION_LEVEL_INDEX = 3;
 
         public override bool RunFor(string input)
-        {
-            return input.StartsWith("set isolation level");
-        }
+        { return input.StartsWith("set isolation level"); }
 
-        public override void Run(string command, Table table, DbEnvironment dbEnvironment)
+        public override void Run(string command, Table table,
+            DbEnvironment dbEnvironment)
         {
             string[] parts = command.Split(' ');
             if (parts[ISOLATION_LEVEL_INDEX] == "readcommitted")
             {
-                dbEnvironment.CreateTransactionForIsolationLevel = CreateReadCommitted;
-                dbEnvironment.Writer.WriteLine("Using ReadCommitted isolation for next transaction - read only committed data");
+                dbEnvironment.CreateTransactionForIsolationLevel 
+                    = CreateReadCommitted;
+                dbEnvironment.Writer.WriteLine
+                    ("ReadCommitted isolation selected"
+                    + " : Read only committed data.");
             }
             else if (parts[ISOLATION_LEVEL_INDEX] == "readuncommitted")
             {
-                dbEnvironment.CreateTransactionForIsolationLevel = CreateReadUncommited;
-                dbEnvironment.Writer.WriteLine("Using ReadUncommitted isolation for next transaction - read any data");
+                dbEnvironment.CreateTransactionForIsolationLevel 
+                    = CreateReadUncommited;
+                dbEnvironment.Writer.WriteLine
+                    ("ReadUncommitted isolation selected : Read any data.");
             }
             else if (parts[ISOLATION_LEVEL_INDEX] == "repeatableread")
             {
-                dbEnvironment.CreateTransactionForIsolationLevel = CreateRepeatableRead;
-                dbEnvironment.Writer.WriteLine("Using RepeatableRead isolation for next transaction - read any data");
+                dbEnvironment.CreateTransactionForIsolationLevel 
+                    = CreateRepeatableRead;
+                dbEnvironment.Writer.WriteLine
+                    ("RepeatableRead isolation selected : Read any data.");
             }
             else if (parts[ISOLATION_LEVEL_INDEX] == "serializable")
             {
-                dbEnvironment.CreateTransactionForIsolationLevel = CreateSerializable;
-                dbEnvironment.Writer.WriteLine("Using Serializable isolation for next transaction - read any data");
+                dbEnvironment.CreateTransactionForIsolationLevel
+                    = CreateSerializable;
+                dbEnvironment.Writer.WriteLine
+                    ("Serializable isolation selected : Read any data.");
             }
             else
-                dbEnvironment.Writer.WriteLine("Error: Unknown transaction isolation level");
-
+            {
+                dbEnvironment.Writer.WriteLine
+                    ("Error: Unsupported isolation level.");
+            }
             dbEnvironment.Writer.Flush();
         }
 
         public Transaction CreateReadCommitted()
-        {
-            return new ReadCommittedTransaction();
-        }
+        { return new ReadCommittedTransaction(); }
 
         private Transaction CreateReadUncommited()
-        {
-            return new ReadUncommittedTransaction();
-        }
+        { return new ReadUncommittedTransaction(); }
 
         private Transaction CreateRepeatableRead()
-        {
-            return new RepeatableReadTransaction();
-        }
+        { return new RepeatableReadTransaction(); }
 
         private Transaction CreateSerializable()
-        {
-            return new SerializableTransaction();
-        }
-
+        { return new SerializableTransaction(); }
     }
 }
