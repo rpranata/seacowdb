@@ -1,21 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="DLRDB.Core.NetworkUtils.ActiveCommandListener">
-    <Position X="1.5" Y="2.5" Width="1.5" />
+    <Position X="0.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAABEQAAACAAAAAABAAAAEAAgAAAAAAAACAAAA=</HashCode>
       <FileName>NetworkUtils\ActiveCommandListener.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="DLRDB.Core.NetworkUtils.Client">
-    <Position X="6.5" Y="1.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAIAAAAAAAAAACAAAAAAAAAABEAEAAIABQAAAEAAAA=</HashCode>
-      <FileName>NetworkUtils\Client.cs</FileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="DLRDB.Core.NetworkUtils.Server">
-    <Position X="4" Y="1.5" Width="1.5" />
+    <Position X="3" Y="1.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAQAAACAAAAAAAAAAgAAAkAAAAAAAAAACAA=</HashCode>
       <FileName>NetworkUtils\Server.cs</FileName>
@@ -23,9 +16,12 @@
     <ShowAsAssociation>
       <Field Name="_Listener" />
     </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Field Name="_Client" />
+    </ShowAsCollectionAssociation>
   </Class>
   <Class Name="System.Net.Sockets.TcpListener" Collapsed="true">
-    <Position X="1.5" Y="1.5" Width="1.5" />
+    <Position X="3" Y="0.5" Width="1.5" />
     <TypeIdentifier />
   </Class>
   <Font Name="Segoe UI" Size="9" />
