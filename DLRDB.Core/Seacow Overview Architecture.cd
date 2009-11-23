@@ -23,6 +23,11 @@
   </Class>
   <Class Name="DLRDB.Core.CommandPattern.DbEnvironment" Collapsed="true">
     <Position X="0.5" Y="3" Width="1.5" />
+    <AssociationLine Name="CreateTransactionForIsolationLevel" Type="DLRDB.Core.CommandPattern.TransactionCreater">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-1.35" Y="0.294" />
+      </MemberNameLabel>
+    </AssociationLine>
     <AssociationLine Name="CurrentTransaction" Type="DLRDB.Core.DataStructure.Transaction" FixedFromPoint="true" FixedToPoint="true">
       <Path>
         <Point X="2" Y="3.17" />
@@ -332,6 +337,9 @@
       <HashCode>AAAAAAAAAAQAAACAAAAAAAAAAgAAAkAAAAAAAAAACAA=</HashCode>
       <FileName>NetworkUtils\Server.cs</FileName>
     </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Field Name="_Client" />
+    </ShowAsCollectionAssociation>
   </Class>
   <Class Name="System.WeakReference" Collapsed="true">
     <Position X="10.25" Y="4.25" Width="1.5" />
