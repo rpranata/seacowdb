@@ -31,8 +31,8 @@ namespace DLRDB.Core.ConcurrencyUtils
         /// until it gets the token. For timeout acquire, try to look
         /// at TryAcquire().
         /// </summary>
-		public virtual void Acquire()
-        { this.TryAcquire(-1); }
+		public virtual void Acquire() 
+            { this.TryAcquire(-1); }
 		
         /// <summary>
         /// Acquires 1 token from this semaphore. If there is no token
@@ -60,11 +60,18 @@ namespace DLRDB.Core.ConcurrencyUtils
                         if (ms <= 0)
                         { return false; }
 					}
+
 					Monitor.Wait(this._Lock, ms);
 				}
 			}
 		}
 
+        
+        
+        
+        
+        
+        
         /// <summary>
         /// Releases 1 token from this semaphore
         /// Note : not interruptible, try ForceRelease().
@@ -100,7 +107,7 @@ namespace DLRDB.Core.ConcurrencyUtils
 			}
 
             if (wasInterrupted)
-            { Thread.CurrentThread.Interrupt(); }
+                { Thread.CurrentThread.Interrupt(); }
 		}
 		#endregion		
     }

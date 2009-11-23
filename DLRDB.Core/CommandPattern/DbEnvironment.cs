@@ -20,13 +20,11 @@ namespace DLRDB.Core.CommandPattern
         /// Constructor: Establishes the output stream for system feedback.
         /// </summary>
         /// <param name="writer">The current associated output stream.</param>
-        public DbEnvironment(StreamWriter writer)
-        { this._Writer = writer; }
+        public DbEnvironment(StreamWriter writer) { this._Writer = writer; }
 
         /// <summary>
         /// Accessor: returns the output stream. Non mutable.
         /// </summary>
-        public StreamWriter Writer
-        { get { return this._Writer; } }
+        public StreamWriter Writer { get { return this._Writer; } }
     }
 }

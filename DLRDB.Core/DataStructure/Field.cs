@@ -61,7 +61,7 @@ namespace DLRDB.Core.DataStructure
         /// a String type, so no conversion is required.
         /// </returns>
         public override String ToString()
-        { return this.BytesToNative(this.Value).ToString(); }
+            { return this.BytesToNative(this.Value).ToString(); }
 
         public abstract Object BytesToNative(Byte[] value);
         public abstract Byte[] NativeToBytes(Object value);

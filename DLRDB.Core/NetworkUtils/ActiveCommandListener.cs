@@ -61,7 +61,7 @@ namespace DLRDB.Core.NetworkUtils
 		}
 
         public override void Run()
-        { DoWork(); }
+            { DoWork(); }
 
         public override void DoWork()
         {
@@ -69,6 +69,9 @@ namespace DLRDB.Core.NetworkUtils
             myEnv.CreateTransactionForIsolationLevel = _DefaultIsolation;
             bool commandKnown;
    
+            
+            
+            
             while (this._Socket.Connected)
             {
                 try
@@ -103,7 +106,7 @@ namespace DLRDB.Core.NetworkUtils
                                 }
 
                                 try
-                                { cmd.Run(this._Command, _Table, myEnv); }
+                                    { cmd.Run(this._Command, _Table, myEnv); }
                                 catch (DLRDBException ex)
                                 {
                                     this._Writer.WriteLine(ex.Message);
@@ -140,6 +143,11 @@ namespace DLRDB.Core.NetworkUtils
                     }
                     //----------------
                 }
+                
+                
+                
+                
+                
                 catch (Exception e)
                 {
                     if (this._Socket.Connected)

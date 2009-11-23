@@ -71,12 +71,13 @@ namespace DLRDB.Core.DataStructure
             // ========================
             this._Fields = new Field[this._ParentTable.Columns.Length];
             int index = 0;
+            
             foreach (Column tempColumn in this._ParentTable.Columns)
             {
                 if ((tempColumn.NativeType == typeof(System.Int32)))
-                { this._Fields[index] = new Int32Field(tempColumn); }
+                    { this._Fields[index] = new Int32Field(tempColumn); }
                 else if ((tempColumn.NativeType == typeof(System.String)))
-                { this._Fields[index] = new StringField(tempColumn); }
+                    { this._Fields[index] = new StringField(tempColumn); }
 
                 index++;
             }
@@ -89,15 +90,13 @@ namespace DLRDB.Core.DataStructure
         /// Accessor: returns the ReadWriteLock
         /// associated with this Row. Non mutable.
         /// </summary>
-        public ReadWriteLock RowLock 
-        { get { return this._RowLock; } }
+        public ReadWriteLock RowLock { get { return this._RowLock; } }
 
         /// <summary>
         /// Accessor: returns an array of Fields
         /// associated with this Row. Non mutable.
         /// </summary>
-        public Field[] Fields
-        { get { return this._Fields; } }
+        public Field[] Fields { get { return this._Fields; } }
 
         /// <summary>
         /// Accessor/Mutator: gets/sets the State of the Row. 
@@ -144,6 +143,9 @@ namespace DLRDB.Core.DataStructure
             }
         }
 
+        
+        
+        
         /// <summary>
         /// Overrides the ToString method to return all fields in the Row.
         /// </summary>
@@ -201,7 +203,7 @@ namespace DLRDB.Core.DataStructure
                     // use .CLEAN, .EMPTY, and .TRASH state flags
                     RowStateFlag tempDiskRowState = RowStateFlag.CLEAN;
                     if (this.State == RowStateFlag.TRASH)
-                    { tempDiskRowState = RowStateFlag.TRASH; }
+                        { tempDiskRowState = RowStateFlag.TRASH; }
 
                     Table.WriteByteToDisk(this._MyFileStream,
                         (Byte)tempDiskRowState);
@@ -216,8 +218,10 @@ namespace DLRDB.Core.DataStructure
                         index++;
                     }
 
+                    
+                    
                     if (State != RowStateFlag.TRASH)
-                    { State = RowStateFlag.CLEAN; }
+                        { State = RowStateFlag.CLEAN; }
                 }
             }
         }

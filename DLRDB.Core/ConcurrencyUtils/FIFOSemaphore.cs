@@ -15,7 +15,7 @@ namespace DLRDB.Core.ConcurrencyUtils
         public readonly Queue<Thread> _WaitQueue;
         
         public FIFOSemaphore(int token) : base(token)
-        { this._WaitQueue = new Queue<Thread>(); }
+            { this._WaitQueue = new Queue<Thread>(); }
 
         #region Functions
 
@@ -38,7 +38,7 @@ namespace DLRDB.Core.ConcurrencyUtils
 
             if (doWait)
             {
-                { Monitor.Wait(tempThread); }
+                Monitor.Wait(tempThread);
                 Monitor.Exit(tempThread);
             }
         }
@@ -54,7 +54,7 @@ namespace DLRDB.Core.ConcurrencyUtils
                         Monitor.Pulse(tempThread);
                 }
                 else
-                { this._Token++; }
+                    { this._Token++; }
             }
         }
         #endregion

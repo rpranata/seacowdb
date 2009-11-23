@@ -27,19 +27,16 @@ namespace DLRDB.Core.DataStructure
         /// <summary>
         /// Accessor: returns the name of the Field. String value.
         /// </summary>
-        public String Name
-        { get { return this._Name; } }
+        public String Name { get { return this._Name; } }
     
         /// <summary>
         /// Accessor: returns FieldType(Int32, String) for validation.
         /// </summary>
-        public System.Type NativeType
-        { get { return this._NativeType; } }
+        public System.Type NativeType { get { return this._NativeType; } }
 
         /// <summary>
         /// Accessor: returns the character length of this column. Non mutable.
         /// </summary>
-        public Int32 Length
-        { get { return this._Length; } }
+        public Int32 Length { get { return this._Length; } }
     }
 }

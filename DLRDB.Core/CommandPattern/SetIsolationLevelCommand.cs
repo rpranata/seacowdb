@@ -11,7 +11,7 @@ namespace DLRDB.Core.CommandPattern
         private static int ISOLATION_LEVEL_INDEX = 3;
 
         public override bool RunFor(string input)
-        { return input.StartsWith("set isolation level"); }
+            { return input.StartsWith("set isolation level"); }
 
         public override void Run(string command, Table table,
             DbEnvironment dbEnvironment)
@@ -55,15 +55,15 @@ namespace DLRDB.Core.CommandPattern
         }
 
         public Transaction CreateReadCommitted()
-        { return new ReadCommittedTransaction(); }
+            { return new ReadCommittedTransaction(); }
 
         private Transaction CreateReadUncommited()
-        { return new ReadUncommittedTransaction(); }
+            { return new ReadUncommittedTransaction(); }
 
         private Transaction CreateRepeatableRead()
-        { return new RepeatableReadTransaction(); }
+            { return new RepeatableReadTransaction(); }
 
         private Transaction CreateSerializable()
-        { return new SerializableTransaction(); }
+            { return new SerializableTransaction(); }
     }
 }
