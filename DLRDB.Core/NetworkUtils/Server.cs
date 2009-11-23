@@ -32,7 +32,8 @@ namespace DLRDB.Core.NetworkUtils
             IPHostEntry IPs;
             IPs = Dns.GetHostEntry(Dns.GetHostName());
             String IPAddr = getIPV4(IPs);
-            this._Listener = new TcpListener(IPAddress.Parse(IPAddr), this._Port);
+            this._Listener = new TcpListener
+                (IPAddress.Parse(IPAddr), this._Port);
 
             this._Listener.Start();
         }
@@ -40,7 +41,8 @@ namespace DLRDB.Core.NetworkUtils
         public override void DoWork()
         {
             Socket socket = this._Listener.AcceptSocket();
-            ActiveCommandListener client = new ActiveCommandListener(socket, this._Table);
+            ActiveCommandListener client = new ActiveCommandListener
+                (socket, this._Table);
             client.Start();
             this._Client.Add(client);
             Trace.WriteLine("1 Client  connected");
@@ -49,11 +51,13 @@ namespace DLRDB.Core.NetworkUtils
         private String getIPV4(IPHostEntry IPs)
         {
             String IP = "";
-            Regex regex = new Regex(@"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b");
+            Regex regex = new Regex(@"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]"
+                + @"[0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b");
             int last = IPs.AddressList.Length - 1;
             while (IP == "")
             {
-                if ((regex.IsMatch(IPs.AddressList[last].ToString())) && (!IPs.AddressList[last].IsIPv6LinkLocal))
+                if ((regex.IsMatch(IPs.AddressList[last].ToString())) 
+                    && (!IPs.AddressList[last].IsIPv6LinkLocal))
                     IP = IPs.AddressList[last].ToString();
                 last--;
             }

@@ -8,37 +8,39 @@ using DLRDB.Core.DataStructure;
 
 namespace DLRDB.Core.CommandPattern
 {
-    class DeleteCommand : Command
+    public class DeleteCommand : Command
     {
         private static int DELETE_PARAM_INDEX = 1;
 
         public override bool RunFor(string input)
-        {
-            return input.Split(' ')[0] == ("delete");
-        }
+        { return input.Split(' ')[0] == ("delete"); }
 
-        public override void Run(string command, Table table, DbEnvironment dbEnvironment)
+        public override void Run(string command, Table table,
+            DbEnvironment dbEnvironment)
         {
             String[] commands = command.Split(' ');
 
             // Deleting the data
-            // ===================================
             int deletedRows = 0;
             if (commands[1] == "*")
             {
-                deletedRows = table.DeleteAll(dbEnvironment.CurrentTransaction, dbEnvironment.Writer);
+                deletedRows = table.DeleteAll
+                    (dbEnvironment.CurrentTransaction, dbEnvironment.Writer);
             }
             else
             {
-                String[] arrSplitExpression = Regex.Split(commands[DELETE_PARAM_INDEX], "-");
+                String[] arrSplitExpression = Regex.Split
+                    (commands[DELETE_PARAM_INDEX], "-");
 
                 Int32 startIndex = Convert.ToInt32(arrSplitExpression[0]);
                 Int32 endIndex = Convert.ToInt32(arrSplitExpression[1]);
 
-                deletedRows = table.Delete(startIndex, endIndex, dbEnvironment.CurrentTransaction, dbEnvironment.Writer);
+                deletedRows = table.Delete(startIndex, endIndex, 
+                    dbEnvironment.CurrentTransaction, dbEnvironment.Writer);
             }
 
-            dbEnvironment.Writer.WriteLine(DateTime.Now + " >>> " + "Finish deleting " + deletedRows + " row(s)");
+            dbEnvironment.Writer.WriteLine(DateTime.Now + " >> " 
+                + "Deleted: " + deletedRows + " row(s).");
             dbEnvironment.Writer.Flush();
         }
     }

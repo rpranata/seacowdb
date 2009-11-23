@@ -12,10 +12,11 @@ namespace DLRDB.Core.DataStructure
         private Int32 _Length;
         
         /// <summary>
-        /// Constructor. Name of Field, Type of Field(Int32 or String)
+        /// Constructor: Name of Field, Type of Field(Int32 or String).
         /// </summary>
         /// <param name="name">Name of the Field</param>
-        /// <param name="nativeFieldType">Type of the Field(Int32, String)</param>
+        /// <param name="nativeFieldType">Type of
+        /// the Field(Int32, String)</param>
         public Column(String name, System.Type nativeFieldType, Int32 length)
         {
             this._Name = name;
@@ -24,19 +25,19 @@ namespace DLRDB.Core.DataStructure
         }
 
         /// <summary>
-        /// Gets the name of the Field. String value.
+        /// Accessor: returns the name of the Field. String value.
         /// </summary>
         public String Name
         { get { return this._Name; } }
     
         /// <summary>
-        /// Gets FieldType(Int32, String) for validation.
+        /// Accessor: returns FieldType(Int32, String) for validation.
         /// </summary>
         public System.Type NativeType
         { get { return this._NativeType; } }
 
         /// <summary>
-        /// 
+        /// Accessor: returns the character length of this column. Non mutable.
         /// </summary>
         public Int32 Length
         { get { return this._Length; } }

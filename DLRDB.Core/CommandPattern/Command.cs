@@ -9,6 +9,7 @@ namespace DLRDB.Core.CommandPattern
     public abstract class Command
     {
         public abstract bool RunFor(string input);
-        public abstract void Run(string command, Table table, DbEnvironment dbEnvironment);
+        public abstract void Run(string command, Table table,
+            DbEnvironment dbEnvironment);
     }
 }
