@@ -17,9 +17,7 @@ namespace DLRDB.Core.CommandPattern
             // = dbEnvironment.CreateTransactionForIsolationLevel();
             dbEnvironment.Writer.WriteLine("Transaction using "
                 + dbEnvironment.CurrentTransaction.ToString()
-                .ToLower() + " has started");
-            dbEnvironment.Writer.WriteLine
-                ("========================================");
+                .ToLower() + " has begun.");
             dbEnvironment.Writer.Flush();
         }
     }

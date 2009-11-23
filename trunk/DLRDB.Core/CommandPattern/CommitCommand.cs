@@ -14,7 +14,6 @@ namespace DLRDB.Core.CommandPattern
             // in the active command listener if the trasaction is null
             // dbEnvironment.CurrentTransaction = dbEnvironment
             // .CreateTransactionForIsolationLevel();
-            dbEnvironment.Writer.WriteLine("=====================");
             dbEnvironment.Writer.WriteLine("Transaction committed.");
             dbEnvironment.Writer.Flush();
         }
