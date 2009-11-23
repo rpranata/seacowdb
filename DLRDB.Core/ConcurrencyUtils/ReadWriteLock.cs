@@ -6,9 +6,7 @@ using System.Threading;
 namespace DLRDB.Core.ConcurrencyUtils
 {
     public interface ILock : IDisposable
-    {
-        void Release();
-    }
+    { void Release(); }
 
     /// <summary>
     /// ReadWriteLock utility that utilises the FIFOSemaphore to prevent
@@ -17,7 +15,8 @@ namespace DLRDB.Core.ConcurrencyUtils
     public class ReadWriteLock
     {
         private System.Threading.Thread _CurrentWriterThread = null;
-        private List<System.Threading.Thread> _CurrentReaderThread = new List<System.Threading.Thread>();
+        private List<System.Threading.Thread> _CurrentReaderThread
+            = new List<System.Threading.Thread>();
         private class RWLock : ILock
         {
             private bool isWriter;
@@ -35,20 +34,19 @@ namespace DLRDB.Core.ConcurrencyUtils
                 if (!released)
                 {
                     released = true;
-                    if (parent == null) return;
+                    if (parent == null)
+                    { return; }
                     if (isWriter)
-                        parent.ReleaseWriter();
+                    { parent.ReleaseWriter(); }
                     else
-                        parent.ReleaseReader();
+                    { parent.ReleaseReader(); }
                 }
             }
 
             #region IDisposable Members
 
             public void Dispose()
-            {
-                Release();
-            }
+            { Release(); }
 
             #endregion
         }
@@ -80,21 +78,18 @@ namespace DLRDB.Core.ConcurrencyUtils
         {
             lock (_WaitingLock)
             {
-                // if this thread has already hold the read lock, we'd just return no nore lock
-                if (_CurrentReaderThread.Contains(Thread.CurrentThread) ||
-                    Thread.CurrentThread == _CurrentWriterThread)
-                {
-                    return new RWLock(false, null);
-                }
+                // if this thread has already hold the read lock,
+                // we'd just return a phantom lock
+                if (_CurrentReaderThread.Contains(Thread.CurrentThread)
+                    || Thread.CurrentThread == _CurrentWriterThread)
+                { return new RWLock(false, null); }
             }
 
             this._Turnstile.Acquire();
             this._Turnstile.Release();
 
             lock (_WaitingLock)
-            {
-                _WaitingReaders++; 
-            }
+            {  _WaitingReaders++; }
 
             lock (this)
             {
@@ -113,7 +108,6 @@ namespace DLRDB.Core.ConcurrencyUtils
                     hasBlockedTurnstile = false;
                 }
             }
-
             return new RWLock(false, this);
         }
 
@@ -124,10 +118,16 @@ namespace DLRDB.Core.ConcurrencyUtils
             {
                 localThread = this._CurrentWriterThread;
                 if (_CurrentReaderThread.Contains(Thread.CurrentThread))
-                    throw new Exception("Lock escalation not currently supported. This has occurred as you hold a read lock and are tryng to acquire a write lock for the same object.");
+                {
+                    throw new Exception("Lock escalation not currently "
+                        + "supported. This has occurred as you hold a "
+                        + "read lock and are tryng to acquire a write "
+                        + "lock for the same object.");
+                }
             }
 
-            if ((localThread != null) && (localThread == System.Threading.Thread.CurrentThread))
+            if ((localThread != null) 
+                && (localThread == System.Threading.Thread.CurrentThread))
             {
                 // this Thread has acquired writer lock before
                 return new RWLock(true, null);
@@ -160,7 +160,7 @@ namespace DLRDB.Core.ConcurrencyUtils
                 if (_WaitingReaders > 0)
                 {
                     //There is both waiting writers and readers
-                    // readers are past the turnstile. block the
+                    // readers past the turnstile. Block the
                     // writer at the turnstile and any new readers.
                     this._Turnstile.Acquire();
                     hasBlockedTurnstile = true;
@@ -179,13 +179,9 @@ namespace DLRDB.Core.ConcurrencyUtils
             {
                 _CurrentReaderThread.Remove(Thread.CurrentThread);
                 if (this._ReaderCount > 0)
-                { 
-                    this._ReaderCount--; 
-                }
+                { this._ReaderCount--; }
                 if (this._ReaderCount == 0)
-                { 
-                    this._Mutex.Release(); 
-                }
+                { this._Mutex.Release(); }
             }
         }
 

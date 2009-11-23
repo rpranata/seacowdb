@@ -14,9 +14,10 @@ namespace DLRDB.Core.ConcurrencyUtils
         protected readonly Object _Lock;
 
         /// <summary>
-        /// Constructor of the semaphore class takes 1 parameter as initial token available.
+        /// Constructor of the semaphore class takes 1 parameter
+        /// as initial number of token(s) available.
         /// </summary>
-        /// <param name="token">Initial number of token.</param>
+        /// <param name="token">Initial number of token(s).</param>
         public Semaphore(int token)
         {
             this._Lock = new Object();
@@ -26,14 +27,16 @@ namespace DLRDB.Core.ConcurrencyUtils
 		#region Functions
 		
         /// <summary>
-        /// Acquires the token from this semaphore. This acquire waits until it gets the token
-        /// For timeout acquire, try to look at TryAcquire().
+        /// Acquires the token from this semaphore. This acquire waits
+        /// until it gets the token. For timeout acquire, try to look
+        /// at TryAcquire().
         /// </summary>
 		public virtual void Acquire()
         { this.TryAcquire(-1); }
 		
         /// <summary>
-        /// Acquires 1 token from this semaphore. If there is no token available, it will timeout after a particular time.
+        /// Acquires 1 token from this semaphore. If there is no token
+        /// available, it will timeout after a particular time.
         /// </summary>
         /// <param name="ms">Timeout in millisecond.</param>
         /// <returns></returns>
@@ -76,7 +79,8 @@ namespace DLRDB.Core.ConcurrencyUtils
         }
 		
         /// <summary>
-        /// Releases 1 token from this semaphore, and this works with interrupt.
+        /// Releases 1 token from this semaphore, and this works 
+        /// with interrupt.
         /// </summary>
 		public virtual void ForceRelease()
 		{
@@ -98,8 +102,6 @@ namespace DLRDB.Core.ConcurrencyUtils
             if (wasInterrupted)
             { Thread.CurrentThread.Interrupt(); }
 		}
-		
-		#endregion
-		
+		#endregion		
     }
 }
