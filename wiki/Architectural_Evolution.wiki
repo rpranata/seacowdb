@@ -42,3 +42,7 @@ This is a draft coverage of the architectural evolution that Seacow has undergon
  * Transaction support was added, via the use of anonymous delegates, and the escalation of ReadWriteLock Acquisition and Release followed, to be handled by the given transaction.
 
  * Different isolation level support was introduced with the addition of DbEnvironment.cs, with support for ReadUncommited, RepeatableRead and Serializable.
+
+ * Change Of the networking architecture was introduced. Where initially it was hooked up to localhost, changed to the public IP address of the computer.
+
+ * To accomodate the TelNet connectivity, modifications were made to the connection component : BinaryReader & BinaryWriter into StreamReader & StreamWriter.
