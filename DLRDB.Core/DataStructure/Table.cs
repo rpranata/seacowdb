@@ -32,7 +32,6 @@ namespace DLRDB.Core.DataStructure
             METADATA_DETAIL_VERSION_LENGTH + METADATA_NUM_ROWS_LENGTH + METADATA_NEXT_PK_LENGTH +
             METADATA_NUM_USED_PHYSICAL_ROWS_LENGTH + METADATA_NUM_AVAILABLE_PHYSICAL_ROWS_LENGTH;
 
-        private const int ROW_SIZE_INCREMENT = 1000;
         private const int MIN_THRESHOLD_TO_RESIZE_ROWS = 0;
 
         private WeakReference[] _Rows;

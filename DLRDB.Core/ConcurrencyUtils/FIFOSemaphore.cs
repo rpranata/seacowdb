@@ -27,14 +27,10 @@ namespace DLRDB.Core.ConcurrencyUtils
             lock (this._Lock)
             {
                 if (this._Token > 0)
-                {
-                    //Console.WriteLine(Thread.CurrentThread.Name + " decrements the token");
                     this._Token--;
-                }
                 else
 				{
 					tempThread = Thread.CurrentThread;
-					//Console.WriteLine(Thread.CurrentThread.Name + " waits for token");
                     this._WaitQueue.Enqueue(tempThread);
                     doWait = true;
                     Monitor.Enter(tempThread);
@@ -57,16 +53,10 @@ namespace DLRDB.Core.ConcurrencyUtils
                 {
                     Thread tempThread = this._WaitQueue.Dequeue();
                     lock (tempThread)
-                    {
-                        //Console.WriteLine("Pulsing " + tempThread.Name);
                         Monitor.Pulse(tempThread);
-                    }
                 }
                 else
-                {
-                    //Console.WriteLine(Thread.CurrentThread.Name + " releases the token");
                     this._Token++;
-                }
             }
         }
 
