@@ -10,49 +10,32 @@ namespace DLRDB.Core.ConcurrencyUtils
         protected Thread _Thread;
 
         public ActiveObject()
-        {
-            this._Thread = new Thread(new ThreadStart(Run));
-        }
+        { this._Thread = new Thread(new ThreadStart(Run)); }
 
         #region Functions
 
         public virtual void Run()
         {
             while (true)
-            {
-                this.DoWork();
-            }
+            { this.DoWork(); }
         }
 
         public abstract void DoWork();
 
         public void Stop()
-        {
-            this._Thread.Abort();
-        }
+        { this._Thread.Abort(); }
 
         public void Start()
-        {
-            this._Thread.Start();
-        }
+        { this._Thread.Start(); }
 
         public void Join()
-        {
-            this._Thread.Join();
-        }
+        { this._Thread.Join(); }
 
         public void Interrupt()
         {
-			try
-			{
-            	this._Thread.Interrupt();
-			}
-			catch (ThreadInterruptedException)
-			{
-				throw;
-			}
+			try { this._Thread.Interrupt(); }
+			catch (ThreadInterruptedException) { throw; }
         }
-
         #endregion
     }
 }
