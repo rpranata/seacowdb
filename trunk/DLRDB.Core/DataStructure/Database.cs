@@ -10,7 +10,7 @@ namespace DLRDB.Core.DataStructure
         private String _Name;
 
         /// <summary>
-        /// Constructor. Parameter is to establish the Name of this Database.
+        /// Constructor: Parameter is to establish the Name of this Database.
         /// </summary>
         /// <param name="name"></param>
         public Database(String name)
@@ -20,22 +20,29 @@ namespace DLRDB.Core.DataStructure
         }
 
         /// <summary>
-        /// Gets the Name of this Database Object. Non mutable.
+        /// Accessor: returns the Name of this Database Object. Non mutable.
         /// </summary>
         public String Name
-        {
-            get
-            {
-                return this._Name;
-            }
-        }
+        { get {  return this._Name; } }
 
-        public Table getTable(int index)
-        {
-            return this._Tables[index];
-        }
+        /// <summary>
+        /// Accessor: returns Table by matching the Table.Name to
+        /// the parameter provided.
+        /// </summary>
+        /// <param name="index">String name parameter to 
+        /// match the Table name to seek by.</param>
+        /// <returns></returns>
+        public Table GetTable(int index)
+        { return this._Tables[index]; }
 
-        public Table getTable(String name)
+        /// <summary>
+        /// Accessor: returns Table by matching the collection of 
+        /// Tables to the index parameter provided.
+        /// </summary>
+        /// <param name="name">int index parameter to 
+        /// match the Table index to seek by.</param>
+        /// <returns></returns>
+        public Table GetTable(String name)
         {
             for (int i = 0; i < _Tables.Length; i++)
             {
@@ -48,8 +55,9 @@ namespace DLRDB.Core.DataStructure
         /// <summary>
         /// Adds Table to this Database.
         /// </summary>
-        /// <param name="newTable">Table objet to be added to this Database's Collection of Tables.</param>
-        /// <returns>True if successful, False if not.</returns>
+        /// <param name="newTable">Table objet to be added 
+        /// to this Database's Collection of Tables.</param>
+        /// <returns>true if successful, false if not.</returns>
         public bool AddTable(Table newTable)
         {
             bool isSuccess = false;

@@ -15,16 +15,18 @@ namespace DLRDB.Core.CommandPattern
         public TransactionCreater CreateTransactionForIsolationLevel;
         public Transaction CurrentTransaction;
         private readonly StreamWriter _Writer;
-
+        
+        /// <summary>
+        /// Constructor: Establishes the output stream for system feedback.
+        /// </summary>
+        /// <param name="writer">The current associated output stream.</param>
         public DbEnvironment(StreamWriter writer)
-        {
-            this._Writer = writer;
-        }
+        { this._Writer = writer; }
 
+        /// <summary>
+        /// Accessor: returns the output stream. Non mutable.
+        /// </summary>
         public StreamWriter Writer
-        {
-            //TODO : need any lock?
-            get { return this._Writer; }
-        }
+        { get { return this._Writer; } }
     }
 }

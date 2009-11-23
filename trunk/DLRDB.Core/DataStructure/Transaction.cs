@@ -41,7 +41,7 @@ namespace DLRDB.Core.DataStructure
 
         public virtual void StartReadRow(Row theRow)
         {
-            this._ListILockForRead.Add(theRow.RowFileLock.AcquireReader());
+            this._ListILockForRead.Add(theRow.RowLock.AcquireReader());
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace DLRDB.Core.DataStructure
 
         public virtual void StartWriteRow(Row theRow)
         {
-            _ListILockForWrite.Add(theRow.RowFileLock.AcquireWriter());
+            _ListILockForWrite.Add(theRow.RowLock.AcquireWriter());
         }
 
         public virtual void EndWriteRow(Row theRow)

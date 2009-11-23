@@ -83,6 +83,7 @@
     <None Include="NetworkUtils\NetworkUtils.cd" />
     <None Include="Seacow Architecture.cd" />
     <None Include="Seacow Basic.cd" />
+    <None Include="Seacow Overview Architecture.cd" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

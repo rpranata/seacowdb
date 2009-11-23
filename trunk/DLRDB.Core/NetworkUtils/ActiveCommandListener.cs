@@ -53,12 +53,15 @@ namespace DLRDB.Core.NetworkUtils
             this._Reader = new StreamReader(this._NetworkStream);
             this._Writer = new StreamWriter(this._NetworkStream);
             
-            this._Writer.WriteLine("SERVER>>> Connection Successful");
+            this._Writer.WriteLine("SERVER >> Connection Successful");
             this._Writer.WriteLine("Welcome to the Seacow Database ");
             this._Writer.WriteLine("===============================");
             this._Writer.WriteLine("");
             this._Writer.Flush();
 		}
+
+        public override void Run()
+        { DoWork(); }
 
         public override void DoWork()
         {
@@ -77,8 +80,10 @@ namespace DLRDB.Core.NetworkUtils
                     if (this._Command.EndsWith(";"))
                     {
                         // Remove the semicolon and clean up the command string
-                        this._Command = this._Command.Remove(this._Command.Length - 1);
-                        this._Command = this._Command.Trim().ToLower().Replace("  ", " ");
+                        this._Command = this._Command.Remove
+                            (this._Command.Length - 1);
+                        this._Command = this._Command.Trim()
+                            .ToLower().Replace("  ", " ");
 
                         #region Questions
                             //QUESTION : ROllBACK?? i'm afraid the rollback will use the existing transaction..
@@ -89,24 +94,26 @@ namespace DLRDB.Core.NetworkUtils
                             if (cmd.RunFor(this._Command))
                             {
                                 commandKnown = true;
-                                bool createTransaction = myEnv.CurrentTransaction == null;
+                                bool createTransaction = myEnv
+                                    .CurrentTransaction == null;
                                 if (createTransaction)
                                 {
-                                    myEnv.CurrentTransaction = myEnv.CreateTransactionForIsolationLevel();
+                                    myEnv.CurrentTransaction = myEnv
+                                        .CreateTransactionForIsolationLevel();
                                 }
 
                                 try
-                                {
-                                    cmd.Run(this._Command, _Table, myEnv);
-                                }
+                                { cmd.Run(this._Command, _Table, myEnv); }
                                 catch (DLRDBException ex)
                                 {
                                     this._Writer.WriteLine(ex.Message);
                                     this._Writer.Flush();
                                 }
 
-                                if (((createTransaction) && (!this._Command.Equals("begin transaction")))
-                                || this._Command.Equals("commit"))
+                                if (((createTransaction) 
+                                    && (!this._Command.Equals
+                                    ("begin transaction")))
+                                    || this._Command.Equals("commit"))
                                 {
                                     myEnv.CurrentTransaction.Commit();
                                     myEnv.CurrentTransaction = null;
@@ -117,14 +124,17 @@ namespace DLRDB.Core.NetworkUtils
 
                         if (!commandKnown)
                         {
-                            this._Writer.WriteLine("SERVER>>> UNKNOWN COMMAND");
+                            this._Writer.WriteLine
+                                ("SERVER >> UNKNOWN COMMAND");
                             this._Writer.Flush();
-                            Trace.WriteLine(this._Socket.RemoteEndPoint + " send this command " + this._Command);
+                            Trace.WriteLine(this._Socket.RemoteEndPoint 
+                                + " send this command " + this._Command);
                         }
                     }
                     else
                     {
-                        this._Writer.WriteLine("INVALID COMMAND - Please put the semicolon to run a command");
+                        this._Writer.WriteLine("INVALID COMMAND - Please place"
+                            +" a semicolon delimiter to run a command");
                         this._Writer.WriteLine("");
                         this._Writer.Flush();
                     }
@@ -134,13 +144,14 @@ namespace DLRDB.Core.NetworkUtils
                 {
                     if (this._Socket.Connected)
                     {
-                        this._Writer.WriteLine("======================================");
-                        this._Writer.Write("ERROR : ");
+                        this._Writer.WriteLine
+                            ("======================================");
+                        this._Writer.Write("Error : ");
                         this._Writer.WriteLine(e.Message);
                         this._Writer.Flush();
                     }
-                    Console.WriteLine("Error has occured when trying to listen" +
-                        "\nto the command sent by client\n" + e.Message);
+                    Console.WriteLine("Error has occured when trying to listen"
+                        + "\nto the command sent by client\n" + e.Message);
                 }
             }
 

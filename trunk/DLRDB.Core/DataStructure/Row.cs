@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.IO;
 using DLRDB.Core.ConcurrencyUtils;
@@ -11,8 +10,8 @@ namespace DLRDB.Core.DataStructure
     /// State of the Row. 
     /// EMPTY(0) indicates an empty or potential Row.
     /// CLEAN(1) indicates CRUD can be performed to the Row. 
-    /// DIRTY(2) indicates updates have been peformed on the Row, and
-    /// that the changes have not been persisted to file.
+    /// DIRTY(2) indicates updates have been peformed on the Row,
+    /// and that the changes have not been persisted to file.
     /// TRASH(3) indicates the Row has been flagged for deletion.
     /// ADDED(4) indicates a newly added Row that exists on Memory,
     /// but not file.
@@ -28,8 +27,8 @@ namespace DLRDB.Core.DataStructure
     
     public class Row
     {
-        // DANGEROUS FIELDS
-        // ==================
+        // DANGEROUS FIELDS (mutable, requires locks)
+        // ==========================================
         private int _RowNum;
         private RowStateFlag _State;
         private int _RowBytesLength = 0;
@@ -39,25 +38,36 @@ namespace DLRDB.Core.DataStructure
         private readonly Field[] _Fields;
         private readonly FileStream _MyFileStream;
         private readonly Object _Lock = new Object();
-        private readonly ReadWriteLock _RowFileLock;
-        public const int ROWSTATE_LENGTH = 1;  
+        private readonly ReadWriteLock _RowLock;
+        public const int ROWSTATE_LENGTH = 1;
+        // ==========================================
+        // END OF DANGEROUS FIELDS
        
         /// <summary>
-        /// Used for constructing the table to read data from the disk
+        /// Constructor: Used for constructing the table to read data
+        /// from the disk.
         /// </summary>
-        /// <param name="parent"></param>
-        /// <param name="rowNum"></param>
-        /// <param name="myFileStream"></param>
-        public Row(Table parent, int rowNum, FileStream myFileStream) : this (parent,myFileStream)
-        {
-            this.RowNum = rowNum;
-        }
+        /// <param name="parent">Associated parent Table reference.</param>
+        /// <param name="rowNum">Associated Row index
+        /// in Table collection.</param>
+        /// <param name="myFileStream">Associated
+        /// FileStream for File I/O.</param>
+        public Row(Table parent, int rowNum, FileStream myFileStream)
+            : this (parent,myFileStream)
+        { this.RowNum = rowNum; }
 
+        /// <summary>
+        /// Constructor: for Row Object based on associated parent Table
+        /// and associated Filestream for File I/O.
+        /// </summary>
+        /// <param name="parent">Associated parent Table reference.</param>
+        /// <param name="myFileStream">Associated
+        /// FileStream for File I/O.</param>
         public Row(Table parent, FileStream myFileStream)
         {
             this._ParentTable = parent;
 
-            // Construct the fields
+            // Field Initialization
             // ========================
             this._Fields = new Field[this._ParentTable.Columns.Length];
             int index = 0;
@@ -72,32 +82,46 @@ namespace DLRDB.Core.DataStructure
             }
 
             this._MyFileStream = myFileStream;
-            this._RowFileLock = new ReadWriteLock();
-            //TODO: Create empty row and return            
+            this._RowLock = new ReadWriteLock();           
         }
 
-        public ReadWriteLock RowFileLock { get { return this._RowFileLock; } }
-        public Field[] Fields { get { return this._Fields; } }
+        /// <summary>
+        /// Accessor: returns the ReadWriteLock
+        /// associated with this Row. Non mutable.
+        /// </summary>
+        public ReadWriteLock RowLock 
+        { get { return this._RowLock; } }
 
         /// <summary>
-        /// Gets/Sets the State of the Row. 
-        /// DEFAULT(0) indicates CRUD can be performed. 
-        /// DELETED indicates Row is flagged for deletion, 
-        /// therefore becomes unaccessible.
+        /// Accessor: returns an array of Fields
+        /// associated with this Row. Non mutable.
+        /// </summary>
+        public Field[] Fields
+        { get { return this._Fields; } }
+
+        /// <summary>
+        /// Accessor/Mutator: gets/sets the State of the Row. 
+        /// EMPTY(0) indicates an empty or potential Row.
+        /// CLEAN(1) indicates CRUD can be performed to the Row. 
+        /// DIRTY(2) indicates updates have been peformed on the Row,
+        /// and that the changes have not been persisted to file.
+        /// TRASH(3) indicates the Row has been flagged for deletion.
+        /// ADDED(4) indicates a newly added Row that exists on Memory,
+        /// but not file.
         /// </summary>
         public RowStateFlag State
         {
-            get
-            { return this._State; }
-            set 
-            {
-                lock (this._Lock){this._State = value;}
-            }
+            get { return this._State; }
+            set { lock (this._Lock){this._State = value;} }
         }
 
+        /// <summary>
+        /// Accessor/Mutator: gets/sets the row number which serves
+        /// as the index of the Row in its parent Table Row collection.
+        /// </summary>
         public int RowNum
         {
-            get {return this._RowNum;}
+            get { return this._RowNum; }
             set 
             {
                 lock (this._Lock)
@@ -113,9 +137,9 @@ namespace DLRDB.Core.DataStructure
                     }
 
                     // CalculateRowBytesStart
-                    // ========================
                     this._RowBytesStart += Table.METADATA_TOTAL_LENGTH;
-                    this._RowBytesStart += (this.RowNum - 1) * this._RowBytesLength;
+                    this._RowBytesStart 
+                        += (this.RowNum - 1) * this._RowBytesLength;
                 }
             }
         }
@@ -136,10 +160,12 @@ namespace DLRDB.Core.DataStructure
                         + "]" + " = " + this._Fields[i].ToString() + "\t";
                 }
             }
-
             return tempResult;
         }
 
+        /// <summary>
+        /// Method to read this Row from the file.
+        /// </summary>
         public void ReadFromDisk()
         {
             lock (this._Lock)
@@ -148,7 +174,6 @@ namespace DLRDB.Core.DataStructure
 
                 this.State = (RowStateFlag)Table.ReadByteFromDisk
                     (this._MyFileStream);
-
 
                 int index = 0;
                 foreach (Column tempColumn in this._ParentTable.Columns)
@@ -160,40 +185,50 @@ namespace DLRDB.Core.DataStructure
             }        
         }
 
+        /// <summary>
+        /// Method to write this Row to file.
+        /// </summary>
         public void WriteToDisk()
         {
-            using (_RowFileLock.AcquireWriter())
+            using (_RowLock.AcquireWriter())
             {
                 lock (this._Lock)
                 {
-                    this._MyFileStream.Seek(this._RowBytesStart, SeekOrigin.Begin);
+                    this._MyFileStream.Seek
+                        (this._RowBytesStart, SeekOrigin.Begin);
 
-                    // when we put data into the disk, we'll only use .CLEAN, .EMPTY, and .TRASH flag
+                    // When we write data to the disk, we'll only
+                    // use .CLEAN, .EMPTY, and .TRASH state flags
                     RowStateFlag tempDiskRowState = RowStateFlag.CLEAN;
                     if (this.State == RowStateFlag.TRASH)
                     { tempDiskRowState = RowStateFlag.TRASH; }
 
-                    Table.WriteByteToDisk(this._MyFileStream, (Byte)tempDiskRowState);
+                    Table.WriteByteToDisk(this._MyFileStream,
+                        (Byte)tempDiskRowState);
                     
 
                     int index = 0;
                     foreach (Column tempColumn in this._ParentTable.Columns)
                     {
-                        Table.WriteBytesToDisk(this._MyFileStream, this._Fields[index].Value, tempColumn.Length);
+                        Table.WriteBytesToDisk
+                            (this._MyFileStream, this._Fields[index]
+                            .Value, tempColumn.Length);
                         index++;
                     }
 
                     if (State != RowStateFlag.TRASH)
-                    {
-                        State = RowStateFlag.CLEAN;
-                    }
+                    { State = RowStateFlag.CLEAN; }
                 }
             }
         }
 
+        /// <summary>
+        /// Method to print the Row to Console cia the TextWriter parameter.
+        /// </summary>
+        /// <param name="output">TextWriter parameter
+        /// to serve as the output stream.</param>
         public void OutputTo(TextWriter output)
         {
-            //TODO: read locks etc.
             output.WriteLine(DateTime.Now + " > " + this);
             output.Flush();
         }
