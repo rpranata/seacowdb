@@ -1,0 +1,1 @@
+This database is written in C# with the aim of exploring concurrency concepts, and is not meant for actual use.
